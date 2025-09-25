@@ -1,0 +1,16 @@
+.cuerpoLogin{
+    width: 100%;
+    height: 100vh;
+    background-color: brown;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.formularioLogin{
+    width: 400px;
+    min-height: 400px;
+    background-color: aliceblue;
+    border-radius: 20px;
+    padding: 10px 20px;
+
+}
