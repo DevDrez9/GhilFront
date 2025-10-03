@@ -25,3 +25,5 @@ export class SucursalResponseDto {
 }
 
 export type CreateSucursalDto = Omit<SucursalResponseDto, 'id' | 'createdAt' | 'updatedAt'>;
+
+

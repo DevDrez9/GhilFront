@@ -4,6 +4,7 @@ import InputText1 from "~/componentes/InputText1";
 import { useInventarioTienda } from "~/hooks/useInventarioTienda";
 import { useState } from "react";
 import type { InventarioTiendaResponseDto } from "~/models/inventarioTienda";
+import CreateInventarioTiendaForm from "~/formularios/InventarioTiendaForm/InventarioTiendaForm.form";
 
 const InventarioTienda = () => {
   const [debouncedSearch, setDebouncedSearch] = useState("");
@@ -56,12 +57,18 @@ const InventarioTienda = () => {
     return <p>Error al cargar los datos: {error?.message}</p>;
   }
 
+   const [mostrarForm, setMostrarForm] = useState(false);
+  const handleNuevo = () => {
+    setMostrarForm(!mostrarForm);
+  };
+
   return (
     <>
       <div className="cuerpoInventarioTienda">
+        <CreateInventarioTiendaForm  onClose={handleNuevo} visible={mostrarForm}  />
         <div className="titulo">
           <p>Inventario de Tienda</p>
-          <Boton1 variant="info" onClick={() => {/* Lógica para agregar */}}>
+          <Boton1 variant="info" onClick={() => {handleNuevo()}}>
             + Registrar
           </Boton1>
         </div>

@@ -1,18 +1,34 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import InputText1 from "~/componentes/InputText1";
 import Boton1 from "~/componentes/Boton1";
 import { useTrabajos } from "~/hooks/useTrabajos"; // Nuevo hook
 import { EstadoTrabajo } from "~/models/trabajo";
 
 import "./TrabajosForm.style.css"
+import { useParametrosFisicosTelas } from "~/hooks/useParametrosFisicosTelas";
+import { useCostureros } from "~/hooks/useCostureros";
+import ComboBox1 from "~/componentes/ComboBox1";
+import { useParametrosTela } from "~/hooks/useParametrosTela";
 
 interface TrabajoFormProps {
   visible: boolean;
   onClose: () => void;
 }
-
 const TrabajoForm: React.FC<TrabajoFormProps> = ({ visible, onClose }) => {
   const { createTrabajo, isCreating, createError } = useTrabajos();
+  const { parametros } = useParametrosTela() as { parametros}; 
+  const { costureros } = useCostureros(); 
+
+  // Mapeo de opciones para ComboBox1
+  const parametroOptions = parametros.map(p => ({ 
+      value: String(p.id), 
+      label: `ID ${p.id} - ${p.nombreModelo}` 
+  }));
+  const costureroOptions = costureros.map(c => ({ 
+      value: String(c.id), 
+      label: c.nombre 
+  }));
+  costureroOptions.unshift({ value: "", label: "Sin asignar (Opcional)" });
 
   const containerClasses = [
     "contenedorFormTrabajo",
@@ -23,22 +39,102 @@ const TrabajoForm: React.FC<TrabajoFormProps> = ({ visible, onClose }) => {
 
   const [formData, setFormData] = useState({
     codigoTrabajo: "",
-    parametrosTelaId: 0,
-    costureroId: undefined,
+    parametrosTelaId: "" as string, 
+    costureroId: "" as string | undefined,
     estado: EstadoTrabajo.EN_PROCESO,
     cantidad: 0,
     tiendaId: 0,
-    fechaInicio: new Date().toISOString().substring(0, 10), // Formato YYYY-MM-DD para input date
-    fechaFinEstimada: "",
+    fechaInicio: new Date().toISOString().substring(0, 10), 
+    fechaFinEstimada: "", // Se calculará
     notas: "",
   });
+  
+  // Estado para guardar el tiempo de fabricación de la tela seleccionada
+  const [tiempoPorUnidad, setTiempoPorUnidad] = useState<number>(0); 
+
+  // ----------------------------------------------------
+  // LÓGICA DE CÁLCULO DE FECHA FIN
+  // ----------------------------------------------------
+
+  const calculateFechaFin = (inicio: string, cantidad: number, tiempoUnidad: number): string => {
+    if (!inicio || cantidad <= 0 || tiempoUnidad <= 0) {
+      return "";
+    }
+    
+    // 1. Convertir tiempoUnidad a Milisegundos (Asumimos que tiempoUnidad está en HORAS)
+    // Si tu tiempo está en minutos, usa * 60 * 1000. Si está en horas, usa * 3600 * 1000.
+    const totalTiempoMs = cantidad * tiempoUnidad * 3600 * 1000; // Asumiendo que tiempoUnidad está en HORAS
+    
+    // 2. Crear objeto Date para el inicio (usamos la medianoche de la fecha de inicio)
+    const startDate = new Date(inicio + "T00:00:00");
+    
+    // 3. Calcular la fecha y hora final
+    const finalDate = new Date(startDate.getTime() + totalTiempoMs);
+
+    // 4. Formatear la fecha final a YYYY-MM-DD para el input[type="date"]
+    // NOTA: Esto solo considera el tiempo lineal. No excluye fines de semana/feriados.
+    return finalDate.toISOString().substring(0, 10);
+  };
+
+  // ----------------------------------------------------
+  // EFECTO PARA RECALCULAR
+  // ----------------------------------------------------
+
+  useEffect(() => {
+    // Recalcular la fecha final cada vez que cambien los inputs relevantes
+    const nuevaFechaFin = calculateFechaFin(
+      formData.fechaInicio,
+      Number(formData.cantidad),
+      tiempoPorUnidad
+    );
+
+    // Actualizar solo si la fecha calculada ha cambiado
+    if (nuevaFechaFin !== formData.fechaFinEstimada) {
+      setFormData(prev => ({
+        ...prev,
+        fechaFinEstimada: nuevaFechaFin,
+      }));
+    }
+  }, [formData.fechaInicio, formData.cantidad, tiempoPorUnidad]);
+
+
+  // ----------------------------------------------------
+  // MANEJADOR DE CAMBIOS GENERAL
+  // ----------------------------------------------------
 
   const handleChange = (field: string, value: string | number) => {
+    let finalValue = value;
+    let newTiempoPorUnidad = tiempoPorUnidad;
+
+    // Lógica especial para 'parametrosTelaId' (ID Numérico)
+    if (field === 'parametrosTelaId') {
+        const selectedId = Number(value);
+        finalValue = String(selectedId); // Mantener string en formData para ComboBox
+        
+        const parametroSeleccionado = parametros.find(p => p.id === selectedId);
+        
+        if (parametroSeleccionado) {
+            // Guardar el tiempo de fabricación para el cálculo
+            newTiempoPorUnidad = parametroSeleccionado.tiempoFabricacionPorUnidad;
+        } else {
+            newTiempoPorUnidad = 0;
+        }
+    }
+    
+    // Actualizar el estado de tiempo por unidad si ha cambiado
+    if (newTiempoPorUnidad !== tiempoPorUnidad) {
+        setTiempoPorUnidad(newTiempoPorUnidad);
+    }
+
     setFormData((prev) => ({
       ...prev,
-      [field]: value,
+      [field]: finalValue,
     }));
   };
+
+  // ----------------------------------------------------
+  // VALIDACIÓN Y SUBMIT (Sin cambios mayores, solo referencias a IDs)
+  // ----------------------------------------------------
 
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -47,7 +143,7 @@ const TrabajoForm: React.FC<TrabajoFormProps> = ({ visible, onClose }) => {
 
     if (!formData.parametrosTelaId || Number(formData.parametrosTelaId) <= 0)
       newErrors.parametrosTelaIdError =
-        "El ID de parámetros de tela es obligatorio";
+        "Debe seleccionar el parámetro de tela.";
 
     if (!formData.cantidad || Number(formData.cantidad) <= 0)
       newErrors.cantidadError = "La cantidad debe ser mayor a 0";
@@ -59,33 +155,37 @@ const TrabajoForm: React.FC<TrabajoFormProps> = ({ visible, onClose }) => {
     return Object.keys(newErrors).length === 0;
   };
 
- const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
-  if (validate()) {
-    try {
-      const dataToSend = {
-        ...formData,
-        // Convertir los strings a números
-        parametrosTelaId: Number(formData.parametrosTelaId),
-        costureroId: formData.costureroId !== "" ? Number(formData.costureroId) : undefined,
-        cantidad: Number(formData.cantidad),
-        tiendaId: Number(formData.tiendaId),
-        // Convertir la cadena de fecha a un objeto Date
-        fechaInicio: new Date(formData.fechaInicio),
-        // Convertir la fecha opcional si existe
-        fechaFinEstimada: formData.fechaFinEstimada ? new Date(formData.fechaFinEstimada) : undefined,
-      };
-      
-      await createTrabajo(dataToSend);
-      onClose();
-    } catch (error) {
-      alert("No se pudo guardar el trabajo");
-      console.error("Error al guardar:", error);
-    }
-  } else {
-    console.log("Formulario no válido");
-  }
-};
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (validate()) {
+      try {
+        const dataToSend = {
+          ...formData,
+          // Convertir los strings a números
+          parametrosTelaId: Number(formData.parametrosTelaId),
+          costureroId: formData.costureroId && formData.costureroId !== "" 
+            ? Number(formData.costureroId) 
+            : undefined,
+          cantidad: Number(formData.cantidad),
+          tiendaId: Number(formData.tiendaId),
+          // Convertir la cadena de fecha a objetos Date
+          fechaInicio: new Date(formData.fechaInicio),
+          fechaFinEstimada: formData.fechaFinEstimada ? new Date(formData.fechaFinEstimada) : undefined,
+        };
+        
+        await createTrabajo(dataToSend as any);
+        onClose();
+      } catch (error) {
+        alert("No se pudo guardar el trabajo");
+        console.error("Error al guardar:", error);
+      }
+    } 
+  };
+  
+  // ----------------------------------------------------
+  // RENDERIZADO
+  // ----------------------------------------------------
+
   return (
     <>
       <div className={containerClasses}>
@@ -108,13 +208,16 @@ const TrabajoForm: React.FC<TrabajoFormProps> = ({ visible, onClose }) => {
                   type="text"
                   width={220}
                 />
-                <InputText1
-                  label="ID de Parámetros de Tela *"
-                  value={formData.parametrosTelaId + ""}
+                
+                {/* COMBOBOX PARA PARAMETROS TELA ID */}
+                <ComboBox1
+                  label="Parámetros de Tela *"
+                  value={formData.parametrosTelaId}
                   onChange={(val) => handleChange("parametrosTelaId", val)}
+                  options={parametroOptions}
+                  placeholder="Seleccione Parámetro"
                   errorMessage={errors.parametrosTelaIdError}
                   required
-                  type="number"
                   width={220}
                 />
               </div>
@@ -133,6 +236,7 @@ const TrabajoForm: React.FC<TrabajoFormProps> = ({ visible, onClose }) => {
                   label="ID de Tienda *"
                   value={formData.tiendaId + ""}
                   onChange={(val) => handleChange("tiendaId", val)}
+                  
                   errorMessage={errors.tiendaIdError}
                   required
                   type="number"
@@ -140,11 +244,13 @@ const TrabajoForm: React.FC<TrabajoFormProps> = ({ visible, onClose }) => {
                 />
               </div>
 
-              <InputText1
-                label="ID de Costurero"
-                value={formData.costureroId}
+              {/* COMBOBOX PARA COSTURERO ID */}
+              <ComboBox1
+                label="Costurero (Opcional)"
+                value={formData.costureroId || ""}
                 onChange={(val) => handleChange("costureroId", val)}
-                type="number"
+                options={costureroOptions}
+                placeholder="Asignar Costurero"
                 width={450}
               />
 
@@ -153,7 +259,7 @@ const TrabajoForm: React.FC<TrabajoFormProps> = ({ visible, onClose }) => {
               <h2>Estado y Fechas</h2>
 
               <div className="form-row">
-                <div className="estado-container">
+                <div className="estado-container" style={{ width: 220 }}>
                   <label>Estado</label>
                   <select
                     value={formData.estado}
@@ -168,6 +274,7 @@ const TrabajoForm: React.FC<TrabajoFormProps> = ({ visible, onClose }) => {
                     ))}
                   </select>
                 </div>
+                {/* FECHA DE INICIO EDITABLE */}
                 <InputText1
                   label="Fecha de Inicio"
                   value={formData.fechaInicio}
@@ -177,11 +284,13 @@ const TrabajoForm: React.FC<TrabajoFormProps> = ({ visible, onClose }) => {
                 />
               </div>
 
+              {/* FECHA FIN ESTIMADA CALCULADA (SOLO LECTURA) */}
               <InputText1
-                label="Fecha Fin Estimada"
+                label={`Fecha Fin Estimada (Calc. | Tiempo/Unidad: ${tiempoPorUnidad} hrs)`}
                 value={formData.fechaFinEstimada}
-                onChange={(val) => handleChange("fechaFinEstimada", val)}
+                onChange={() => {}} // Campo de solo lectura, pero requiere onChange
                 type="date"
+                readOnly
                 width={450}
               />
 

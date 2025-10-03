@@ -4,6 +4,7 @@ import InputText1 from "~/componentes/InputText1";
 import { useSucursales } from "~/hooks/useSucursales";
 import { useState } from "react";
 import type { SucursalResponseDto } from "~/models/sucursal";
+import SucursalForm from "~/formularios/SucursalesForm/Sucursales.form";
 
 const Sucursales = () => {
   const [debouncedSearch, setDebouncedSearch] = useState("");
@@ -16,6 +17,7 @@ const Sucursales = () => {
     deleteSucursal,
     isDeleting,
   } = useSucursales(debouncedSearch);
+  const [mostrarForm, setMostrarForm] = useState(false);
 
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -56,12 +58,23 @@ const Sucursales = () => {
     return <p>Error al cargar los datos: {error?.message}</p>;
   }
 
+  
+    
+  
+  const handleNuevo = () => {
+    setMostrarForm(!mostrarForm);
+  };
+  
+
   return (
     <>
       <div className="cuerpoSucursales">
+
+        <SucursalForm onClose={handleNuevo} visible={mostrarForm}></SucursalForm>
+
         <div className="titulo">
           <p>Sucursales</p>
-          <Boton1 variant="info" onClick={() => {/* Lógica para agregar */}}>
+          <Boton1 variant="info" onClick={() => {handleNuevo()}}>
             + Agregar
           </Boton1>
         </div>

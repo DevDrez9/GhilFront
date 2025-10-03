@@ -2,14 +2,11 @@ import type { SucursalResponseDto, CreateSucursalDto } from "~/models/sucursal";
 
 const API_BASE_URL = 'http://localhost:3000';
 
-type SucursalApiResponse = {
-  sucursales: SucursalResponseDto[];
-  total: number;
-};
+
 
 export const sucursalService = {
   // Obtener todas las sucursales
-  getSucursales: async (search?: string): Promise<SucursalApiResponse> => {
+  getSucursales: async (search?: string): Promise<SucursalResponseDto[]> => {
     let url = `${API_BASE_URL}/sucursales`;
 
     if (search) {
@@ -25,7 +22,9 @@ export const sucursalService = {
     if (!response.ok) {
       throw new Error(`Error ${response.status}: ${response.statusText}`);
     }
-
+    console.log(response)    
+    
+  
     return response.json();
   },
 
@@ -40,6 +39,7 @@ export const sucursalService = {
     if (!response.ok) {
       throw new Error(`Error ${response.status}: ${response.statusText}`);
     }
+       console.log("sucursa 3"+response)    
 
     return response.json();
   },

@@ -1,4 +1,4 @@
-import type { CreateTrabajoDto, TrabajoResponseDto } from "~/models/trabajo";
+import type { CompletarTrabajoDto, CreateTrabajoDto, TrabajoResponseDto } from "~/models/trabajo";
 
 
 const API_BASE_URL = 'http://localhost:3000';
@@ -94,5 +94,27 @@ export const trabajoService = {
     }
 
     return response.json();
-  }
+  },
+
+      completeTrabajo: async (trabajoId: number, data: CompletarTrabajoDto): Promise<TrabajoResponseDto> => {
+    
+    // **Importante:** Aquí, 'data' ya debe contener `cantidadProducida` y `tiendaId` como números, 
+    // gracias a la conversión que hiciste en el `handleSubmit` del formulario.
+    const response = await fetch(`${API_BASE_URL}/trabajos/${trabajoId}/completar`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        // 'Authorization': `Bearer ${token}` 
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || `Error ${response.status}: ${response.statusText}`);
+    }
+
+    return response.json(); 
+  },
+
 };

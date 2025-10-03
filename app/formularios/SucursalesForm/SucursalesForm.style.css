@@ -1,33 +1,30 @@
-.contenedorFormParametrosTela{
+.contenedorFormSucursal{
   width: 85%;
     min-height: 100vh;
-    position: absolute;
+    position: fixed;
      background-color: white;
     z-index: 1000;
     display: flex;
     flex-direction: column;
-
-   
    
 }
 
-.contenedorFormParametrosTela.visible{
+.contenedorFormSucursal.visible{
     visibility: visible;
     display: flex;
 }
-.contenedorFormParametrosTela.noVisible{
+.contenedorFormSucursal.noVisible{
     visibility: hidden;
     display: none;
 }
 
-.cuerpoParametrosTelaForm{
+.cuerpoSucursalForm{
     width: 100%;
-
-
     
+   
 
 }
-.formParametrosTela{
+.formSucursal{
     width: 500px;
     min-height: 500px;
     margin-left: 100px;
@@ -35,9 +32,6 @@
     border-radius: 25px;
     padding: 20px;
     border: 1px solid black;
-
-     overflow-y: auto;
-  
 }
 .linea{
     width: 100%;

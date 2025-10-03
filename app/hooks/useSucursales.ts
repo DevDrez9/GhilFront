@@ -2,20 +2,16 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { sucursalService } from '../services/sucursalService';
 import type { CreateSucursalDto, SucursalResponseDto } from '~/models/sucursal';
 
-type SucursalApiResponse = {
-  sucursales: SucursalResponseDto[];
-  total: number;
-};
+
 
 export const useSucursales = (search?: string) => {
   const queryClient = useQueryClient();
 
   // Query para obtener todas las sucursales
-  const sucursalesQuery = useQuery<SucursalApiResponse, Error>({
+  const sucursalesQuery = useQuery<SucursalResponseDto[], Error>({
     queryKey: ['sucursales', search],
     queryFn: () => sucursalService.getSucursales(search),
-    staleTime: 5 * 60 * 1000,
-    gcTime: 30 * 60 * 1000,
+    
   });
 
   // Query para obtener una sucursal por ID
@@ -82,8 +78,8 @@ export const useSucursales = (search?: string) => {
     isUpdating: updateSucursalMutation.isPending,
 
     // Estados y datos
-    sucursales: sucursalesQuery.data?.sucursales || [],
-    total: sucursalesQuery.data?.total || 0,
+     sucursales: sucursalesQuery.data || [],
+    total: sucursalesQuery.data?.length || 0, 
     isLoading: sucursalesQuery.isLoading,
     isError: sucursalesQuery.isError,
     error: sucursalesQuery.error,

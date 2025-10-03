@@ -20,6 +20,7 @@ export default [
          route("inventarioTienda","./SubPages/InventarioTienda/InventarioTienda.subpage.tsx"),
          route("inventarioSucursal","./SubPages/InventarioSucursal/InventarioSucursal.subpage.tsx"),
          route("sucursales","./SubPages/Sucursales/Sucursales.subpage.tsx"),
+          route("categorias","./SubPages/Categorias/CategoriasSubPage.subpage.tsx"),
         
     ]),
 

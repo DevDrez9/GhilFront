@@ -4,6 +4,7 @@ import { useInventarioTelas } from '~/hooks/useInventarioTelas';
 import "./CompraTelasSubPage.style.css"
 import Boton1 from '~/componentes/Boton1';
 import InputText1 from '~/componentes/InputText1';
+import InventarioTelaForm from '~/formularios/InventarioTelaForm/InventarioTelaForm.form';
 
 export default function InventarioTelasList() {
   const [filters, setFilters] = useState({
@@ -22,6 +23,8 @@ export default function InventarioTelasList() {
     stats,
     isStatsLoading 
   } = useInventarioTelas(filters);
+
+   const [mostrarForm, setMostrarForm] = useState(false);
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFilters(prev => ({ ...prev, search: e.target.value }));
@@ -53,15 +56,18 @@ export default function InventarioTelasList() {
   if (isLoading) return <div>Cargando inventario...</div>;
   if (isError) return <div>Error: {error?.message}</div>;
 
-
+   const handleNuevo = () => {
+    setMostrarForm(!mostrarForm);
+  };
 
   return (
     <div className="cuerpoProveedores">
+      <InventarioTelaForm onClose={handleNuevo} visible={mostrarForm} />
        
         <div className="titulo">
           <p>Inventario Telas</p>
 
-          <Boton1 variant="info" onClick={() => {}}>
+          <Boton1 variant="info" onClick={() => {handleNuevo()}}>
             + Agregar
           </Boton1>
         </div>

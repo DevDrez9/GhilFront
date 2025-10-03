@@ -1,12 +1,9 @@
-import type { CreateInventarioTiendaDto, InventarioTiendaResponseDto } from "~/models/inventarioTienda";
+import type { CreateInventarioTiendaDto, InventarioTiendaApiResponse, InventarioTiendaResponseDto } from "~/models/inventarioTienda";
 
 
 const API_BASE_URL = 'http://localhost:3000';
 
-type InventarioTiendaApiResponse = {
-  inventario: InventarioTiendaResponseDto[];
-  total: number;
-};
+
 
 export const inventarioTiendaService = {
   // Obtener todos los items de inventario de tienda

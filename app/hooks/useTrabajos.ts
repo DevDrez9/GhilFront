@@ -1,11 +1,15 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import type { CreateTrabajoDto, TrabajoResponseDto } from '~/models/trabajo';
+import type { CompletarTrabajoDto, CreateTrabajoDto, TrabajoResponseDto } from '~/models/trabajo';
 import { trabajoService } from '~/services/trabajoSerice';
 
 type TrabajoApiResponse = {
   trabajos: TrabajoResponseDto[];
   total: number;
 };
+type CompleteTrabajoVariables = {
+    id: number;
+    data: CompletarTrabajoDto; 
+}
 
 export const useTrabajos = (search?: string) => {
   const queryClient = useQueryClient();
@@ -61,6 +65,26 @@ export const useTrabajos = (search?: string) => {
     },
   });
 
+  const completeTrabajoMutation = useMutation<
+    TrabajoResponseDto,       // Devuelve el trabajo actualizado
+    Error,                    // Tipo de error
+    CompleteTrabajoVariables  // Espera el ID y el DTO
+  >({
+    mutationFn: ({ id, data }) => trabajoService.completeTrabajo(id, data),
+    
+    onSuccess: (updatedTrabajo) => {
+      // Invalida la lista de trabajos
+      queryClient.invalidateQueries({ queryKey: ['trabajos'] });
+      // Opcionalmente, actualiza el trabajo individual en caché
+      queryClient.setQueryData(['trabajos', updatedTrabajo.id], updatedTrabajo); 
+    },
+    
+    onError: (error) => {
+      console.error("Error al finalizar el trabajo:", error.message);
+    }
+  });
+  
+
   return {
     // Queries
     trabajosQuery,
@@ -88,5 +112,10 @@ export const useTrabajos = (search?: string) => {
     isError: trabajosQuery.isError,
     error: trabajosQuery.error,
     refetch: trabajosQuery.refetch,
+
+    // NUEVAS EXPOSICIONES: Completar Trabajo
+     completeTrabajo: completeTrabajoMutation.mutateAsync, 
+    isCompleting: completeTrabajoMutation.isPending,
+    completeError: completeTrabajoMutation.error,
   };
 };

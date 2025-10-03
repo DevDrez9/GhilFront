@@ -5,6 +5,8 @@ import { useTrabajos } from "~/hooks/useTrabajos";
 import { useState } from "react";
 import type { TrabajoResponseDto } from "~/models/trabajo";
 import TrabajoForm from "~/formularios/TrabajosForm/TrabajosForm.form";
+import TrabajosFinalizados from "../TrabajosFinalizados/TrabajosFinalizados.subpage";
+import FinalizarTrabajoForm from "~/formularios/TrabajosForm/TrabajoFinForm.form";
 
 
 const Trabajos = () => {
@@ -21,6 +23,7 @@ const Trabajos = () => {
 
   const [searchTerm, setSearchTerm] = useState("");
   const [mostrarForm, setMostrarForm] = useState(false);
+    const [mostrarFormFin, setMostrarFormFin] = useState(false);
   const [mostrarFormUpDate, setMostrarFormUpDate] = useState(false);
   const [trabajoEdit, setTrabajoEdit] = useState<TrabajoResponseDto | null>(null);
 
@@ -51,15 +54,18 @@ const Trabajos = () => {
   const handleNuevo = () => {
     setMostrarForm(!mostrarForm);
   };
+  const handleFin = () => {
+    setMostrarFormFin(!mostrarFormFin);
+  };
 
   const handleCloseEdit = () => {
     setMostrarFormUpDate(false);
     setTrabajoEdit(null);
   };
 
-  const handleEdit = (trabajo: TrabajoResponseDto) => {
+  const handleFinCick = (trabajo: TrabajoResponseDto) => {
     setTrabajoEdit(trabajo);
-    setMostrarFormUpDate(true);
+    setMostrarFormFin(true);
   };
 
   if (isLoading) {
@@ -74,6 +80,13 @@ const Trabajos = () => {
     <>
       <div className="cuerpoTrabajos">
         <TrabajoForm onClose={handleNuevo} visible={mostrarForm}></TrabajoForm>
+         {trabajoEdit && (
+        <FinalizarTrabajoForm
+            visible={!!trabajoEdit} // O tu prop de visibilidad
+            onClose={handleNuevo}
+            trabajo={trabajoEdit} // Solo se pasa si NO es null
+        />
+    )}
         <div className="titulo">
           <p>Trabajos</p>
           <Boton1 variant="info" onClick={() => handleNuevo()}>
@@ -172,7 +185,7 @@ const Trabajos = () => {
                     {isDeleting ? "Eliminando..." : "Eliminar"}
                   </button>
                   <button
-                    onClick={() => handleEdit(trabajo)}
+                    onClick={() => handleFinCick(trabajo)}
                     style={{
                       padding: "8px 12px",
                       backgroundColor: "#007bff",
@@ -183,7 +196,7 @@ const Trabajos = () => {
                       fontSize: "14px",
                     }}
                   >
-                    Editar
+                    Finalizar
                   </button>
                 </div>
               </div>

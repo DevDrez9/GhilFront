@@ -4,6 +4,7 @@ import InputText1 from "~/componentes/InputText1";
 import { useProductos } from "~/hooks/useProductos";
 import { useState } from "react";
 import type { ProductoResponseDto } from "~/models/producto.model";
+import ProductosForm from "~/formularios/ProductosForm/Productos.form";
 
 const Productos = () => {
   const [debouncedSearch, setDebouncedSearch] = useState("");
@@ -16,6 +17,8 @@ const Productos = () => {
     deleteProducto,
     isDeleting,
   } = useProductos(debouncedSearch);
+  
+   const [mostrarForm, setMostrarForm] = useState(false);
 
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -57,12 +60,20 @@ const Productos = () => {
     return <p>Error al cargar los datos: {error?.message}</p>;
   }
 
+
+
+   const handleNuevo = () => {
+    setMostrarForm(!mostrarForm);
+  };
+
   return (
     <>
       <div className="cuerpoProductos">
+        <ProductosForm  onClose={handleNuevo} visible={mostrarForm}></ProductosForm>
+
         <div className="titulo">
           <p>Productos</p>
-          <Boton1 variant="info" onClick={() => {/* Lógica para agregar */}}>
+          <Boton1 variant="info" onClick={handleNuevo}>
             + Agregar
           </Boton1>
         </div>
@@ -101,7 +112,7 @@ const Productos = () => {
               <div style={{ flexShrink: 0 }}>
                 {producto.imagenes.length > 0 ? (
                   <img
-                    src={producto.imagenes[0].url}
+                    src={"http://localhost:3000/uploads/productos/"+producto.imagenes[0].url}
                     alt={producto.nombre}
                     style={{
                       width: "100px",
@@ -154,7 +165,7 @@ const Productos = () => {
                       }}
                     >
                       <div>
-                        <strong>Precio:</strong> ${producto.precio.toFixed(2)}
+                        <strong>Precio:</strong> ${producto.precio}
                       </div>
                       <div>
                         <strong>Stock:</strong> {producto.stock}

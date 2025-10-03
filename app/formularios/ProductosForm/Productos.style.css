@@ -1,4 +1,4 @@
-.contenedorFormParametrosTela{
+.contenedorFormProducto{
   width: 85%;
     min-height: 100vh;
     position: absolute;
@@ -11,23 +11,23 @@
    
 }
 
-.contenedorFormParametrosTela.visible{
+.contenedorFormProducto.visible{
     visibility: visible;
     display: flex;
 }
-.contenedorFormParametrosTela.noVisible{
+.contenedorFormProducto.noVisible{
     visibility: hidden;
     display: none;
 }
 
-.cuerpoParametrosTelaForm{
+.cuerpoProductoForm{
     width: 100%;
 
 
     
 
 }
-.formParametrosTela{
+.formProducto{
     width: 500px;
     min-height: 500px;
     margin-left: 100px;

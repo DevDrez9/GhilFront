@@ -22,4 +22,18 @@ export class InventarioTiendaResponseDto {
   }
 }
 
+// **Define el tipo de respuesta de la API aquí, incluyendo la corrección anterior**
+export type InventarioTiendaApiResponse = {
+  inventarios: InventarioTiendaResponseDto[]; // Usando 'inventarios' como en tu JSON
+  total: number;
+};
+
 export type CreateInventarioTiendaDto = Omit<InventarioTiendaResponseDto, 'id' | 'createdAt' | 'updatedAt' | 'producto' | 'tienda'>;
+
+// Tipo de estado local para el formulario (usa strings para inputs)
+interface InventarioTiendaFormState {
+    productoId: string; 
+    tiendaId: string;   
+    stock: string;      
+    stockMinimo: string;
+}

@@ -14,6 +14,23 @@ export const useInventarioTelas = (filters?: InventarioTelaFilters) => {
     staleTime: 2 * 60 * 1000, // 2 minutos
     gcTime: 10 * 60 * 1000, // 10 minutos
   });
+  const createManyInventarioTelaMutation = useMutation<
+    InventarioTelaResponseDto[], // Tipo de dato que devuelve la función (un array)
+    Error,                       // Tipo de dato del error
+    CreateInventarioTelaDto[]    // Tipo de dato que espera la función (un array de DTOs)
+  >({
+    mutationFn: inventarioTelasService.createMany,
+    
+    onSuccess: () => {
+      // ✅ Si la creación es exitosa, invalida la caché de la lista principal de inventario.
+      queryClient.invalidateQueries({ queryKey: ['inventarioTelas'] });
+    },
+    
+    onError: (error) => {
+      // ❌ Muestra el error en la consola si ocurre
+      console.error("Error al crear el inventario de tela masivo:", error.message);
+    }
+  });
 
   // Query para obtener un item del inventario por ID
   const useInventarioItem = (id: number) => {
@@ -104,5 +121,9 @@ export const useInventarioTelas = (filters?: InventarioTelaFilters) => {
     // Stats
     stats: statsQuery.data,
     isStatsLoading: statsQuery.isLoading,
+
+
+      createManyInventarioTela: createManyInventarioTelaMutation.mutateAsync,
+    
   };
 };

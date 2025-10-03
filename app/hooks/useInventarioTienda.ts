@@ -1,11 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { inventarioTiendaService } from '../services/inventarioTiendaService';
-import type { CreateInventarioTiendaDto, InventarioTiendaResponseDto } from '~/models/inventarioTienda';
+import type { CreateInventarioTiendaDto, InventarioTiendaApiResponse, InventarioTiendaResponseDto } from '~/models/inventarioTienda';
 
-type InventarioTiendaApiResponse = {
-  inventario: InventarioTiendaResponseDto[];
-  total: number;
-};
+
 
 export const useInventarioTienda = (search?: string) => {
   const queryClient = useQueryClient();
@@ -82,8 +79,8 @@ export const useInventarioTienda = (search?: string) => {
     isUpdating: updateInventarioTiendaMutation.isPending,
 
     // Estados y datos
-    inventario: inventarioQuery.data?.inventario || [],
-    total: inventarioQuery.data?.total || 0,
+   inventario: inventarioQuery.data?.inventarios || [], // <-- Usa 'inventarios'
+  total: inventarioQuery.data?.total || 0,
     isLoading: inventarioQuery.isLoading,
     isError: inventarioQuery.isError,
     error: inventarioQuery.error,

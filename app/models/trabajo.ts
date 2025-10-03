@@ -1,3 +1,5 @@
+import type { CalidadProducto } from "./trabajos-finalizados";
+
 export enum EstadoTrabajo {
   PENDIENTE = 'PENDIENTE',
   EN_PROCESO = 'EN_PROCESO',
@@ -6,7 +8,7 @@ export enum EstadoTrabajo {
 }
 
 
-export class TrabajoResponseDto {
+export class   TrabajoResponseDto {
   id: number;
   codigoTrabajo: string;
   parametrosTelaId: number;
@@ -87,3 +89,20 @@ export class TrabajoResponseDto {
 }
 
 export type CreateTrabajoDto = Omit<TrabajoResponseDto, 'id' | 'createdAt' | 'updatedAt' | 'parametrosTela' | 'costurero' | 'tienda' | 'trabajoFinalizado'>;
+
+
+export class CompletarTrabajoDto {
+  cantidadProducida: number;
+
+
+  fechaFinalizacion: string;
+
+  
+  calidad: CalidadProducto;
+
+  
+  notas?: string;
+
+
+  tiendaId?: number;
+}

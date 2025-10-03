@@ -109,6 +109,11 @@ export default function HomeLayout({
           label: "Sucursales",
           path: "/sucursales",
         },
+        {
+          id: "categorias",
+          label: "Categorias",
+          path: "/categorias",
+        },
        
        
        

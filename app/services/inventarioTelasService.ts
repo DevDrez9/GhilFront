@@ -106,6 +106,29 @@ export const inventarioTelasService = {
     return response.json();
   },
 
+   createMany: async (data: CreateInventarioTelaDto[]): Promise<InventarioTelaResponseDto[]> => {
+    
+    // Convertir a JSON y enviar
+    const response = await fetch(`${API_BASE_URL}/inventario-telas/many`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        // Si usas autenticación, añade aquí tu token:
+        // 'Authorization': `Bearer ${token}` 
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      // Captura y lanza el mensaje de error del backend
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || `Error ${response.status}: ${response.statusText}`);
+    }
+
+    // El backend devuelve un array de objetos de inventario creados
+    return response.json(); 
+  },
+
   // PUT - Actualizar item del inventario
   updateInventarioTela: async (
     id: number, 
