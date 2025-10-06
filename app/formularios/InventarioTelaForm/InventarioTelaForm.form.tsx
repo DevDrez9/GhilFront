@@ -39,6 +39,16 @@ const createEmptyItem = (): InventarioItem => ({
     importe: undefined,
 });
 
+const COLORES_DISPONIBLES= [
+    { value: '', label: 'Seleccionar Color' }, // Opción por defecto
+    { value: 'rojo', label: 'Rojo' },
+    { value: 'azul', label: 'Azul' },
+    { value: 'verde', label: 'Verde' },
+    { value: 'negro', label: 'Negro' },
+];
+
+
+
 const InventarioTelaForm: React.FC<InventarioTelaFormProps> = ({ visible, onClose }) => {
   const { createManyInventarioTela, isCreating, createError } = useInventarioTelas();
 
@@ -166,7 +176,7 @@ const InventarioTelaForm: React.FC<InventarioTelaFormProps> = ({ visible, onClos
         if (!item.cantidadRollos || Number(item.cantidadRollos) <= 0) newErrors.cantidadRollos = "Inv.";
         if (!item.precioKG || Number(item.precioKG) <= 0) newErrors.precioKG = "Inv.";
         if (!item.pesoGrupo || Number(item.pesoGrupo) <= 0) newErrors.pesoGrupo = "Inv.";
-        if (!item.tipoTela.trim()) newErrors.tipoTela = "Req.";
+        
         if (!item.color.trim()) newErrors.color = "Req.";
         
         if (Object.keys(newErrors).length > 0) {
@@ -234,14 +244,14 @@ const InventarioTelaForm: React.FC<InventarioTelaFormProps> = ({ visible, onClos
           <form onSubmit={handleSubmit}>
             
             <div className="table-responsive" style={{ overflowX: 'auto' }}>
-              <table style={{ minWidth: '1200px' }}>
+              <table style={{ minWidth: '1200px', minHeight:"500px"}}>
                 <thead>
                   <tr>
                     <th style={{ width: 100 }}>Proveedor *</th>
                     <th style={{ width: 100 }}>Tela ID *</th>
                     <th style={{ width: 120 }}>Presentación *</th>
                     <th style={{ width: 80 }}>Rollos *</th>
-                    <th style={{ width: 100 }}>Tipo Tela *</th>
+                    {/*<th style={{ width: 100 }}>Tipo Tela *</th>*/}
                     <th style={{ width: 100 }}>Color *</th>
                     <th style={{ width: 100 }}>Precio KG *</th>
                     <th style={{ width: 100 }}>Peso Grupo *</th>
@@ -269,7 +279,9 @@ const InventarioTelaForm: React.FC<InventarioTelaFormProps> = ({ visible, onClos
                       <td>
                         <ComboBox1
                           value={String(item.telaId) || ''}
-                          onChange={(val) => handleItemChange(item.localKey, 'telaId', val)}
+                          onChange={(val) =>{ handleItemChange(item.localKey, 'telaId', val)
+                             handleItemChange(item.localKey, "tipoTela",item.presentacion)
+                          }}
                           options={telaOptions}
                           placeholder="Tela"
                           width="100%"
@@ -303,7 +315,7 @@ const InventarioTelaForm: React.FC<InventarioTelaFormProps> = ({ visible, onClos
                       </td>
                       
                       {/* TIPO TELA */}
-                      <td>
+                     {/* <td>
                         <InputText1 
                           value={item.tipoTela} 
                           onChange={(val) => handleItemChange(item.localKey, 'tipoTela', val)} 
@@ -311,18 +323,26 @@ const InventarioTelaForm: React.FC<InventarioTelaFormProps> = ({ visible, onClos
                           width="100%"
                           errorMessage={item.errors?.tipoTela}
                         />
-                      </td>
+                      </td>*/}
                       
                       {/* COLOR */}
                       <td>
-                        <InputText1 
-                          value={item.color} 
-                          onChange={(val) => handleItemChange(item.localKey, 'color', val)} 
-                          type="text" 
-                          width="100%"
-                          errorMessage={item.errors?.color}
-                        />
-                      </td>
+    {/* 🎯 Usamos el componente Combobox1 */}
+    <ComboBox1 
+        // El valor actual de la opción seleccionada
+        value={item.color} 
+        
+        // La lista de opciones disponibles
+        options={COLORES_DISPONIBLES} 
+        
+        // La función de manejo de cambios. 
+        // Asegúrate de que Combobox1 devuelve solo el 'value' (string o number).
+        onChange={(val) => handleItemChange(item.localKey, 'color', val)} 
+        
+        width="100%"
+        errorMessage={item.errors?.color}
+    />
+</td>
                       
                       {/* PRECIO KG */}
                       <td>

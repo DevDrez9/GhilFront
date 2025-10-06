@@ -23,6 +23,27 @@ const TelasSubPage = () => {
     isDeleting 
   } = useTelas(filters);
 
+
+  const defaultTela: TelaResponseDto = {
+    id:0,
+      nombreComercial: "",
+  tipoTela:"",
+  composicion:"",
+  gramaje:0,
+  acabado:"",
+  rendimiento:0,
+  colores:"",
+  nota:"",
+  estado:"",
+  proveedorId:0,
+  createdAt:null,
+  updatedAt:null
+    };
+
+  const [telasEdit, setTelasEdit] = useState(defaultTela);
+  const [mostrarFormTelas, setMostrarForm] = useState(false);
+    const [mostrarFormUpDateTelas, setMostrarFormUpDate] = useState(false);
+
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFilters(prev => ({ ...prev, search: e.target.value }));
   };
@@ -45,8 +66,8 @@ const TelasSubPage = () => {
   if (isLoading) return <div>Cargando telas...</div>;
   if (isError) return <div>Error: {error?.message}</div>;
 
-   const [mostrarFormTelas, setMostrarForm] = useState(false);
-  const [mostrarFormUpDateTelas, setMostrarFormUpDate] = useState(false);
+   
+
 
     const handleNuevo = () => {
     setMostrarForm(!mostrarFormTelas);
@@ -56,23 +77,9 @@ const TelasSubPage = () => {
     setMostrarFormUpDate(!mostrarFormUpDateTelas);
   };
 
-  const defaultTela: TelaResponseDto = {
-    id:0,
-      nombreComercial: "",
-  tipoTela:"",
-  composicion:"",
-  gramaje:0,
-  acabado:"",
-  rendimiento:0,
-  colores:"",
-  nota:"",
-  estado:"",
-  proveedorId:0,
-  createdAt:null,
-  updatedAt:null
-    };
   
-   const [telasEdit, setTelasEdit] = useState(defaultTela);
+  
+   
   
     const handleEdit = (proveedor: TelaResponseDto) => {
       setTelasEdit(proveedor);

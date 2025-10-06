@@ -96,6 +96,12 @@ export default function HomeLayout({
           path: "/inventarioSucursal",
         },
        
+         {
+          id: "ventas",
+          label: "Ventas ",
+          path: "/ventas",
+        },
+       
       ],
     },
 
@@ -115,11 +121,41 @@ export default function HomeLayout({
           path: "/categorias",
         },
        
+        {
+          id: "usuarios",
+          label: "Usuarios",
+          path: "/usuarios",
+        },
+        
+       
+       
        
        
       ],
     },
 
+     {
+      id: "Web",
+      label: "web",
+      icon: "🧵",
+      children: [
+        {
+          id: "configWeb",
+          label: "Configuracion Web",
+          path: "/configWeb",
+        },
+         {
+          id: "tienda",
+          label: "Tienda ",
+          path: "/tienda",
+        },
+        
+       
+       
+       
+       
+      ],
+    },
   ];
 
   if (!user) {

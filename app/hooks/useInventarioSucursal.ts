@@ -3,7 +3,7 @@ import { inventarioSucursalService } from '../services/inventarioSucursalService
 import type { CreateInventarioSucursalDto, InventarioSucursalResponseDto } from "~/models/inventarioSucursal";
 
 type InventarioSucursalApiResponse = {
-  inventario: InventarioSucursalResponseDto[];
+  inventarios: InventarioSucursalResponseDto[];
   total: number;
 };
 
@@ -24,6 +24,17 @@ export const useInventarioSucursal = (search?: string) => {
       queryKey: ['inventarioSucursalItem', id],
       queryFn: () => inventarioSucursalService.getInventarioSucursalById(id),
       enabled: !!id,
+      staleTime: 5 * 60 * 1000,
+      gcTime: 30 * 60 * 1000,
+    });
+  };
+
+  // Query para obtener un item de inventario de sucursal por ID
+  const useInventarioSucursal = (sucursalId: number) => {
+    return useQuery<InventarioSucursalResponseDto[], Error>({
+      queryKey: ['inventarioSucursalItem', sucursalId],
+      queryFn: () => inventarioSucursalService.getInventarioBySucursal(sucursalId),
+      enabled: !!sucursalId,
       staleTime: 5 * 60 * 1000,
       gcTime: 30 * 60 * 1000,
     });
@@ -66,6 +77,8 @@ export const useInventarioSucursal = (search?: string) => {
     inventarioQuery,
     useInventarioSucursalItem,
 
+    useInventarioSucursal,
+
     // Mutations
     deleteInventarioSucursal: deleteInventarioSucursalMutation.mutate,
     deleteInventarioSucursalAsync: deleteInventarioSucursalMutation.mutateAsync,
@@ -82,7 +95,7 @@ export const useInventarioSucursal = (search?: string) => {
     isUpdating: updateInventarioSucursalMutation.isPending,
 
     // Estados y datos
-    inventario: inventarioQuery.data?.inventario || [],
+    inventario: inventarioQuery.data?.inventarios || [],
     total: inventarioQuery.data?.total || 0,
     isLoading: inventarioQuery.isLoading,
     isError: inventarioQuery.isError,

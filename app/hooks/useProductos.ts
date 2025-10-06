@@ -79,6 +79,7 @@ export const useProductos = (search?: string) => {
     
     updateProducto: updateProductoMutation.mutate,
     updateProductoAsync: updateProductoMutation.mutateAsync,
+    updateError: updateProductoMutation.error,
     isUpdating: updateProductoMutation.isPending,
     
     // Estados y datos

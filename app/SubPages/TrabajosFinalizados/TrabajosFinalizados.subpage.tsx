@@ -61,9 +61,9 @@ const TrabajosFinalizados = () => {
       <div className="cuerpoTrabajosFinalizados">
         <div className="titulo">
           <p>Trabajos Terminados</p>
-          <Boton1 variant="info" onClick={() => handleNuevo()}>
+        {/*  <Boton1 variant="info" onClick={() => handleNuevo()}>
             + Registrar
-          </Boton1>
+          </Boton1>*/}
         </div>
 
         <div className="buscador">

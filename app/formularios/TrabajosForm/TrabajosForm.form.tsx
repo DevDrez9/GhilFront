@@ -148,8 +148,7 @@ const TrabajoForm: React.FC<TrabajoFormProps> = ({ visible, onClose }) => {
     if (!formData.cantidad || Number(formData.cantidad) <= 0)
       newErrors.cantidadError = "La cantidad debe ser mayor a 0";
 
-    if (!formData.tiendaId || Number(formData.tiendaId) <= 0)
-      newErrors.tiendaIdError = "El ID de la tienda es obligatorio";
+   
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -167,7 +166,7 @@ const TrabajoForm: React.FC<TrabajoFormProps> = ({ visible, onClose }) => {
             ? Number(formData.costureroId) 
             : undefined,
           cantidad: Number(formData.cantidad),
-          tiendaId: Number(formData.tiendaId),
+          tiendaId: 1,
           // Convertir la cadena de fecha a objetos Date
           fechaInicio: new Date(formData.fechaInicio),
           fechaFinEstimada: formData.fechaFinEstimada ? new Date(formData.fechaFinEstimada) : undefined,
@@ -232,7 +231,7 @@ const TrabajoForm: React.FC<TrabajoFormProps> = ({ visible, onClose }) => {
                   type="number"
                   width={220}
                 />
-                <InputText1
+               {/* <InputText1
                   label="ID de Tienda *"
                   value={formData.tiendaId + ""}
                   onChange={(val) => handleChange("tiendaId", val)}
@@ -241,7 +240,7 @@ const TrabajoForm: React.FC<TrabajoFormProps> = ({ visible, onClose }) => {
                   required
                   type="number"
                   width={220}
-                />
+                />*/}
               </div>
 
               {/* COMBOBOX PARA COSTURERO ID */}

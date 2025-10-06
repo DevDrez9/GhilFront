@@ -61,9 +61,9 @@ const InventarioSucursal = () => {
       <div className="cuerpoInventarioSucursal">
         <div className="titulo">
           <p>Inventario de Sucursal</p>
-          <Boton1 variant="info" onClick={() => {/* Lógica para agregar */}}>
+         {/* <Boton1 variant="info" onClick={() => }>
             + Registrar
-          </Boton1>
+          </Boton1>*/}
         </div>
 
         <div className="buscador">

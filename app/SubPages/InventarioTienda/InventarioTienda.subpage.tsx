@@ -5,6 +5,7 @@ import { useInventarioTienda } from "~/hooks/useInventarioTienda";
 import { useState } from "react";
 import type { InventarioTiendaResponseDto } from "~/models/inventarioTienda";
 import CreateInventarioTiendaForm from "~/formularios/InventarioTiendaForm/InventarioTiendaForm.form";
+import CrearTransferenciaDesdeInventarioForm from "~/formularios/TransferenciasForm/TransferenciasForm.form";
 
 const InventarioTienda = () => {
   const [debouncedSearch, setDebouncedSearch] = useState("");
@@ -19,6 +20,9 @@ const InventarioTienda = () => {
   } = useInventarioTienda(debouncedSearch);
 
   const [searchTerm, setSearchTerm] = useState("");
+
+   const [mostrarForm, setMostrarForm] = useState(false);
+    const [mostrarEditForm, setMostrarFormUpDate] = useState(false);
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -43,12 +47,17 @@ const InventarioTienda = () => {
       }
     }
   };
+   const [inventatioEdit, setInventario] = useState<InventarioTiendaResponseDto | null>(null);
 
-  const handleEdit = (item: InventarioTiendaResponseDto) => {
-    console.log("Editando item de inventario:", item);
-    // Lógica para abrir un formulario de edición
-  };
-
+ const handleCloseEdit = () => {
+     setMostrarFormUpDate(false);
+     setInventario(null);
+   };
+ 
+   const handleEdit = (inventario: InventarioTiendaResponseDto) => {
+     setInventario(inventario);
+     setMostrarFormUpDate(true);
+   };
   if (isLoading) {
     return <p>Cargando inventario de tienda...</p>;
   }
@@ -57,7 +66,7 @@ const InventarioTienda = () => {
     return <p>Error al cargar los datos: {error?.message}</p>;
   }
 
-   const [mostrarForm, setMostrarForm] = useState(false);
+  
   const handleNuevo = () => {
     setMostrarForm(!mostrarForm);
   };
@@ -66,6 +75,7 @@ const InventarioTienda = () => {
     <>
       <div className="cuerpoInventarioTienda">
         <CreateInventarioTiendaForm  onClose={handleNuevo} visible={mostrarForm}  />
+        <CrearTransferenciaDesdeInventarioForm inventario={inventatioEdit} onClose={handleCloseEdit} visible={mostrarEditForm}/>
         <div className="titulo">
           <p>Inventario de Tienda</p>
           <Boton1 variant="info" onClick={() => {handleNuevo()}}>

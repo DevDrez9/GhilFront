@@ -76,8 +76,7 @@ const CreateInventarioTiendaForm: React.FC<CreateInventarioTiendaFormProps> = ({
         if (!formData.productoId)
             newErrors.productoId = "Debe seleccionar un producto.";
 
-        if (isNaN(tiendaId) || tiendaId <= 0)
-            newErrors.tiendaId = "ID de Tienda inválido.";
+       
         
         // Validación de campos opcionales
         if (formData.stock.trim() !== "" && (isNaN(stock) || stock < 0))
@@ -104,7 +103,7 @@ const CreateInventarioTiendaForm: React.FC<CreateInventarioTiendaFormProps> = ({
 
                 const dataToSend: CreateInventarioTiendaDto = {
                     productoId: Number(formData.productoId), // Requerido
-                    tiendaId: Number(formData.tiendaId),     // Requerido
+                    tiendaId: 1,     // Requerido
                     stock: parseOptionalNumber(formData.stock),           // Opcional
                     stockMinimo: parseOptionalNumber(formData.stockMinimo), // Opcional
                 };
@@ -148,7 +147,7 @@ const CreateInventarioTiendaForm: React.FC<CreateInventarioTiendaFormProps> = ({
                         />
 
                         <div className="form-row">
-                            {/* TIENDA ID */}
+                            {/* TIENDA ID
                             <InputText1
                                 label="ID de Tienda *"
                                 value={formData.tiendaId}
@@ -158,7 +157,7 @@ const CreateInventarioTiendaForm: React.FC<CreateInventarioTiendaFormProps> = ({
                                 type="number"
                                 width={220}
                             />
-                            
+                             */}
                             {/* STOCK (Opcional) */}
                             <InputText1
                                 label="Stock Inicial (Opcional)"

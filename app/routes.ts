@@ -7,7 +7,7 @@ export default [
     ]),
     layout("./layouts/home.layouts.tsx", [
       
-        route("home","./Pages/HomePage/HomePage.tsx"),
+        route("home","./SubPages/VentasDashboard/VentasDashboard.subpage.tsx"),
         route("proveedores","./SubPages/ProveedoresSubPage/Proveedores.subpages.tsx"),
         route("presentacionTelas","./SubPages/PresentacionTelas/PresentacionTelas.subpage.tsx"),
         route("telas","./SubPages/TelasSubPage/TelasSubPage.subpage.tsx"),
@@ -21,6 +21,12 @@ export default [
          route("inventarioSucursal","./SubPages/InventarioSucursal/InventarioSucursal.subpage.tsx"),
          route("sucursales","./SubPages/Sucursales/Sucursales.subpage.tsx"),
           route("categorias","./SubPages/Categorias/CategoriasSubPage.subpage.tsx"),
+          route("ventas","./SubPages/Ventas/Ventas.subpage.tsx"),
+          route("usuarios","./SubPages/Usuarios/Usuarios.subpage.tsx"),
+           route("configWeb","./SubPages/ConfigWeb/ConfigWeb.subpage.tsx"),
+             route("tienda","./SubPages/Tienda/Tienda.subpage.tsx"),
+
+          
         
     ]),
 

@@ -76,10 +76,21 @@ const CostureroForm: React.FC<CostureroFormProps> = ({ visible, onClose }) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+     // Asumimos que tienes el DTO final listo para ser enviado (ej. con campos numéricos convertidos)
+    const dataToSend = {
+      // 🚨 IMPORTANTE: Asegúrate de hacer las conversiones de tipo aquí 
+      // si tu backend espera números (ej. tiendaId) o fechas (ej. fechaInicio)
+      ...formDataCosturero,
+      tiendaId: Number(formDataCosturero.tiendaId), // Ejemplo de conversión
+      fechaInicio: new Date(formDataCosturero.fechaInicio), // Ejemplo de conversión
+      // El resto de campos (nombre, apellido, etc.) pasan directo.
+    }
+
     if (validate()) {
       try {
         await createCosturero(
-          ...formDataCosturero 
+           dataToSend 
          
         );
         onClose();

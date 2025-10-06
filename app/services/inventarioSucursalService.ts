@@ -3,7 +3,7 @@ import type { CreateInventarioSucursalDto, InventarioSucursalResponseDto } from 
 const API_BASE_URL = 'http://localhost:3000';
 
 type InventarioSucursalApiResponse = {
-  inventario: InventarioSucursalResponseDto[];
+  inventarios: InventarioSucursalResponseDto[];
   total: number;
 };
 
@@ -43,6 +43,22 @@ export const inventarioSucursalService = {
 
     return response.json();
   },
+
+   // Obtener un item de inventario de sucursal por ID
+  getInventarioBySucursal: async (idSucursal: number): Promise<InventarioSucursalResponseDto[]> => {
+    const response = await fetch(`${API_BASE_URL}/inventario-sucursal/sucursal/${idSucursal}`, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Error ${response.status}: ${response.statusText}`);
+    }
+
+    return response.json();
+  },
+
 
   // Eliminar un item de inventario de sucursal
   deleteInventarioSucursal: async (id: number): Promise<void> => {

@@ -5,6 +5,7 @@ import { useProductos } from "~/hooks/useProductos";
 import { useState } from "react";
 import type { ProductoResponseDto } from "~/models/producto.model";
 import ProductosForm from "~/formularios/ProductosForm/Productos.form";
+import ProductoEditForm from "~/formularios/ProductosForm/ProductosEdit.form";
 
 const Productos = () => {
   const [debouncedSearch, setDebouncedSearch] = useState("");
@@ -17,8 +18,12 @@ const Productos = () => {
     deleteProducto,
     isDeleting,
   } = useProductos(debouncedSearch);
+
+   
   
    const [mostrarForm, setMostrarForm] = useState(false);
+   const [mostrarFormEdit, setMostrarFormEdit] = useState(false);
+   const [productoEdit, setProductoEdit] = useState<ProductoResponseDto | null>(null);
 
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -48,8 +53,14 @@ const Productos = () => {
 
   // Puedes agregar una lógica para editar si necesitas
   const handleEdit = (producto: ProductoResponseDto) => {
+    setProductoEdit(producto)
+    setMostrarFormEdit(true);
     console.log("Editando producto:", producto);
     // Lógica para abrir un formulario de edición
+  };
+  const handleCloseEdit = () => {
+    setMostrarFormEdit(false);
+    setProductoEdit(null);
   };
 
   if (isLoading) {
@@ -70,6 +81,8 @@ const Productos = () => {
     <>
       <div className="cuerpoProductos">
         <ProductosForm  onClose={handleNuevo} visible={mostrarForm}></ProductosForm>
+        {mostrarFormEdit && productoEdit && (
+        <ProductoEditForm onClose={handleCloseEdit} visible={mostrarFormEdit} initialProductData={productoEdit} />)}
 
         <div className="titulo">
           <p>Productos</p>
