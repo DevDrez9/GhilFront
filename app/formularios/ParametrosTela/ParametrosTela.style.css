@@ -1,11 +1,12 @@
 .contenedorFormParametrosTela{
-  width: 85%;
+  width: 100%;
     min-height: 100vh;
     position: absolute;
      background-color: white;
     z-index: 1000;
     display: flex;
     flex-direction: column;
+    
 
    
    

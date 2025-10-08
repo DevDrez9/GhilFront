@@ -5,18 +5,43 @@ import type { CreateInventarioSucursalDto, InventarioSucursalResponseDto } from 
 type InventarioSucursalApiResponse = {
   inventarios: InventarioSucursalResponseDto[];
   total: number;
+  
 };
 
-export const useInventarioSucursal = (search?: string) => {
+// 🛑 1. Define la interfaz de opciones que ahora incluye el filtro de sucursal
+interface InventarioQueryOptions {
+    searchTerm?: string;
+    sucursalId?: number; // Este es el ID que viene del ComboBox
+}
+
+export const useInventarioSucursal = (options: InventarioQueryOptions) => {
   const queryClient = useQueryClient();
 
-  // Query para obtener todos los items de inventario de sucursal
-  const inventarioQuery = useQuery<InventarioSucursalApiResponse, Error>({
-    queryKey: ['inventarioSucursal', search],
-    queryFn: () => inventarioSucursalService.getInventarioSucursal(search),
-    staleTime: 5 * 60 * 1000,
-    gcTime: 30 * 60 * 1000,
-  });
+   const inventarioQuery = useQuery<InventarioSucursalApiResponse, Error>({
+        // La clave de consulta debe incluir las opciones para que se refetchee
+        queryKey: ['inventarioSucursal', options], 
+        
+        // 🛑 Lógica de bifurcación en queryFn
+        queryFn: async () => {
+            if (options.sucursalId !== undefined) {
+                // Si hay ID de sucursal, usamos el servicio específico.
+                // NOTA: Tu servicio getInventarioBySucursal NO maneja 'search'.
+                // Si necesitas buscar dentro de la sucursal, debes actualizar ese servicio.
+                const inventario = await inventarioSucursalService.getInventarioBySucursal(options.sucursalId);
+                
+                // Mapeamos la respuesta para que coincida con InventarioSucursalApiResponse
+                return {
+                    inventarios: inventario,
+                    total: inventario.length, // O tu lógica real de total si la API lo devuelve.
+                } as InventarioSucursalApiResponse;
+            }
+            
+            // Si no hay ID de sucursal, usamos el servicio general que maneja la búsqueda.
+            return inventarioSucursalService.getInventarioSucursal(options.searchTerm);
+        },
+        staleTime: 5 * 60 * 1000,
+        gcTime: 30 * 60 * 1000,
+    });
 
   // Query para obtener un item de inventario de sucursal por ID
   const useInventarioSucursalItem = (id: number) => {
@@ -30,7 +55,7 @@ export const useInventarioSucursal = (search?: string) => {
   };
 
   // Query para obtener un item de inventario de sucursal por ID
-  const useInventarioSucursal = (sucursalId: number) => {
+  const useInventarioIdSucursal = (sucursalId: number) => {
     return useQuery<InventarioSucursalResponseDto[], Error>({
       queryKey: ['inventarioSucursalItem', sucursalId],
       queryFn: () => inventarioSucursalService.getInventarioBySucursal(sucursalId),
@@ -76,6 +101,7 @@ export const useInventarioSucursal = (search?: string) => {
     // Queries
     inventarioQuery,
     useInventarioSucursalItem,
+    useInventarioIdSucursal,
 
     useInventarioSucursal,
 

@@ -124,6 +124,9 @@ const CrearUsuarioForm: React.FC<CrearUsuarioFormProps> = ({ visible, onClose })
         <div className={containerClasses}>
             <div className="cuerpoUsuarioForm">
                 <h2>Crear Nuevo Usuario</h2>
+                <Boton1 type="button" size="medium" variant="info" onClick={onClose}>
+            Atrás
+          </Boton1>
                 
                 <div className="formUsuario">
                     <form onSubmit={handleSubmit}>

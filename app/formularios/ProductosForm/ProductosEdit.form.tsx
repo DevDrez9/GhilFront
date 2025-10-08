@@ -12,7 +12,6 @@ import { useProveedores } from "~/hooks/useProveedores"; // ⬅️ AGREGADO
 
 import {type ProductoResponseDto, type UpdateProductoDto } from "~/models/producto.model"; // DTOs
 import "./ProductoEditForm.style.css"
-
 // --- Tipos ---
 type LocalImage = { 
     localId: number; 
@@ -67,15 +66,14 @@ const ProductoEditForm: React.FC<ProductoEditFormProps> = ({ visible, onClose, i
     
     const isMutating = isUpdating;
     const containerClasses = [
-        "contenedorFormProducto",
+        "contenedorEditFormProducto",
         visible ? "visible" : "noVisible",
     ].filter(Boolean).join(" ");
 
     // ESTADO INICIAL
     const [formData, setFormData] = useState(() => mapProductToFormState(initialProductData));
-    const [localImages, setLocalImages] = useState(() => mapProductImagesToLocalState(initialProductData));
-    const [errors, setErrors] = useState<Record<string, string>>({});
-
+    const [localImages, setLocalImages] = useState(() => mapProductImagesToLocalState(initialProductData));
+    const [errors, setErrors] = useState<Record<string, string>>({});
 // ----------------------------------------------------------------------
 // LÓGICA DE CASCADA (Mismo que en ProductoForm.tsx)
 // ----------------------------------------------------------------------
@@ -91,6 +89,12 @@ const ProductoEditForm: React.FC<ProductoEditFormProps> = ({ visible, onClose, i
 
     // 3. EFECTO: Limpiar Subcategoría al cambiar Categoría
     useEffect(() => {
+            // Reinicializa formData con los datos del producto actual
+        setFormData(mapProductToFormState(initialProductData));
+        
+        // Reinicializa localImages con las imágenes del producto actual
+        setLocalImages(mapProductImagesToLocalState(initialProductData));
+
         // Si la Categoría seleccionada es 0 (o no hay categoría) y hay una subcategoría seleccionada, la limpiamos.
         if (formData.categoriaId === 0 && formData.subcategoriaId !== undefined) {
             setFormData(prev => ({ ...prev, subcategoriaId: undefined }));
@@ -104,8 +108,12 @@ const ProductoEditForm: React.FC<ProductoEditFormProps> = ({ visible, onClose, i
                 setFormData(prev => ({ ...prev, subcategoriaId: undefined }));
             }
         }
+
+      
+        
+        setErrors({}); // Opcional: Limpia errores al cargar un nuevo producto
         // Dependemos solo de la categoría y las subcategorías disponibles (para evitar auto-borrado)
-    }, [formData.categoriaId, subcategoriasDisponibles]); 
+    }, [formData.categoriaId, subcategoriasDisponibles, initialProductData]); 
     
 // ----------------------------------------------------------------------
 // PREPARACIÓN DE OPTIONS (Conversión de ID number a value string)
@@ -287,13 +295,13 @@ const ProductoEditForm: React.FC<ProductoEditFormProps> = ({ visible, onClose, i
 
     return (
         <div className={containerClasses}>
-            <div className="cuerpoProductoForm">
+            <div className="cuerpoProductoEditForm">
                 <h2>{title}</h2>
                 <Boton1 type="button" size="medium" variant="info" onClick={onClose}>
                     Atrás
                 </Boton1>
 
-                <div className="formProducto">
+                <div className="formEditProducto">
                     <form onSubmit={handleSubmit}>
                         
                         {/* === INFORMACIÓN BÁSICA (Y demás fieldsets) === */}

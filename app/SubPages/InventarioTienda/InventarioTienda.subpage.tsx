@@ -77,7 +77,7 @@ const InventarioTienda = () => {
         <CreateInventarioTiendaForm  onClose={handleNuevo} visible={mostrarForm}  />
         <CrearTransferenciaDesdeInventarioForm inventario={inventatioEdit} onClose={handleCloseEdit} visible={mostrarEditForm}/>
         <div className="titulo">
-          <p>Inventario de Tienda</p>
+          <p>Almacen Central</p>
           <Boton1 variant="info" onClick={() => {handleNuevo()}}>
             + Registrar
           </Boton1>
@@ -180,7 +180,7 @@ const InventarioTienda = () => {
                       fontSize: "14px",
                     }}
                   >
-                    Editar
+                    Distribuir
                   </button>
                 </div>
               </div>

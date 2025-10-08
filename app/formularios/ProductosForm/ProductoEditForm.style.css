@@ -1,5 +1,5 @@
-.contenedorFormProducto{
-  width: 85%;
+.contenedorEditFormProducto{
+  width: 100%;
     min-height: 100vh;
     position: absolute;
      background-color: white;
@@ -11,23 +11,23 @@
    
 }
 
-.contenedorFormProducto.visible{
+.contenedorEditFormProducto.visible{
     visibility: visible;
     display: flex;
 }
-.contenedorFormProducto.noVisible{
+.contenedorEditFormProducto.noVisible{
     visibility: hidden;
     display: none;
 }
 
-.cuerpoProductoForm{
+.cuerpoProductoEditForm{
     width: 100%;
 
 
     
 
 }
-.formProducto{
+.formEditProducto{
     width: 500px;
     min-height: 500px;
     margin-left: 100px;

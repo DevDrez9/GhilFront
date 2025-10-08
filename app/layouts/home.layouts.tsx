@@ -87,7 +87,7 @@ export default function HomeLayout({
        
         {
           id: "inventarioTienda",
-          label: "Inventario Tienda",
+          label: "Almacen Central",
           path: "/inventarioTienda",
         },
         {
@@ -121,12 +121,7 @@ export default function HomeLayout({
           path: "/categorias",
         },
        
-        {
-          id: "usuarios",
-          label: "Usuarios",
-          path: "/usuarios",
-        },
-        
+       
        
        
        
@@ -135,10 +130,16 @@ export default function HomeLayout({
     },
 
      {
-      id: "Web",
-      label: "web",
+      id: "configuracion",
+      label: "Configuracion",
       icon: "🧵",
       children: [
+         {
+          id: "usuarios",
+          label: "Usuarios",
+          path: "/usuarios",
+        },
+        
         {
           id: "configWeb",
           label: "Configuracion Web",

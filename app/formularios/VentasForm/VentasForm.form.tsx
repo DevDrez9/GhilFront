@@ -71,7 +71,8 @@ const CrearVentaForm: React.FC<CrearVentaFormProps> = ({ visible, onClose }) => 
     const sucursalIdNum = Number(sucursalIdStr);
 
     // Usamos el hook de inventario. Nota: Tu API espera el ID como string, por eso pasamos sucursalIdStr
-    const { inventario = [],  isLoading } = useInventarioSucursal(sucursalIdStr); 
+     const options = useMemo(() => ({ sucursalId: sucursalIdNum }), [sucursalIdNum]);
+    const { inventario = [],  isLoading } = useInventarioSucursal(options); 
 
     // --- MANEJO DE OPCIONES Y SELECCIÓN ---
 
@@ -214,6 +215,7 @@ const CrearVentaForm: React.FC<CrearVentaFormProps> = ({ visible, onClose }) => 
         <div className={containerClasses}>
             <div className="cuerpoVentaForm">
                 <h2>Registrar Nueva Venta</h2>
+                
                 <div className="formVenta">
                     <form onSubmit={handleSubmit}>
                         
@@ -285,42 +287,54 @@ const CrearVentaForm: React.FC<CrearVentaFormProps> = ({ visible, onClose }) => 
                                     + Agregar
                                 </Boton1>
                             </div>
-
-                            {/* --- TABLA DE ÍTEMS AGREGADOS --- */}
-                            {ventaItems.length > 0 ? (
-                                <table className="tablaItemsVenta">
-                                    {/* ... (Contenido de la tabla de ítems) ... */}
-                                    <thead>
-                                        <tr>
-                                            <th>Producto</th>
-                                            <th>Cant.</th>
-                                            <th>Precio Unit.</th>
-                                            <th>Total</th>
-                                            <th>Acción</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {ventaItems.map((item, index) => {
-                                            const itemInfo = inventario.find(i => i.productoId === item.productoId)?.producto.nombre || `ID ${item.productoId}`;
-                                            return (
-                                                <tr key={index}>
-                                                    <td>{itemInfo}</td>
-                                                    <td>{item.cantidad}</td>
-                                                    <td>{item.precio.toFixed(2)}</td>
-                                                    <td>{(item.cantidad * item.precio).toFixed(2)}</td>
-                                                    <td>
-                                                        <Boton1 size="small" onClick={() => handleRemoveItem(index)} type="button" variant="danger">
-                                                            Remover
-                                                        </Boton1>
-                                                    </td>
-                                                </tr>
-                                            );
-                                        })}
-                                    </tbody>
-                                </table>
-                            ) : (
-                                <p className="alerta-items">Seleccione una Sucursal y agregue ítems. {errors.items && <span style={{color: 'red'}}>({errors.items})</span>}</p>
-                            )}
+{/* --- TABLA DE ÍTEMS AGREGADOS (MEJORADO) --- */}
+{ventaItems.length > 0 ? (
+    <div className="tablaItemsVenta-container"> {/* Contenedor para manejar desbordamiento (scroll) */}
+        <table className="tablaItemsVenta">
+            <thead>
+                <tr>
+                    <th style={{ textAlign: 'left' }}>Producto</th>
+                    <th style={{ width: '80px', textAlign: 'center' }}>Cantidad</th>
+                    <th style={{ width: '120px', textAlign: 'right' }}>Precio Unit.</th>
+                    <th style={{ width: '120px', textAlign: 'right' }}>Total</th>
+                    <th style={{ width: '100px', textAlign: 'center' }}></th> {/* Columna de Acción */}
+                </tr>
+            </thead>
+            <tbody>
+                {ventaItems.map((item, index) => {
+                    const itemInfo = inventario.find(i => i.productoId === item.productoId)?.producto.nombre || `ID ${item.productoId}`;
+                    const totalItem = item.cantidad * item.precio;
+                    
+                    return (
+                        <tr key={index}>
+                            <td className="tablaItemsVenta-producto">
+                                {/* Nombre del producto más destacado */}
+                                <strong>{itemInfo}</strong>
+                            </td>
+                            <td style={{ textAlign: 'center' }}>{item.cantidad}</td>
+                            <td style={{ textAlign: 'right' }}>${item.precio.toFixed(2)}</td>
+                            <td style={{ textAlign: 'right' }}>
+                                {/* Total del ítem en negrita */}
+                                <strong>${totalItem.toFixed(2)}</strong>
+                            </td>
+                            <td style={{ textAlign: 'center' }}>
+                                <Boton1 size="small" onClick={() => handleRemoveItem(index)} type="button" variant="danger">
+                                    {/* Cambié a variant="danger-text" para usar un botón más discreto dentro de la tabla */}
+                                    Remover
+                                </Boton1>
+                            </td>
+                        </tr>
+                    );
+                })}
+            </tbody>
+        </table>
+    </div>
+) : (
+    <p className="alerta-items">
+        <span style={{ fontWeight: 'bold' }}>🛒 ¡Lista vacía!</span> Seleccione una Sucursal y agregue ítems. 
+        {errors.items && <span style={{color: 'red', marginLeft: '10px'}}>({errors.items})</span>}
+    </p>
+)}
                         </fieldset>
 
                         {/* --- SECCIÓN TOTALES Y ENVÍO --- */}

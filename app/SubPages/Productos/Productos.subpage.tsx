@@ -9,6 +9,7 @@ import ProductoEditForm from "~/formularios/ProductosForm/ProductosEdit.form";
 
 const Productos = () => {
   const [debouncedSearch, setDebouncedSearch] = useState("");
+  
   const {
     productos,
     total,
@@ -80,9 +81,10 @@ const Productos = () => {
   return (
     <>
       <div className="cuerpoProductos">
-        <ProductosForm  onClose={handleNuevo} visible={mostrarForm}></ProductosForm>
         {mostrarFormEdit && productoEdit && (
         <ProductoEditForm onClose={handleCloseEdit} visible={mostrarFormEdit} initialProductData={productoEdit} />)}
+        <ProductosForm  onClose={handleNuevo} visible={mostrarForm}></ProductosForm>
+        
 
         <div className="titulo">
           <p>Productos</p>
@@ -180,9 +182,9 @@ const Productos = () => {
                       <div>
                         <strong>Precio:</strong> ${producto.precio}
                       </div>
-                      <div>
+                     {/* <div>
                         <strong>Stock:</strong> {producto.stock}
-                      </div>
+                      </div>*/}
                       <div>
                         <strong>Categoría:</strong> {producto.categoriaId}
                       </div>

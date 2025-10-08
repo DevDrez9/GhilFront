@@ -5,6 +5,7 @@ import { useSucursales } from "~/hooks/useSucursales";
 import { useState } from "react";
 import type { SucursalResponseDto } from "~/models/sucursal";
 import SucursalForm from "~/formularios/SucursalesForm/Sucursales.form";
+import SucursalEditForm from "~/formularios/SucursalesForm/SucursalEdit.form";
 
 const Sucursales = () => {
   const [debouncedSearch, setDebouncedSearch] = useState("");
@@ -18,6 +19,7 @@ const Sucursales = () => {
     isDeleting,
   } = useSucursales(debouncedSearch);
   const [mostrarForm, setMostrarForm] = useState(false);
+   const [mostrarFormEdit, setMostrarFormEdit] = useState(false);
 
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -44,11 +46,32 @@ const Sucursales = () => {
       }
     }
   };
+  
+    const defaultSucursal: SucursalResponseDto = {
+      id: 0,
+      nombre: "",  
+      telefono: "",
+      email: "",
+      direccion: "", 
+      activa:false,
+      tiendaId:1,
+
+      createdAt: new Date(),
+      updatedAt: new Date(),
+
+    };
+  
+
+  const [sucursalEdit, setSucursal] = useState(defaultSucursal);
 
   const handleEdit = (sucursal: SucursalResponseDto) => {
-    console.log("Editando sucursal:", sucursal);
-    // Lógica para abrir un formulario de edición
+    setSucursal(sucursal)
+      setMostrarFormEdit(true);
+
   };
+  const handleCloseEdit=()=>{
+    setMostrarFormEdit(false);
+  }
 
   if (isLoading) {
     return <p>Cargando sucursales...</p>;
@@ -71,6 +94,7 @@ const Sucursales = () => {
       <div className="cuerpoSucursales">
 
         <SucursalForm onClose={handleNuevo} visible={mostrarForm}></SucursalForm>
+        <SucursalEditForm initialData={sucursalEdit} onClose={handleCloseEdit} visible={mostrarFormEdit}/>
 
         <div className="titulo">
           <p>Sucursales</p>

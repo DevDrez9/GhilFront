@@ -9,16 +9,24 @@ import {
     // Asumo que esta es la interfaz para las opciones que usa el service
     type VentaQueryOptions // 👈 Asegúrate de importar la interfaz del service
 } from '~/models/ventas';
-import type { EstadisticasVentaResponse } from '~/models/estadisticas';
+import type { EstadisticasQueryOptions, EstadisticasVentaResponse } from '~/models/estadisticas';
 
 // ✅ SIMPLIFICACIÓN: El hook solo acepta el objeto de opciones
 // La interfaz GetVentasOptions es similar a VentaQueryOptions, podemos usar una sola.
 interface UseVentasOptions extends VentaQueryOptions {
     enabled?: boolean; // Para control de habilitación de la query de React Query
 }
+// Opciones que permiten el filtrado para ambas funciones del backend
+interface UseEstadisticasOptions extends EstadisticasQueryOptions {
+    tiendaId?: number;
+    sucursalId?: number;
+    // Añadir 'enabled' para controlar la query si es necesario
+    enabled?: boolean; 
+}
+
 
 // ✅ CAMBIO CLAVE: El hook ahora acepta el objeto options como único argumento para los filtros
-export const useVentas = (options: UseVentasOptions = {}) => {
+export const useVentas = (options: UseEstadisticasOptions = {}) => {
     const queryClient = useQueryClient();
     
     // Extraemos la propiedad `enabled` y dejamos el resto para la query key y query fn
@@ -54,18 +62,42 @@ export const useVentas = (options: UseVentasOptions = {}) => {
         gcTime: 30 * 60 * 1000,
     });
 
-    const estadisticasQuery = useQuery<EstadisticasVentaResponse, Error>({
-        queryKey: ['ventasEstadisticas', options],
-        queryFn: () => ventaService.getEstadisticas(options),
+  const estadisticasQuery = useQuery<EstadisticasVentaResponse, Error>({
+        // La clave de consulta debe cambiar cuando cambian las opciones (filtros)
+        queryKey: ['ventasEstadisticas', queryOptions],
+        queryFn: () => ventaService.getEstadisticas(queryOptions),
+        enabled: enabled,
         staleTime: 5 * 60 * 1000,
     });
     
-    // Consulta 2: Ventas por día/semana/mes para gráficos de tendencia (ej: las últimas 4 semanas)
-    // Aquí solo consultaremos el último mes como ejemplo.
+    // --- Consulta 2: Ventas de los últimos 3 meses (para gráficos de tendencia) ---
+    // ASUMIMOS que tu backend puede configurarse para devolver '3meses'
     const periodoQuery = useQuery<VentaResponseDto[], Error>({
-        queryKey: ['ventasPeriodo', 'mes', options],
-        queryFn: () => ventaService.getVentasPorPeriodo('mes', options),
+        // La clave de consulta incluye el periodo y las opciones de filtro
+        queryKey: ['ventasPeriodo', '3meses', queryOptions],
+        // Llamamos al service con el periodo '3meses' y los filtros
+        queryFn: () => ventaService.getVentasPorPeriodo('3meses', queryOptions),
+        enabled: enabled,
         staleTime: 5 * 60 * 1000,
+    });
+    
+    // 🛑 Consulta 3: Ventas por Periodo (12 meses)
+    const ventasAnualesQuery = useQuery<VentaResponseDto[], Error>({
+        queryKey: ['ventasPeriodo', '12meses', queryOptions],
+        // Asumimos que podemos pedir 'año' o '12meses' para obtener data de 12 meses
+        queryFn: () => ventaService.getVentasPorPeriodo('12meses', queryOptions),
+        enabled: enabled,
+        staleTime: 5 * 60 * 1000,
+    });
+    
+    // Filtrado y procesamiento de los 3 meses (SE MANTIENE)
+    // ...
+
+    // 🛑 Ventas de los últimos 12 meses
+    const ventasUltimos12Meses = ventasAnualesQuery.data?.filter(venta => {
+        const doceMesesAtras = new Date();
+        doceMesesAtras.setMonth(doceMesesAtras.getMonth() - 12);
+        return venta.fechaVenta >= doceMesesAtras;
     });
 
     return {
@@ -84,15 +116,22 @@ export const useVentas = (options: UseVentasOptions = {}) => {
 
 
          // Data general
+          estadisticas: estadisticasQuery.data,
+           ventasUltimos3Meses: periodoQuery.data,
         data: estadisticasQuery.data,
-        isLoading: estadisticasQuery.isLoading || periodoQuery.isLoading,
+        
         isError: estadisticasQuery.isError || periodoQuery.isError,
         error: estadisticasQuery.error || periodoQuery.error,
+         refetchEstadisticas: estadisticasQuery.refetch,
+        refetchPeriodo: periodoQuery.refetch,
         
         // Datos para gráficos
         ventasPorPeriodo: periodoQuery.data,
+
+         ventasUltimos12Meses: ventasUltimos12Meses, // 👈 Nuevo retorno
+        isLoading: estadisticasQuery.isLoading || periodoQuery.isLoading || ventasAnualesQuery.isLoading,
+        // ...
         
-        // Mutaciones para filtros (si cambian options)
-        refetchEstadisticas: estadisticasQuery.refetch,
+      
     };
 };

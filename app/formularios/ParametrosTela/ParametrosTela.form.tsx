@@ -1,12 +1,14 @@
 import "./ParametrosTela.style.css";
 
-import { useState, useEffect } from "react"; // 🎯 IMPORTAR useEffect
+import { useState, useEffect, useMemo } from "react"; // 🎯 IMPORTAR useEffect
 
 import Switch1 from "~/componentes/switch1";
 import InputText1 from "~/componentes/InputText1";
 import Boton1 from "~/componentes/Boton1";
 import { useParametrosTela } from "~/hooks/useParametrosTela";
 import { EstadoPrenda } from "~/models/ParametrosTela";
+import { useProductos } from "~/hooks/useProductos";
+import ComboBox1 from "~/componentes/ComboBox1";
 
 
 interface ParametrosTelaFormProps {
@@ -35,6 +37,12 @@ const ParametrosTelaForm: React.FC<ParametrosTelaFormProps> = ({
     .filter(Boolean)
     .join(" ");
 
+ const [debouncedSearch, setDebouncedSearch] = useState("");
+    const {
+        productos,
+        isLoading: isLoadingProds, // Renombramos para evitar conflicto con otros isLoading
+    } = useProductos(debouncedSearch);
+
   const [formData, setFormData] = useState({
     codigoReferencia: "",
     nombreModelo: "",
@@ -52,17 +60,52 @@ const ParametrosTelaForm: React.FC<ParametrosTelaFormProps> = ({
     telaId: undefined,
   });
 
+// 2. Preparación de las options
+const productoOptions = useMemo(() => 
+    (Array.isArray(productos) ? productos : []).map(p => ({ 
+        // ¡Crucial!: El valor debe ser string
+        value: p.id.toString(), 
+        label: `${p.nombre} (ID: ${p.id})` 
+    }))
+, [productos]);
+
   // 🎯 NUEVO ESTADO LOCAL PARA LA TABLA
   const [tallaConsumoData, setTallaConsumoData] = useState<TallaConsumoItem[]>(
         TALLAS_STANDARD.map(talla => ({ talla, consumo: "" }))
     );
 
-  const handleChange = (field: string, value: string | boolean | number) => {
-    setFormData((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
-  };
+  const handleChange = (field: string, value: any) => {
+    let finalValue: any = value;
+
+    // 🚨 Nueva lógica de conversión para campos ID (ProductoId, CategoriaId, etc.)
+    // Asumimos que los ComboBoxes devuelven siempre un string.
+    if (field.endsWith('Id') && typeof value === 'string') {
+        
+        // Si el valor es una cadena vacía (''), significa que se seleccionó la opción "sin seleccionar"
+        if (value === '' || value === '0') {
+             // Si el ID es opcional (como subcategoriaId) sería undefined.
+             // Pero si es obligatorio (como productoId), se podría forzar a 0 o al valor que manejes para "no seleccionado"
+             // Para productoId, asumiremos que debe ser un número (o 0 si no se selecciona nada).
+             finalValue = 0; // O undefined, si tu modelo lo permite. Usaremos 0 por ser un ID generalmente obligatorio.
+        } else {
+            // Si tiene valor (ej: "15"), lo convertimos a número (15)
+            finalValue = Number(value); 
+        }
+    } 
+    // 🚨 También podrías necesitar lógica para convertir 'stock' o 'precio' si InputText1 devuelve string.
+    else if (field === 'precio' || field === 'stock') {
+        finalValue = value === '' ? 0 : Number(value);
+    }
+    // Para booleanos (Switch) o strings de texto, se usa el valor directamente
+    else {
+         finalValue = value;
+    }
+
+    setFormData((prev) => ({
+        ...prev,
+        [field]: finalValue,
+    }));
+};
     
   // 🎯 MANEJADOR DE CAMBIOS EN LOS INPUTS DE LA TABLA
   const handleConsumoChange = (talla: string, value: string) => {
@@ -180,7 +223,7 @@ const ParametrosTelaForm: React.FC<ParametrosTelaFormProps> = ({
     <>
       <div className={containerClasses}>
         <div className="cuerpoParametrosTelaForm">
-          <h2>Nuevo Parámetro de Tela</h2>
+          <h2>Nuevo Parámetro de Prenda</h2>
 
           <Boton1
             type="button"
@@ -208,6 +251,20 @@ const ParametrosTelaForm: React.FC<ParametrosTelaFormProps> = ({
                   type="text"
                   width={220}
                 />
+
+<ComboBox1
+    label="Producto *"
+    // Muestra el ID NUMÉRICO como STRING para que coincida con las options
+    value={formData.productoId+""} 
+    // El onChange enviará el ID como string (ej: "15") a handleChange
+    onChange={(val) => handleChange("productoId", val)} 
+    options={productoOptions}
+    disabled={isLoadingProds}
+    required={true}
+    placeholder={isLoadingProds ? "Cargando productos..." : "Seleccione producto"}
+    errorMessage={errors.productoIdError}
+    width={220}
+/>
                 <InputText1
                   label="Nombre del Modelo *"
                   value={formData.nombreModelo}
@@ -306,8 +363,7 @@ const ParametrosTelaForm: React.FC<ParametrosTelaFormProps> = ({
                     )}
                     
                     <small style={{ marginTop: '5px', color: '#666' }}>
-                        * Solo los campos con valor numérico mayor a 0 se guardarán en el JSON.
-                        JSON actual: <code>{formData.consumoTelaPorTalla}</code>
+                        * Solo los campos con valor numérico mayor a 0 se guardarán.
                     </small>
                 </div>
                 {/* 🎯 FIN DEL REEMPLAZO */}

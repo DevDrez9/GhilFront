@@ -73,7 +73,7 @@ export class VentaResponseDto {
         this.estado = venta.estado;
         
         // ✅ Conversión de la fecha
-        this.fechaVenta = new Date(venta.fechaVenta); 
+        this.fechaVenta =  new Date(venta.createdAt || venta.fechaVenta); 
 
         // ✅ Mapeo recursivo de los ítems para que también sean Clases
         this.items = venta.items 

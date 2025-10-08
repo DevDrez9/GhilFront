@@ -83,7 +83,7 @@ const ParametrosTela = () => {
 
         {/* Aquí puedes usar tus componentes de formulario */}
         <div className="titulo">
-          <p>Parámetros de Tela</p>
+          <p>Parámetros de Prenda</p>
           <Boton1 variant="info" onClick={() => handleNuevo()}>
             + Agregar
           </Boton1>
@@ -94,7 +94,7 @@ const ParametrosTela = () => {
             value={searchTerm}
             onChange={()=>{handleSearch}}
             width="400px"
-            label="Buscar Parámetro de Tela"
+            label="Buscar Parámetro de Prenda"
             placeholder="Código, Modelo, Tela"
           />
           <Boton1

@@ -13,7 +13,7 @@ interface VentaQueryOptions {
     tiendaId?: number;
     search?: string; // Para buscar por cliente, etc.
 }
-
+type PeriodoVentas = 'dia' | 'semana' | 'mes' | '3meses' | '12meses'; 
 export const ventaService = {
 
     /**
@@ -68,28 +68,40 @@ export const ventaService = {
             ...(options.sucursalId && { sucursalId: String(options.sucursalId) }),
         });
         
+        // Endpoint: /ventas/estadisticas
         const url = `${API_BASE_URL}/ventas/estadisticas?${params.toString()}`;
 
         const response = await fetch(url);
-        if (!response.ok) throw new Error(`Error ${response.status}: ${response.statusText}`);
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.message || `Error ${response.status}: ${response.statusText}`);
+        }
 
-        // La API devuelve la estructura de EstadisticasVentaResponse
         return response.json();
     },
 
-    getVentasPorPeriodo: async (periodo: 'dia' | 'semana' | 'mes', options: EstadisticasQueryOptions = {}): Promise<VentaResponseDto[]> => {
+    /**
+     * Obtiene todas las ventas de un periodo específico para gráficos de tendencia.
+     */
+    getVentasPorPeriodo: async (periodo: PeriodoVentas, options: EstadisticasQueryOptions = {}): Promise<VentaResponseDto[]> => {
         const params = new URLSearchParams({
             ...(options.tiendaId && { tiendaId: String(options.tiendaId) }),
             ...(options.sucursalId && { sucursalId: String(options.sucursalId) }),
         });
         
+        // Endpoint: /ventas/periodo/:periodo
         const url = `${API_BASE_URL}/ventas/periodo/${periodo}?${params.toString()}`;
 
         const response = await fetch(url);
-        if (!response.ok) throw new Error(`Error ${response.status}: ${response.statusText}`);
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.message || `Error ${response.status}: ${response.statusText}`);
+        }
 
         const data = await response.json();
-        // Mapeamos aquí para asegurar que los DTOs se construyan con sus constructores (fechas, etc.)
+        
+        // Mapeamos los resultados para asegurar que las fechas y anidamientos
+        // se conviertan a instancias de VentaResponseDto si es necesario.
         return data.map((venta: any) => new VentaResponseDto(venta));
     }
 

@@ -3,6 +3,7 @@ import InputText1 from "~/componentes/InputText1";
 import Boton1 from "~/componentes/Boton1";
 import { useConfigWeb } from "~/hooks/useConfigWeb";
 import { CreateBannerDto,type UpdateConfigWebBase64Dto } from "~/models/configWeb";
+import "./ConfigWeb.style.css"
 
 // --- Tipos de Estado Interno ---
 interface ConfigFormState {

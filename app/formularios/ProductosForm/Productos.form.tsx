@@ -14,6 +14,7 @@ import { useProveedores } from "~/hooks/useProveedores"; // Asume que este hook 
 
 // Modelos/DTOs
 import { CreateImagenProductoDto } from "~/models/productoCreate"; 
+import "./Productos.style.css"
 
 
 // Interfaces y Tipos
@@ -78,8 +79,8 @@ const ProductoForm: React.FC<ProductoFormProps> = ({ visible, onClose }) => {
         proveedorId: undefined as number | undefined,
     });
 
-    const [imagenesBase64, setImagenesBase64] = useState<CreateImagenProductoDto[]>([]);
-    const [previewUrls, setPreviewUrls] = useState<PreviewImage[]>([]);
+    const [imagenesBase64Nuevos, setImagenesBase64] = useState<CreateImagenProductoDto[]>([]);
+    const [previewUrlsNuevos, setPreviewUrls] = useState<PreviewImage[]>([]);
     const [errors, setErrors] = useState<Record<string, string>>({});
   
 
@@ -177,7 +178,7 @@ const subcategoriasDisponibles = useMemo(() => {
               subcategoriaId: formData.subcategoriaId ? Number(formData.subcategoriaId) : undefined,
               tiendaId: 1, 
               proveedorId: formData.proveedorId ? Number(formData.proveedorId) : undefined,
-              imagenes: imagenesBase64.length > 0 ? imagenesBase64 : undefined,
+              imagenes: imagenesBase64Nuevos.length > 0 ? imagenesBase64Nuevos : undefined,
             };
             
             await createProducto(dataToSend as any); 
@@ -197,7 +198,7 @@ const subcategoriasDisponibles = useMemo(() => {
 
         const base64Promises: Promise<CreateImagenProductoDto>[] = [];
         const previewPromises: Promise<PreviewImage>[] = [];
-        const startIndex = previewUrls.length; 
+        const startIndex = previewUrlsNuevos.length; 
 
         filesArray.forEach((file, index) => {
           const id = Date.now() + index; 
@@ -227,14 +228,14 @@ const subcategoriasDisponibles = useMemo(() => {
     };
     
     const removeImage = (idToRemove: number) => {
-        const dataUrlToRemove = previewUrls.find(p => p.id === idToRemove)?.dataUrl;
+        const dataUrlToRemove = previewUrlsNuevos.find(p => p.id === idToRemove)?.dataUrl;
     
         if (!dataUrlToRemove) return;
     
-        const newPreviewUrls = previewUrls.filter(p => p.id !== idToRemove)
+        const newPreviewUrls = previewUrlsNuevos.filter(p => p.id !== idToRemove)
         setPreviewUrls(newPreviewUrls);
     
-        const newBase64s = imagenesBase64
+        const newBase64s = imagenesBase64Nuevos
             .filter(img => img.url !== dataUrlToRemove)
             .map((img, index) => ({...img, orden: index + 1})); 
             
@@ -379,7 +380,7 @@ const subcategoriasDisponibles = useMemo(() => {
                                 
                                 <div className="custom-file-upload" style={{ marginBottom: '10px' }}>
                                     <label htmlFor="file-upload-input" className="custom-file-label">
-                                        + Añadir Imágenes ({previewUrls.length})
+                                        + Añadir Imágenes ({previewUrlsNuevos.length})
                                     </label>
                                     <input
                                         id="file-upload-input" 
@@ -391,9 +392,9 @@ const subcategoriasDisponibles = useMemo(() => {
                                     />
                                 </div>
                                 
-                                {previewUrls.length > 0 && (
+                                {previewUrlsNuevos.length > 0 && (
                                     <div className="image-preview-container">
-                                        {previewUrls.map((preview, index) => (
+                                        {previewUrlsNuevos.map((preview, index) => (
                                             <div key={preview.id} className="image-preview-item">
                                                 <img 
                                                     src={preview.dataUrl} 
