@@ -163,6 +163,8 @@ const productoOptions = useMemo(() =>
 
     if (!formData.tallasDisponibles.trim())
       newErrors.tallasDisponiblesError = "Las tallas disponibles son obligatorias";
+if (!formData.fotoReferenciaUrl)
+      newErrors.fotoReferenciaUrl = "Debe agregar un costo por unidad";
 
     // 🎯 VALIDACIÓN SIMPLIFICADA DEL JSON (solo verifica que no esté vacío)
     try {
@@ -206,6 +208,7 @@ const productoOptions = useMemo(() =>
           tiempoTotalPorLote: Number(formData.tiempoTotalPorLote),
           productoId: formData.productoId ? Number(formData.productoId) : undefined,
           telaId: formData.telaId ? Number(formData.telaId) : undefined,
+          
         };
 
         await createParametroTela(dataToSend as any); // Usamos 'as any' si el DTO no está tipado
@@ -388,6 +391,15 @@ const productoOptions = useMemo(() =>
                   width={220}
                 />
               </div>
+
+ <InputText1
+                  label="Costo por unidad"
+                  value={formData.fotoReferenciaUrl}
+                  onChange={(val) => handleChange("fotoReferenciaUrl", val)}
+                  type="number"
+required
+                  width={220}
+                />
                 {/*
               <div className="linea"></div>
 

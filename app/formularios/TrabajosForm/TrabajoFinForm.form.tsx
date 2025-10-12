@@ -15,6 +15,7 @@ interface FinalizarTrabajoFormState {
   calidad: CalidadProducto;
   notas: string;
   tiendaId: string;
+  costo:number;
 }
 
 interface FinalizarTrabajoFormProps {
@@ -48,6 +49,7 @@ const FinalizarTrabajoForm: React.FC<FinalizarTrabajoFormProps> = ({ visible, on
         calidad: CalidadProducto.EXCELENTE, 
         notas: "", 
         tiendaId: String(trabajo.tiendaId),
+        costo:trabajo.cantidad*trabajo.parametrosTela.fotoReferenciaUrl
     });
 
     const [errors, setErrors] = useState<Record<string, string>>({});
@@ -102,10 +104,13 @@ const FinalizarTrabajoForm: React.FC<FinalizarTrabajoFormProps> = ({ visible, on
                     calidad: calidadNumerica, // 🎯 ¡Aquí se envía el número (0, 1, 2, 3)!
                     notas: formData.notas.trim() || undefined,
                     tiendaId: formData.tiendaId.trim() !== "" ? Number(formData.tiendaId) : undefined,
+                    costo:Number(formData.costo)
                     
                 };
+
+                console.log(trabajo.id+" " +dataToSend)
                 
-                await completeTrabajo({ 
+               await completeTrabajo({ 
                     id: trabajo.id,
                     data: dataToSend 
                 });
@@ -117,21 +122,34 @@ const FinalizarTrabajoForm: React.FC<FinalizarTrabajoFormProps> = ({ visible, on
             }
         }
     };
+    const calcularCostoEstimado=(cantidad, costoUnitario)=>{
+        return cantidad*costoUnitario;
+    }
+
 
     return (
         <>
             <div className={containerClasses}>
                 <div className="cuerpoFinalizarTrabajoForm">
+                    <Boton1 type="button" size="medium" variant="info" onClick={() => {
+                onClose()
+            }}> Atras </Boton1>
+
                     <h2>Finalizar Trabajo: {trabajo.codigoTrabajo}</h2>
+
+
                     
-                    <p>Cantidad Solicitada: <strong>{trabajo.cantidad}</strong></p>
+                    
 
                     <div className="formFinalizarTrabajo">
+
+                        <p>Cantidad Solicitada: <strong>{trabajo.cantidad}</strong></p>
+                     <p>Costo Estimado: <strong>{calcularCostoEstimado(trabajo.cantidad,trabajo.parametrosTela.fotoReferenciaUrl)}</strong></p>
                         <form onSubmit={handleSubmit}>
                             
                             <div className="form-row">
                                 <InputText1
-                                    label="Cantidad Producida *"
+                                    label="Cantidad Producida * "
                                     value={formData.cantidadProducida}
                                     onChange={(val) => handleChange("cantidadProducida", val)}
                                     errorMessage={errors.cantidadProducida}
@@ -139,6 +157,7 @@ const FinalizarTrabajoForm: React.FC<FinalizarTrabajoFormProps> = ({ visible, on
                                     type="number"
                                     width={220}
                                 />
+                               
                                 
                                 <InputText1
                                     label="Fecha de Finalización *"
@@ -174,6 +193,15 @@ const FinalizarTrabajoForm: React.FC<FinalizarTrabajoFormProps> = ({ visible, on
                                     width={220}
                                 />
                             </div>
+                            <InputText1
+                                label="Costo"
+                                value={formData.costo+""}
+                                onChange={(val) => handleChange("costo", val)}
+                                type="number"
+                               
+                                width={450}
+                            />
+
                             
                             {/* NOTAS */}
                             <InputText1
@@ -184,7 +212,8 @@ const FinalizarTrabajoForm: React.FC<FinalizarTrabajoFormProps> = ({ visible, on
                                
                                 width={450}
                             />
-
+                            
+                           
                             <Boton1
                                 type="submit"
                                 fullWidth

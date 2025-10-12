@@ -89,7 +89,7 @@ const CrearVentaForm: React.FC<CrearVentaFormProps> = ({ visible, onClose }) => 
         // Mapea el inventario de la sucursal seleccionada
         return inventario.map(i => ({
             value: String(i.id), // ID del registro de inventario como valor
-            label: `${i.producto.nombre} (Stock: ${i.stock}, $${i.producto.precioUnitario})`,
+            label: `${i.producto.nombre} (Stock: ${i.stock}, Bs.${i.producto.precioUnitario})`,
         }));
     }, [inventario]);
     
@@ -196,7 +196,7 @@ const CrearVentaForm: React.FC<CrearVentaFormProps> = ({ visible, onClose }) => 
                 
                 await createVenta(dataToSend);
                 
-                alert(`✅ Venta registrada en Sucursal ${sucursalIdNum} por $${total.toFixed(2)}.`);
+                alert(`✅ Venta registrada en Sucursal ${sucursalIdNum} por Bs.${total.toFixed(2)}.`);
                 onClose();
             } catch (error) {
                 alert("❌ Error al crear la venta.");
@@ -312,7 +312,7 @@ const CrearVentaForm: React.FC<CrearVentaFormProps> = ({ visible, onClose }) => 
                                 <strong>{itemInfo}</strong>
                             </td>
                             <td style={{ textAlign: 'center' }}>{item.cantidad}</td>
-                            <td style={{ textAlign: 'right' }}>${item.precio.toFixed(2)}</td>
+                            <td style={{ textAlign: 'right' }}>Bs.{item.precio.toFixed(2)}</td>
                             <td style={{ textAlign: 'right' }}>
                                 {/* Total del ítem en negrita */}
                                 <strong>${totalItem.toFixed(2)}</strong>
@@ -341,9 +341,9 @@ const CrearVentaForm: React.FC<CrearVentaFormProps> = ({ visible, onClose }) => 
                         <fieldset className="seccionTotales">
                             <legend>Resumen Final</legend>
                             <div className="resumenTotales">
-                                <div>Subtotal: **${subtotal.toFixed(2)}**</div>
+                                <div>Subtotal: **Bs.{subtotal.toFixed(2)}**</div>
                                 <div>Impuestos ({IMPUESTO_RATE * 100}%): **${impuestos.toFixed(2)}**</div>
-                                <div>Total a Pagar: **${total.toFixed(2)}**</div>
+                                <div>Total a Pagar: **Bs.{total.toFixed(2)}**</div>
                             </div>
                         </fieldset>
                         
@@ -354,7 +354,7 @@ const CrearVentaForm: React.FC<CrearVentaFormProps> = ({ visible, onClose }) => 
                             disabled={isDisabled || ventaItems.length === 0}
                             style={{ marginTop: '20px' }}
                         >
-                            {isCreating ? "Registrando Venta..." : `Registrar Venta por $${total.toFixed(2)}`}
+                            {isCreating ? "Registrando Venta..." : `Registrar Venta por Bs.${total.toFixed(2)}`}
                         </Boton1>
 
                         {createError && (

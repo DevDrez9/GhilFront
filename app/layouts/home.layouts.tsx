@@ -20,6 +20,9 @@ export default function HomeLayout({
     userActivo,
   } = useAuth();
 
+
+
+
   const menuItems: MenuItem[] = [
     { id: "Inicio", label: "Inicio", path: "/home" },
     {
@@ -41,7 +44,7 @@ export default function HomeLayout({
         },
         {
           id: "ComprasTela",
-          label: "Compras Tela",
+          label: "Inventario Telas",
           path: "/inventarioTelas",
         },
       ],
@@ -149,6 +152,7 @@ export default function HomeLayout({
           id: "tienda",
           label: "Tienda ",
           path: "/tienda",
+          
         },
         
        
@@ -157,6 +161,14 @@ export default function HomeLayout({
        
       ],
     },
+     {
+      id: "cerrarSesion",
+      label: "Cerrar Sesion",
+      icon: "🧵", path:"/",
+      cerrarSesion:true
+    
+      
+    }
   ];
 
   if (!user) {

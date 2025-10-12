@@ -5,6 +5,7 @@ import "./CompraTelasSubPage.style.css"
 import Boton1 from '~/componentes/Boton1';
 import InputText1 from '~/componentes/InputText1';
 import InventarioTelaForm from '~/formularios/InventarioTelaForm/InventarioTelaForm.form';
+import { EstadoCosturero } from '~/models/costureros';
 
 export default function InventarioTelasList() {
   const [filters, setFilters] = useState({
@@ -60,6 +61,8 @@ export default function InventarioTelasList() {
     setMostrarForm(!mostrarForm);
   };
 
+
+ 
   return (
     <div className="cuerpoProveedores">
       <InventarioTelaForm onClose={handleNuevo} visible={mostrarForm} />
@@ -142,7 +145,7 @@ export default function InventarioTelasList() {
                     {item.color}
                   </div>
                   <div>
-                    <strong>Precio/KG:</strong> ${item.precioKG.toLocaleString()}
+                    <strong>Precio/KG:</strong> Bs{item.precioKG.toLocaleString()}
                   </div>
                   <div>
                     <strong>Peso Grupo:</strong> {item.pesoGrupo} kg
@@ -154,7 +157,7 @@ export default function InventarioTelasList() {
                       fontWeight: 'bold',
                       marginLeft: '5px'
                     }}>
-                      ${item.importe?.toLocaleString()}
+                      Bs{item.importe?.toLocaleString()}
                     </span>
                   </div>
                 </div>
@@ -174,7 +177,9 @@ export default function InventarioTelasList() {
               </div>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', minWidth: '100px' }}>
-                <button 
+                
+                {item.pesoGrupo==0?
+                 <button 
                   onClick={() => handleDelete(item.id, item.tela?.nombreComercial || 'Item del inventario')}
                   disabled={isDeleting}
                   style={{ 
@@ -187,8 +192,9 @@ export default function InventarioTelasList() {
                   }}
                 >
                   Eliminar
-                </button>
-                
+                </button>:null}
+               
+                   {/*
                 <button 
                   onClick={() => window.location.href = `/inventario/${item.id}`}
                   style={{ 
@@ -202,7 +208,7 @@ export default function InventarioTelasList() {
                 >
                   Editar
                 </button>
-
+                 
                 <button 
                   onClick={() => window.location.href = `/telas/${item.telaId}`}
                   style={{ 
@@ -215,7 +221,7 @@ export default function InventarioTelasList() {
                   }}
                 >
                   Ver Tela
-                </button>
+                </button>*/}
               </div>
             </div>
 

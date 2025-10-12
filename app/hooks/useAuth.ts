@@ -66,7 +66,7 @@ export const useAuth = () => {
     localStorage.removeItem(AUTH_KEYS.SESSION);
     queryClient.removeQueries({ queryKey: ['auth', 'user'] });
     queryClient.clear();
-    window.location.href = '/login';
+    window.location.href = '/';
   };
 
   const refreshUser = async (): Promise<User> => {
@@ -74,7 +74,10 @@ export const useAuth = () => {
       // En una app real, aquí llamarías a la API para obtener datos frescos
       const currentUser = getPersistedUser();
       if (!currentUser) {
-        throw new Error('No hay usuario logueado');
+          window.location.href = '/';
+       // throw new Error('No hay usuario logueado');
+      
+
       }
       return currentUser;
     } catch (error) {

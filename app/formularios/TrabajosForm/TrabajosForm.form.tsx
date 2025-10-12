@@ -4,11 +4,12 @@ import Boton1 from "~/componentes/Boton1";
 import { useTrabajos } from "~/hooks/useTrabajos"; // Nuevo hook
 import { EstadoTrabajo } from "~/models/trabajo";
 
-import "./TrabajosForm.style.css"
+import "./TrabajosForm.style.css";
 import { useParametrosFisicosTelas } from "~/hooks/useParametrosFisicosTelas";
 import { useCostureros } from "~/hooks/useCostureros";
 import ComboBox1 from "~/componentes/ComboBox1";
 import { useParametrosTela } from "~/hooks/useParametrosTela";
+
 
 interface TrabajoFormProps {
   visible: boolean;
@@ -16,17 +17,17 @@ interface TrabajoFormProps {
 }
 const TrabajoForm: React.FC<TrabajoFormProps> = ({ visible, onClose }) => {
   const { createTrabajo, isCreating, createError } = useTrabajos();
-  const { parametros } = useParametrosTela() as { parametros}; 
-  const { costureros } = useCostureros(); 
+  const { parametros } = useParametrosTela() as { parametros };
+  const { costureros } = useCostureros();
 
   // Mapeo de opciones para ComboBox1
-  const parametroOptions = parametros.map(p => ({ 
-      value: String(p.id), 
-      label: `ID ${p.id} - ${p.nombreModelo}` 
+  const parametroOptions = parametros.map((p) => ({
+    value: String(p.id),
+    label: `ID ${p.id} - ${p.nombreModelo}`,
   }));
-  const costureroOptions = costureros.map(c => ({ 
-      value: String(c.id), 
-      label: c.nombre 
+  const costureroOptions = costureros.map((c) => ({
+    value: String(c.id),
+    label: c.nombre,
   }));
   costureroOptions.unshift({ value: "", label: "Sin asignar (Opcional)" });
 
@@ -39,35 +40,41 @@ const TrabajoForm: React.FC<TrabajoFormProps> = ({ visible, onClose }) => {
 
   const [formData, setFormData] = useState({
     codigoTrabajo: "",
-    parametrosTelaId: "" as string, 
+    parametrosTelaId: "" as string,
     costureroId: "" as string | undefined,
     estado: EstadoTrabajo.EN_PROCESO,
     cantidad: 0,
     tiendaId: 0,
-    fechaInicio: new Date().toISOString().substring(0, 10), 
+    fechaInicio: new Date().toISOString().substring(0, 10),
     fechaFinEstimada: "", // Se calculará
     notas: "",
   });
-  
+
   // Estado para guardar el tiempo de fabricación de la tela seleccionada
-  const [tiempoPorUnidad, setTiempoPorUnidad] = useState<number>(0); 
+  const [tiempoPorUnidad, setTiempoPorUnidad] = useState<number>(0);
+  const [costoEstimado, setCostoEstimado] = useState<number>(0);
+  const [costoUnitario, setCostoUnitario] = useState<number>(0);
 
   // ----------------------------------------------------
   // LÓGICA DE CÁLCULO DE FECHA FIN
   // ----------------------------------------------------
 
-  const calculateFechaFin = (inicio: string, cantidad: number, tiempoUnidad: number): string => {
+  const calculateFechaFin = (
+    inicio: string,
+    cantidad: number,
+    tiempoUnidad: number
+  ): string => {
     if (!inicio || cantidad <= 0 || tiempoUnidad <= 0) {
       return "";
     }
-    
+
     // 1. Convertir tiempoUnidad a Milisegundos (Asumimos que tiempoUnidad está en HORAS)
     // Si tu tiempo está en minutos, usa * 60 * 1000. Si está en horas, usa * 3600 * 1000.
     const totalTiempoMs = cantidad * tiempoUnidad * 3600 * 1000; // Asumiendo que tiempoUnidad está en HORAS
-    
+
     // 2. Crear objeto Date para el inicio (usamos la medianoche de la fecha de inicio)
     const startDate = new Date(inicio + "T00:00:00");
-    
+
     // 3. Calcular la fecha y hora final
     const finalDate = new Date(startDate.getTime() + totalTiempoMs);
 
@@ -90,12 +97,23 @@ const TrabajoForm: React.FC<TrabajoFormProps> = ({ visible, onClose }) => {
 
     // Actualizar solo si la fecha calculada ha cambiado
     if (nuevaFechaFin !== formData.fechaFinEstimada) {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
         fechaFinEstimada: nuevaFechaFin,
       }));
     }
   }, [formData.fechaInicio, formData.cantidad, tiempoPorUnidad]);
+
+   useEffect(() => {
+    const cantidad = Number(formData.cantidad);
+    const nuevoCostoEstimado = cantidad * costoUnitario;
+
+    // Solo actualiza si el valor realmente ha cambiado para evitar re-render innecesarios
+    if (nuevoCostoEstimado !== costoEstimado) {
+      setCostoEstimado(nuevoCostoEstimado);
+    }
+
+  }, [formData.cantidad, costoUnitario]); // <--- Depende de la cantidad y el costo unitario
 
 
   // ----------------------------------------------------
@@ -105,26 +123,33 @@ const TrabajoForm: React.FC<TrabajoFormProps> = ({ visible, onClose }) => {
   const handleChange = (field: string, value: string | number) => {
     let finalValue = value;
     let newTiempoPorUnidad = tiempoPorUnidad;
+    let newCostoUnitario = costoUnitario; 
 
     // Lógica especial para 'parametrosTelaId' (ID Numérico)
-    if (field === 'parametrosTelaId') {
-        const selectedId = Number(value);
-        finalValue = String(selectedId); // Mantener string en formData para ComboBox
+    if (field === "parametrosTelaId") {
+      const selectedId = Number(value);
+      finalValue = String(selectedId); // Mantener string en formData para ComboBox
+
+      const parametroSeleccionado = parametros.find((p) => p.id === selectedId);
+
+      if (parametroSeleccionado) {
+        // Guardar el tiempo de fabricación para el cálculo
+        newTiempoPorUnidad = parametroSeleccionado.tiempoFabricacionPorUnidad;
+         newCostoUnitario = Number(parametroSeleccionado.fotoReferenciaUrl) || 0; 
         
-        const parametroSeleccionado = parametros.find(p => p.id === selectedId);
-        
-        if (parametroSeleccionado) {
-            // Guardar el tiempo de fabricación para el cálculo
-            newTiempoPorUnidad = parametroSeleccionado.tiempoFabricacionPorUnidad;
-        } else {
-            newTiempoPorUnidad = 0;
-        }
+      } else {
+        newTiempoPorUnidad = 0;
+        newCostoUnitario = 0;
+      }
     }
-    
+
     // Actualizar el estado de tiempo por unidad si ha cambiado
     if (newTiempoPorUnidad !== tiempoPorUnidad) {
-        setTiempoPorUnidad(newTiempoPorUnidad);
+      setTiempoPorUnidad(newTiempoPorUnidad);
     }
+    if (newCostoUnitario !== costoUnitario) {
+      setCostoUnitario(newCostoUnitario);
+    }
 
     setFormData((prev) => ({
       ...prev,
@@ -148,8 +173,6 @@ const TrabajoForm: React.FC<TrabajoFormProps> = ({ visible, onClose }) => {
     if (!formData.cantidad || Number(formData.cantidad) <= 0)
       newErrors.cantidadError = "La cantidad debe ser mayor a 0";
 
-   
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -162,25 +185,28 @@ const TrabajoForm: React.FC<TrabajoFormProps> = ({ visible, onClose }) => {
           ...formData,
           // Convertir los strings a números
           parametrosTelaId: Number(formData.parametrosTelaId),
-          costureroId: formData.costureroId && formData.costureroId !== "" 
-            ? Number(formData.costureroId) 
-            : undefined,
+          costureroId:
+            formData.costureroId && formData.costureroId !== ""
+              ? Number(formData.costureroId)
+              : undefined,
           cantidad: Number(formData.cantidad),
           tiendaId: 1,
           // Convertir la cadena de fecha a objetos Date
           fechaInicio: new Date(formData.fechaInicio),
-          fechaFinEstimada: formData.fechaFinEstimada ? new Date(formData.fechaFinEstimada) : undefined,
+          fechaFinEstimada: formData.fechaFinEstimada
+            ? new Date(formData.fechaFinEstimada)
+            : undefined,
         };
-        
+
         await createTrabajo(dataToSend as any);
         onClose();
       } catch (error) {
         alert("No se pudo guardar el trabajo");
         console.error("Error al guardar:", error);
       }
-    } 
+    }
   };
-  
+
   // ----------------------------------------------------
   // RENDERIZADO
   // ----------------------------------------------------
@@ -207,7 +233,7 @@ const TrabajoForm: React.FC<TrabajoFormProps> = ({ visible, onClose }) => {
                   type="text"
                   width={220}
                 />
-                
+
                 {/* COMBOBOX PARA PARAMETROS TELA ID */}
                 <ComboBox1
                   label="Parámetros de Tela *"
@@ -231,7 +257,7 @@ const TrabajoForm: React.FC<TrabajoFormProps> = ({ visible, onClose }) => {
                   type="number"
                   width={220}
                 />
-               {/* <InputText1
+                {/* <InputText1
                   label="ID de Tienda *"
                   value={formData.tiendaId + ""}
                   onChange={(val) => handleChange("tiendaId", val)}
@@ -290,6 +316,16 @@ const TrabajoForm: React.FC<TrabajoFormProps> = ({ visible, onClose }) => {
                 onChange={() => {}} // Campo de solo lectura, pero requiere onChange
                 type="date"
                 readOnly
+                width={450}
+              />
+              <InputText1
+                label="CostoEstimado"
+                value={costoEstimado + ""}
+                onChange={(value) => {
+                 
+                }}
+                readOnly
+                type="text"
                 width={450}
               />
 

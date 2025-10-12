@@ -5,6 +5,7 @@ import { useState } from "react";
 import { CostureroResponseDto, EstadoCosturero } from "~/models/costureros";
 import { useCostureros } from "~/hooks/useCostureros";
 import CostureroForm from "~/formularios/CosturerosForm/CosturerosForm.form";
+import CostureroFormEdit from "~/formularios/CosturerosForm/ConstureroEditForm.form";
 
 const Costurero = () => {
     const [debouncedSearch, setDebouncedSearch] = useState("");
@@ -40,7 +41,13 @@ const Costurero = () => {
     if (window.confirm("¿Estás seguro de eliminar este costurero?")) {
       try {
         await deleteCosturero(id);
-        alert("Costurero eliminado correctamente");
+        if(deleteError){
+         alert( deleteError.message) 
+
+        }else {
+            alert("Costurero eliminado correctamente");
+        }
+      
       } catch (error) {
         alert("Error al eliminar costurero");
       }
@@ -69,12 +76,15 @@ const Costurero = () => {
     return <p>Error al cargar los datos: {error?.message}</p>;
   }
 
+  
+
     return(
         <>
         
          <div className="cuerpoParametroTelas">
-
+            <CostureroFormEdit onClose={handleCloseEdit} visible={mostrarFormUpDate} initialData={costureroEdit} />
             <CostureroForm onClose={handleNuevo} visible={mostrarForm} ></CostureroForm>
+            
 
                 <div className="titulo">
           <p>Costureros</p>

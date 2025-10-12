@@ -6,6 +6,9 @@ import { useState } from "react";
 import type { ProductoResponseDto } from "~/models/producto.model";
 import ProductosForm from "~/formularios/ProductosForm/Productos.form";
 import ProductoEditForm from "~/formularios/ProductosForm/ProductosEdit.form";
+import { CategoriaResponseDto } from "~/models/categoria";
+import { categoriaService } from "~/services/categoriaService";
+import { useCategorias } from "~/hooks/useCategorias";
 
 const Productos = () => {
   const [debouncedSearch, setDebouncedSearch] = useState("");
@@ -19,6 +22,13 @@ const Productos = () => {
     deleteProducto,
     isDeleting,
   } = useProductos(debouncedSearch);
+
+    const { 
+          categorias, 
+          isLoading: isLoadingCats // Usamos 'isLoading' del hook, que es tu 'categoriasQuery.isLoading'
+      } = useCategorias(debouncedSearch); 
+
+  
 
    
   
@@ -72,11 +82,35 @@ const Productos = () => {
     return <p>Error al cargar los datos: {error?.message}</p>;
   }
 
+    
+
 
 
    const handleNuevo = () => {
     setMostrarForm(!mostrarForm);
   };
+
+  const asiganarCate=(idCate:String)=>{
+    if (categorias && Array.isArray(categorias)) { 
+      for(let cate of categorias){
+          if(cate.id==idCate){
+              return cate.nombre
+          }
+      
+    }
+  }}
+  const asiganarSubCate=(idCate:String,idSubCate:String)=>{
+    if (categorias && Array.isArray(categorias)) { 
+      for(let cate of categorias){
+        
+          if(cate.id==idCate){
+             for(let sub of cate.subcategorias){
+              if(sub.id==idSubCate){
+                return sub.nombre}
+          }
+      
+    }
+  }}}
 
   return (
     <>
@@ -180,14 +214,18 @@ const Productos = () => {
                       }}
                     >
                       <div>
-                        <strong>Precio:</strong> ${producto.precio}
+                        <strong>Precio:</strong> Bs{producto.precio}
                       </div>
                      {/* <div>
                         <strong>Stock:</strong> {producto.stock}
                       </div>*/}
                       <div>
-                        <strong>Categoría:</strong> {producto.categoriaId}
+                        <strong>Categoría:</strong> {asiganarCate(producto.categoriaId+"")}
                       </div>
+                      {producto.subcategoriaId!=null ?
+                      <div>
+                        <strong>Sub Categoría:</strong> {asiganarSubCate(producto.categoriaId+"" , producto.subcategoriaId+"")}
+                      </div>:null}
                       <div>
                         <strong>En Oferta:</strong> {producto.enOferta ? 'Sí' : 'No'}
                       </div>

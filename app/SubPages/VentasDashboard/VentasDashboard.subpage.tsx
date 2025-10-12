@@ -163,14 +163,14 @@ const VentasDashboard = () => {
     // --- Gráfico de Datos (DATA SETS) ---
     // Diarios
     const lineDailyData = chartDailyData ? { labels: chartDailyData.labels, datasets: [{ label: 'Ventas (Unidades)', data: chartDailyData.ventasCount, borderColor: '#007bff', backgroundColor: 'rgba(0, 123, 255, 0.1)', fill: true, tension: 0.2 }] } : { labels: [], datasets: [] };
-    const barDailyData = chartDailyData ? { labels: chartDailyData.labels, datasets: [{ label: 'Ingresos ($)', data: chartDailyData.ingresosSum, backgroundColor: '#28a745', borderColor: '#28a745', borderWidth: 1 }] } : { labels: [], datasets: [] };
+    const barDailyData = chartDailyData ? { labels: chartDailyData.labels, datasets: [{ label: 'Ingresos (Bs)', data: chartDailyData.ingresosSum, backgroundColor: '#28a745', borderColor: '#28a745', borderWidth: 1 }] } : { labels: [], datasets: [] };
     
     // Mensuales
     const lineMonthlyData = chartMonthlyData ? { labels: chartMonthlyData.labels, datasets: [{ label: 'Ventas (Unidades)', data: chartMonthlyData.ventasCount, borderColor: '#007bff', backgroundColor: 'rgba(0, 123, 255, 0.1)', fill: true, tension: 0.2 }] } : { labels: [], datasets: [] };
-    const barMonthlyData = chartMonthlyData ? { labels: chartMonthlyData.labels, datasets: [{ label: 'Ingresos ($)', data: chartMonthlyData.ingresosSum, backgroundColor: '#28a745', borderColor: '#28a745', borderWidth: 1 }] } : { labels: [], datasets: [] };
+    const barMonthlyData = chartMonthlyData ? { labels: chartMonthlyData.labels, datasets: [{ label: 'Ingresos (Bs)', data: chartMonthlyData.ingresosSum, backgroundColor: '#28a745', borderColor: '#28a745', borderWidth: 1 }] } : { labels: [], datasets: [] };
 
     // Opciones de barra (para formato de moneda)
-    const barChartOptions = { responsive: true, scales: { y: { beginAtZero: true, title: { display: true, text: 'Valor' }, ticks: { callback: (value: any) => value > 1000 ? `$${(value / 1000).toFixed(1)}K` : `$${value.toLocaleString()}` } } }, maintainAspectRatio: false };
+    const barChartOptions = { responsive: true, scales: { y: { beginAtZero: true, title: { display: true, text: 'Valor' }, ticks: { callback: (value: any) => value > 1000 ? `Bs${(value / 1000).toFixed(1)}K` : `Bs${value.toLocaleString()}` } } }, maintainAspectRatio: false };
 
 
     return (
@@ -181,9 +181,9 @@ const VentasDashboard = () => {
             {estadisticas && (
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '20px', marginBottom: '30px' }}>
                     <KpiCard title="Ventas Hoy (Unidades)" value={estadisticas.ventasHoy} color="#007bff" />
-                    <KpiCard title="Ingresos Hoy ($)" value={`$${(estadisticas.totalIngresos || 0)}`} color="#20c997" /> {/* Suponiendo que el backend te da ingresosHoy */}
+                    <KpiCard title="Ingresos Hoy (Bs)" value={`Bs${(estadisticas.totalIngresos || 0)}`} color="#20c997" /> {/* Suponiendo que el backend te da ingresosHoy */}
                     <KpiCard title="Ventas Este Mes (Unidades)" value={estadisticas.ventasEsteMes} color="#17a2b8" />
-                    <KpiCard title="Ingresos Este Mes ($)" value={`$${estadisticas.ingresosEsteMes}`} color="#ffc107" />
+                    <KpiCard title="Ingresos Este Mes (Bs)" value={`Bs${estadisticas.ingresosEsteMes}`} color="#ffc107" />
                 </div>
             )}
             
@@ -220,7 +220,7 @@ const VentasDashboard = () => {
                         <div style={{ height: '350px' }}><Line data={lineDailyData} options={{ responsive: true, maintainAspectRatio: false }} /></div>
                     </div>
                     <div style={{ backgroundColor: 'white', padding: '20px', borderRadius: '8px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
-                        <h4>Ingresos Diarios ($) - Últimos {dailyRange} Días</h4>
+                        <h4>Ingresos Diarios (Bs) - Últimos {dailyRange} Días</h4>
                         <div style={{ height: '350px' }}><Bar data={barDailyData} options={barChartOptions} /></div>
                     </div>
                 </div>
@@ -251,7 +251,7 @@ const VentasDashboard = () => {
                         <div style={{ height: '350px' }}><Line data={lineMonthlyData} options={{ responsive: true, maintainAspectRatio: false }} /></div>
                     </div>
                     <div style={{ backgroundColor: 'white', padding: '20px', borderRadius: '8px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
-                        <h4>Ingresos Mensuales ($) - Últimos {monthRange} Meses</h4>
+                        <h4>Ingresos Mensuales (Bs) - Últimos {monthRange} Meses</h4>
                         <div style={{ height: '350px' }}><Bar data={barMonthlyData} options={barChartOptions} /></div>
                     </div>
                 </div>

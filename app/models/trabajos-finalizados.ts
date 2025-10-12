@@ -20,6 +20,7 @@ export class TrabajoFinalizadoResponseDto {
   trabajoEnProceso?: any;
   tienda?: any;
   movimientosInventario?: any[];
+  costo?:number;
 
   constructor(partial: Partial<any>) {
     this.id = partial.id;
@@ -31,6 +32,7 @@ export class TrabajoFinalizadoResponseDto {
     this.tiendaId = partial.tiendaId;
     this.createdAt = partial.createdAt;
     this.updatedAt = partial.updatedAt;
+    this.costo=partial.costo;
 
     if (partial.trabajoEnProceso) {
       this.trabajoEnProceso = {

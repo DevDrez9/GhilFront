@@ -28,7 +28,7 @@ const SucursalForm: React.FC<SucursalFormProps> = ({ visible, onClose }) => {
     email: "",
     responsable: "",
     activa: true, // Valor por defecto true para el switch
-    tiendaId: 0, 
+    tiendaId: 1, 
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -117,7 +117,7 @@ const SucursalForm: React.FC<SucursalFormProps> = ({ visible, onClose }) => {
                 type="text"
                 width={450}
               />
-              <InputText1
+            {/*  <InputText1
                 label="ID de Tienda *"
                 value={formData.tiendaId+""}
                 onChange={(val) => handleChange("tiendaId", val)}
@@ -125,7 +125,7 @@ const SucursalForm: React.FC<SucursalFormProps> = ({ visible, onClose }) => {
                 required
                 type="number"
                 width={450}
-              />
+              />*/}
 
               <hr />
 

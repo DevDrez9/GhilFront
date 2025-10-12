@@ -100,6 +100,8 @@ export const useCategorias = (search?: string) => {
     removeSubcategoria: removeSubcategoriaMutation.mutate,
     isAddingSub: addSubcategoriaMutation.isPending,
     isRemovingSub: removeSubcategoriaMutation.isPending,
+    isErrorSub:removeSubcategoriaMutation.isError,
+    errorSub:removeSubcategoriaMutation.error,  
     
     // Estados y datos
      categorias: categoriasQuery.data || [],

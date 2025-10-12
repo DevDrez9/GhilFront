@@ -47,14 +47,22 @@ export const proveedorService = {
     const response = await fetch(`${API_BASE_URL}/proveedores/${id}`, {
       method: 'DELETE',
       headers: {
-        'Authorization': `Bearer ${localStorage.getItem('authToken') || ''}`,
+       
       },
     });
+    console.log(response)
 
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.message || `Error ${response.status}: ${response.statusText}`);
-    }
+    
+    const errorData = await response.json().catch(() => ({}));
+    
+    
+    const errorMessage = errorData.message || `Error ${response.status}: Ha ocurrido un error desconocido en el servidor.`;
+
+    console.error(errorMessage);
+
+    throw new Error(errorMessage.toString());
+}
   },
 
   // ✅ OPCIONAL: Añadir funciones adicionales que podrías necesitar

@@ -3,7 +3,7 @@ import "./LoginStyle.css";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { loginSchema } from "~/validation/loginSchema";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import InputText1 from "~/componentes/InputText1";
 import Boton1 from "~/componentes/Boton1";
 import { useNavigate } from "react-router";
@@ -18,22 +18,30 @@ const LoginPage = () => {
   // Validación simple
   const [errors, setErrors] = useState<Record<string, string>>({});
   const validate = () => {
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const newErrors: Record<string, string> = {};
 
-    if (!formData.email)
-      newErrors.usertype = "El tipo de empresa es obligatorio";
-    if (!formData.password) newErrors.passwordtype = "La industria es obligatoria";
+    if (!formData.email){
+      newErrors.usertype = "El tipo de email es obligatorio";
+    } else if (!emailRegex.test(formData.email)) {
+        newErrors.usertype = "El formato del Email no es válido";
+    }
+    if (!formData.password) newErrors.passwordtype = "El password es obligatoria";
 
     setErrors(newErrors);
 
     return Object.keys(newErrors).length === 0;
   };
 
-  const { login, isLoggingIn, loginError } = useAuth();
+  const { login, isLoggingIn, loginError, logout } = useAuth();
 
   // Manejar submit
      const navigate = useNavigate();
       const [loginSuccess, setLoginSuccess] = useState(false);
+
+     
+  
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -44,6 +52,8 @@ const LoginPage = () => {
       if(success){
          setLoginSuccess(true);
         navigate('/home');
+      }else{
+        alert("Usuario o contraseña incorrecta")
       }
       
       //

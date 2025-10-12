@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router';
+import { useAuth } from '~/hooks/useAuth';
 
 export interface MenuItem {
   id: string;
@@ -7,6 +8,7 @@ export interface MenuItem {
   icon?: string;
   path?: string; // Nueva propiedad para la ruta
   children?: MenuItem[];
+  cerrarSesion?:boolean;
 }
 
 interface SidebarMenuProps {
@@ -18,6 +20,8 @@ const SidebarMenu: React.FC<SidebarMenuProps> = ({ menuItems }) => {
   const [hoveredItem, setHoveredItem] = useState<string | null>(null);
   const navigate = useNavigate();
   const location = useLocation();
+
+   const { logout } = useAuth();
 
   const toggleItem = (itemId: string) => {
     const newExpanded = new Set(expandedItems);
@@ -36,9 +40,15 @@ const SidebarMenu: React.FC<SidebarMenuProps> = ({ menuItems }) => {
       toggleItem(item.id);
     }
     
-    // Navegar si tiene path
+    
+   
     if (item.path && (!item.children || item.children.length === 0)) {
-      navigate(item.path);
+      if(item.cerrarSesion==true){
+        logout();
+      }else{
+   navigate(item.path);
+      }
+   
     }
   };
 
@@ -46,10 +56,14 @@ const SidebarMenu: React.FC<SidebarMenuProps> = ({ menuItems }) => {
     item: MenuItem; 
     level: number;
   }> = ({ item, level }) => {
+
+    
+
     const isExpanded = expandedItems.has(item.id);
     const isHovered = hoveredItem === item.id;
     const hasChildren = item.children && item.children.length > 0;
     const isActive = item.path === location.pathname;
+
 
     const menuItemStyle: React.CSSProperties = {
       display: 'flex',

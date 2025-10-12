@@ -49,6 +49,7 @@ export class   TrabajoResponseDto {
         id: partial.parametrosTela.id,
         codigoReferencia: partial.parametrosTela.codigoReferencia,
         nombreModelo: partial.parametrosTela.nombreModelo,
+        fotoReferenciaUrl:partial.parametrosTela.fotoReferenciaUrl,
         producto: partial.parametrosTela.producto ? {
           id: partial.parametrosTela.producto.id,
           nombre: partial.parametrosTela.producto.nombre
@@ -105,4 +106,5 @@ export class CompletarTrabajoDto {
 
 
   tiendaId?: number;
+  costo: number; 
 }

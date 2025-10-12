@@ -1,7 +1,7 @@
 import "./Costureros.style.css"
 
 // src/components/CostureroForm.tsx
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import Switch1 from "~/componentes/switch1";
 import InputText1 from "~/componentes/InputText1";
@@ -24,6 +24,21 @@ const CostureroForm: React.FC<CostureroFormProps> = ({ visible, onClose }) => {
     .filter(Boolean)
     .join(" ");
 
+    useEffect(() => {
+       setFormData({
+         nombre: "",
+    apellido: "",
+    telefono: "",
+    email: "",
+    direccion: "",
+    estado: EstadoCosturero.ACTIVO,
+    fechaInicio: new Date().toISOString(), // Fecha actual
+    nota: "",
+    tiendaId: 1,
+       })
+
+    }, []); 
+
   const [formDataCosturero, setFormData] = useState({
     nombre: "",
     apellido: "",
@@ -36,13 +51,13 @@ const CostureroForm: React.FC<CostureroFormProps> = ({ visible, onClose }) => {
     tiendaId: 1,
   });
 
-  const handleSwitchChange = (field: string, value: boolean) => {
-    setFormData((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
-  };
-
+  const handleSwitchChange = (name, isChecked) => {
+    // Convierte el valor booleano del switch al valor de ENUM/String esperado
+    const estadoValue = isChecked ? EstadoCosturero.ACTIVO : EstadoCosturero.INACTIVO;
+    
+    // Llama a tu función original para actualizar el estado
+    handleChange(name, estadoValue); 
+};
   const handleChange = (field: string, value: string | boolean | number) => {
     setFormData({
       ...formDataCosturero,
@@ -93,7 +108,24 @@ const CostureroForm: React.FC<CostureroFormProps> = ({ visible, onClose }) => {
            dataToSend 
          
         );
-        onClose();
+        if(isCreating){
+           setFormData({
+         nombre: "",
+    apellido: "",
+    telefono: "",
+    email: "",
+    direccion: "",
+    estado: EstadoCosturero.ACTIVO,
+    fechaInicio: new Date().toISOString(), // Fecha actual
+    nota: "",
+    tiendaId: 1,
+       })
+  onClose();
+        }else{
+           createError.message
+        }
+
+      
       } catch (error) {
         alert("No se pudo guardar el costurero");
         console.error("Error al guardar:", error);
@@ -114,6 +146,17 @@ const CostureroForm: React.FC<CostureroFormProps> = ({ visible, onClose }) => {
             size="medium"
             variant="info"
             onClick={() => {
+               setFormData({
+         nombre: "",
+    apellido: "",
+    telefono: "",
+    email: "",
+    direccion: "",
+    estado: EstadoCosturero.ACTIVO,
+    fechaInicio: new Date().toISOString(), // Fecha actual
+    nota: "",
+    tiendaId: 1,
+       })
               onClose();
             }}
           >
@@ -186,20 +229,14 @@ const CostureroForm: React.FC<CostureroFormProps> = ({ visible, onClose }) => {
                   width={220}
                 />
                 <div className="estado-container">
-                  <label>Estado *</label>
-                  <select
-                    value={formDataCosturero.estado}
-                    onChange={(e) => handleChange("estado", e.target.value)}
-                    className="estado-select"
-                  >
-                    <option value={EstadoCosturero.ACTIVO}>Activo</option>
-                    <option value={EstadoCosturero.INACTIVO}>Inactivo</option>
-                    <option value={EstadoCosturero.VACACIONES}>Vacaciones</option>
-                    <option value={EstadoCosturero.LICENCIA}>Licencia</option>
-                  </select>
-                  {errors.fechaError && (
-                    <span className="error-message">{errors.fechaError}</span>
-                  )}
+                  <Switch1
+        label="Estado costurero" // Etiqueta del switch
+        // El switch espera un booleano. Compara el estado actual con ACTIVO.
+        checked={formDataCosturero.estado === EstadoCosturero.ACTIVO} 
+        onChange={(value) => handleSwitchChange('estado', value)}
+        width="80%"
+        size="medium"
+    />
                 </div>
               </div>
 

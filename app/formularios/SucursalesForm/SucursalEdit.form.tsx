@@ -28,7 +28,7 @@ const mapDtoToFormState = (sucursal: SucursalResponseDto) => ({
     responsable: sucursal.responsable || "",
     
     activa: sucursal.activa,
-    tiendaId: sucursal.tiendaId, // number
+    tiendaId: 1, // number
 });
 const SucursalEditForm: React.FC<SucursalEditFormProps> = ({ visible, onClose, initialData }) => {
 
@@ -150,7 +150,7 @@ const SucursalEditForm: React.FC<SucursalEditFormProps> = ({ visible, onClose, i
                                 type="text"
                                 width={450}
                             />
-                            <InputText1
+                           {/* <InputText1
                                 label="ID de Tienda *"
                                 value={formData.tiendaId.toString()} // 🚨 Convertir a string para el InputText1
                                 onChange={(val) => handleChange("tiendaId", val)}
@@ -159,7 +159,7 @@ const SucursalEditForm: React.FC<SucursalEditFormProps> = ({ visible, onClose, i
                                 type="number"
                                 width={450}
                             />
-
+*/}
                             <hr />
 
                             <h2>Información de Contacto</h2>

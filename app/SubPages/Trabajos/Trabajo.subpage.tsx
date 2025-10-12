@@ -83,7 +83,7 @@ const Trabajos = () => {
          {trabajoEdit && (
         <FinalizarTrabajoForm
             visible={!!trabajoEdit} // O tu prop de visibilidad
-            onClose={handleNuevo}
+            onClose={handleCloseEdit}
             trabajo={trabajoEdit} // Solo se pasa si NO es null
         />
     )}
@@ -184,6 +184,7 @@ const Trabajos = () => {
                   >
                     {isDeleting ? "Eliminando..." : "Eliminar"}
                   </button>
+                  {trabajo.estado+"" !="COMPLETADO"?
                   <button
                     onClick={() => handleFinCick(trabajo)}
                     style={{
@@ -197,7 +198,7 @@ const Trabajos = () => {
                     }}
                   >
                     Finalizar
-                  </button>
+                  </button>:null}
                 </div>
               </div>
 

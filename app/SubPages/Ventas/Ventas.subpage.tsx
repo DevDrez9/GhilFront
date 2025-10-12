@@ -123,7 +123,7 @@ const Ventas = () => {
                                         <span style={getEstadoStyle(venta.estado)}>{venta.estado}</span>
                                     </h3>
                                     <p style={{ margin: "0 0 10px 0", color: "#007bff", fontSize: "1.5em", fontWeight: "bold" }}>
-                                        Total: ${venta.total}
+                                        Total: Bs.{venta.total}
                                     </p>
                                     <div style={{ fontSize: "14px", color: "#666" }}>
                                         <p style={{ margin: "4px 0" }}><strong>Cliente:</strong> {venta.cliente}</p>

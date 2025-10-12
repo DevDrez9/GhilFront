@@ -174,7 +174,7 @@ const ParametrosTela = () => {
                   >
                     {isDeleting ? "Eliminando..." : "Eliminar"}
                   </button>
-                  <button
+                {/*  <button
                     onClick={() => handleEdit(parametro)}
                     style={{
                       padding: "8px 12px",
@@ -187,7 +187,7 @@ const ParametrosTela = () => {
                     }}
                   >
                     Editar
-                  </button>
+                  </button>*/}
                 </div>
               </div>
 

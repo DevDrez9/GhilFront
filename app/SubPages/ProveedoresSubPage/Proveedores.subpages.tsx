@@ -48,7 +48,12 @@ const Proveedores = () => {
     if (window.confirm("¿Estás seguro de eliminar este proveedor?")) {
       try {
         await deleteProveedor(id);
-        alert("Proveedor eliminado correctamente");
+        if(deleteError){
+          alert(deleteError.message)
+        }
+        if(isDeleting){
+          alert("Proveedor eliminado correctamente")
+        }
       } catch (error) {
         alert("Error al eliminar proveedor");
       }
@@ -187,16 +192,16 @@ const Proveedores = () => {
                         <strong>Email:</strong> {proveedor.email}
                       </div>
                     )}
-
+ {/*
                     {proveedor.ruc && (
                       <div>
                         <strong>RUC:</strong> {proveedor.ruc}
                       </div>
                     )}
 
-                    <div>
+                   <div>
                       <strong>Productos:</strong> {proveedor.totalProductos}
-                    </div>
+                    </div>*/}
 
                     <div>
                       <strong>Nit:</strong> {proveedor.ruc}

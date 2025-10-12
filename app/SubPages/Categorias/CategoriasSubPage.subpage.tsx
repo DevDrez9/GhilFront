@@ -42,7 +42,9 @@ const AddSubcategoriaForm: React.FC<AddSubcategoriaFormProps> = ({
             };
             
             addSubcategoria(newSubcategoriaData);
-            onClose();
+             onClose();
+           window.location.reload();
+           
         }
     };
 
@@ -87,6 +89,9 @@ const Categorias: React.FC = () => { // 👈 TIPADO: Usa React.FC
         isDeleting,
         isAddingSub,
         isRemovingSub,
+        isErrorSub,
+        errorSub
+
         // Necesitas isCreating para deshabilitar el botón de cancelar
         // isCreating lo retorna useCategorias si seguiste la respuesta anterior.
     } = useCategorias(debouncedSearch);
@@ -112,7 +117,12 @@ const Categorias: React.FC = () => { // 👈 TIPADO: Usa React.FC
         if (window.confirm("¿Estás seguro de eliminar esta categoría y todas sus subcategorías?")) {
             try {
                 await deleteCategoria(id);
-                alert("Categoría eliminada correctamente");
+                if(isError){
+                    alert(error.message)
+                }else{
+  alert("Categoría eliminada correctamente");
+                }
+              
             } catch (error) {
                 alert("Error al eliminar la categoría");
             }
@@ -123,7 +133,11 @@ const Categorias: React.FC = () => { // 👈 TIPADO: Usa React.FC
         if (window.confirm("¿Estás seguro de eliminar esta subcategoría?")) {
             try {
                 await removeSubcategoria({ categoriaId, subcategoriaId });
-                alert("Subcategoría eliminada correctamente");
+                 if(isErrorSub){
+                    alert(errorSub.message)
+                }else{
+                    alert("Subcategoría eliminada correctamente");
+                }
             } catch (error) {
                 alert("Error al eliminar la subcategoría");
             }

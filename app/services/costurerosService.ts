@@ -88,8 +88,16 @@ export const costureroService = {
     });
 
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.message || `Error ${response.status}: ${response.statusText}`);
+       const errorData = await response.json().catch(() => ({}));
+    
+    
+    const errorMessage = errorData.message || `Error ${response.status}: Ha ocurrido un error desconocido en el servidor.`;
+
+    console.log("error service "+errorMessage+" "+response);
+
+    throw new Error(errorMessage.toString());
+    }else{
+      console.log("editado")
     }
 
     return response.json();

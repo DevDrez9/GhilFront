@@ -77,6 +77,7 @@ export const useCostureros = (search?: string) => {
     updateCosturero: updateCostureroMutation.mutate,
     updateCostureroAsync: updateCostureroMutation.mutateAsync,
     isUpdating: updateCostureroMutation.isPending,
+    updateError: updateCostureroMutation.error,   
     
     // Estados
     costureros: costurerosQuery.data || [],

@@ -34,6 +34,7 @@ const CreateCategoriaForm: React.FC<CreateCategoriaFormProps> = ({ tiendaId, onC
         createCategoria(data, {
             onSuccess: () => {
                 alert(`Categoría "${nombre}" creada exitosamente.`);
+                
                 onClose(); // Cierra el formulario
             },
             onError: (error) => {
