@@ -21,6 +21,7 @@ export class TrabajoFinalizadoResponseDto {
   tienda?: any;
   movimientosInventario?: any[];
   costo?:number;
+  
 
   constructor(partial: Partial<any>) {
     this.id = partial.id;
@@ -53,7 +54,10 @@ export class TrabajoFinalizadoResponseDto {
           id: partial.trabajoEnProceso.costurero.id,
           nombre: partial.trabajoEnProceso.costurero.nombre,
           apellido: partial.trabajoEnProceso.costurero.apellido
-        } : undefined
+        } : {
+          nommbre:"",
+          apellido:""
+        }
       };
     }
 

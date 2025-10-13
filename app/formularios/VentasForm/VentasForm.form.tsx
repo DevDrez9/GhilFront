@@ -89,7 +89,7 @@ const CrearVentaForm: React.FC<CrearVentaFormProps> = ({ visible, onClose }) => 
         // Mapea el inventario de la sucursal seleccionada
         return inventario.map(i => ({
             value: String(i.id), // ID del registro de inventario como valor
-            label: `${i.producto.nombre} (Stock: ${i.stock}, Bs.${i.producto.precioUnitario})`,
+            label: `${i.producto.nombre} (Stock: ${i.stock}, Bs.${i.producto.precio})`,
         }));
     }, [inventario]);
     
@@ -117,7 +117,7 @@ const CrearVentaForm: React.FC<CrearVentaFormProps> = ({ visible, onClose }) => 
     // Actualiza el precio unitario cuando se selecciona un producto
     useEffect(() => {
         if (selectedInventarioItem) {
-            setNewItem(prev => ({ ...prev, precioUnitario: String(selectedInventarioItem.producto.precioUnitario) }));
+            setNewItem(prev => ({ ...prev, precioUnitario: String(selectedInventarioItem.producto.precio) }));
         } else {
             setNewItem(prev => ({ ...prev, precioUnitario: "" }));
         }
@@ -280,7 +280,9 @@ const CrearVentaForm: React.FC<CrearVentaFormProps> = ({ visible, onClose }) => 
                                     value={newItem.precioUnitario}
                                     onChange={(val) => handleNewItemChange("precioUnitario", val)}
                                     type="number" min={0.01} step="0.01" required
-                                    disabled={!selectedInventarioItem || isDisabled}
+                                    disabled={true}
+                                    
+                                    
                                     width={120}
                                 />
                                 <Boton1 onClick={handleAddItem} type="button" disabled={isDisabled || !selectedInventarioItem} style={{ alignSelf: 'flex-end' }}>

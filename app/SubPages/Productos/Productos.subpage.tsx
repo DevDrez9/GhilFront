@@ -9,6 +9,8 @@ import ProductoEditForm from "~/formularios/ProductosForm/ProductosEdit.form";
 import { CategoriaResponseDto } from "~/models/categoria";
 import { categoriaService } from "~/services/categoriaService";
 import { useCategorias } from "~/hooks/useCategorias";
+import ProductoPerformanceCard from "~/reportes/ReportProducto/reporteProductos.reporte";
+
 
 const Productos = () => {
   const [debouncedSearch, setDebouncedSearch] = useState("");
@@ -35,6 +37,8 @@ const Productos = () => {
    const [mostrarForm, setMostrarForm] = useState(false);
    const [mostrarFormEdit, setMostrarFormEdit] = useState(false);
    const [productoEdit, setProductoEdit] = useState<ProductoResponseDto | null>(null);
+   const [productoRerport, setProductoReporte] = useState(0);
+    const [mostrarFormReporte, setMostrarFormReporte] = useState(false);
 
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -73,6 +77,23 @@ const Productos = () => {
     setMostrarFormEdit(false);
     setProductoEdit(null);
   };
+
+const handleReporte = (idProducto: number) => {
+    setProductoReporte(idProducto)
+    setMostrarFormReporte(true);
+
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth' // Desplazamiento suave
+    });
+   
+  };
+
+  const handleCloseReporte = () => {
+    setMostrarFormReporte(false);
+    setProductoReporte(null);
+  };
+
 
   if (isLoading) {
     return <p>Cargando productos...</p>;
@@ -118,6 +139,9 @@ const Productos = () => {
         {mostrarFormEdit && productoEdit && (
         <ProductoEditForm onClose={handleCloseEdit} visible={mostrarFormEdit} initialProductData={productoEdit} />)}
         <ProductosForm  onClose={handleNuevo} visible={mostrarForm}></ProductosForm>
+        {mostrarFormReporte && productoRerport!=0 && <ProductoPerformanceCard visible={mostrarFormReporte} onClose={handleCloseReporte} productoId={productoRerport} tiendaId={1}/> }
+        
+       
         
 
         <div className="titulo">
@@ -274,6 +298,21 @@ const Productos = () => {
                       }}
                     >
                       Editar
+                    </button>
+
+                     <button
+                      onClick={() => handleReporte(producto.id)}
+                      style={{
+                        padding: "8px 12px",
+                        backgroundColor: "#f0ca4dff",
+                        color: "white",
+                        border: "none",
+                        borderRadius: "4px",
+                        cursor: "pointer",
+                        fontSize: "14px",
+                      }}
+                    >
+                      Reporte
                     </button>
                   </div>
                 </div>

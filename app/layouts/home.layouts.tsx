@@ -124,10 +124,49 @@ export default function HomeLayout({
           path: "/categorias",
         },
        
+         {
+          id: "carrito",
+          label: "Pedidos",
+          path: "/carrito",
+        },
        
        
        
        
+       
+       
+      ],
+    },
+
+    {
+      id: "retportes",
+      label: "Reportes",
+      icon: "🧵",
+      children: [
+         {
+          id: "reporteVentras",
+          label: "Reporte Ventas",
+          path: "/reporteVentas",
+        },
+        {
+          id: "reporteTienda",
+          label: "Reporte Tienda",
+          path: "/reporteTienda",
+        },
+{
+          id: "reporteInventarioSucursal",
+          label: "Reporte Inventario Sucrusal",
+          path: "/reporteInventarioSucursal",
+        },
+        {
+          id: "ReporteTrabajos",
+          label: "Reporte Trabajos",
+          path: "/reporteTranajosFinlaizados",
+        },
+
+
+        
+      
        
       ],
     },

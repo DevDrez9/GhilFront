@@ -6,6 +6,7 @@ import { useState } from "react";
 import type { CategoriaResponseDto, CreateSubcategoriaDto } from "~/models/categoria"; 
 import "./CategoriasSubPage.style.css"
 import CreateCategoriaForm from "~/formularios/CategoriasForm/CreateCategoriaForm.form";
+import ReporteCategoria from "~/reportes/ReporteCategoria/reporteCategoria.reporte";
 // 👈 NUEVO: Importa el formulario de creación de categorías
 
 // --- (Tu componente AddSubcategoriaForm debe estar aquí tal como lo enviaste,
@@ -98,6 +99,10 @@ const Categorias: React.FC = () => { // 👈 TIPADO: Usa React.FC
 
     const [searchTerm, setSearchTerm] = useState("");
     const [showAddForm, setShowAddForm] = useState<number | null>(null); 
+
+
+    const [categoriaRerport, setCategoriaReporte] = useState(0);
+    const [mostrarFormReporte, setMostrarFormReporte] = useState(false);
     
     // 💡 NUEVO ESTADO para controlar la visibilidad del formulario de CATEGORÍA
     const [showCreateCategoriaForm, setShowCreateCategoriaForm] = useState(false); 
@@ -144,6 +149,25 @@ const Categorias: React.FC = () => { // 👈 TIPADO: Usa React.FC
         }
     };
 
+    
+  
+const handleReporte = (idProducto: number) => {
+    setCategoriaReporte(idProducto)
+    setMostrarFormReporte(true);
+
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth' // Desplazamiento suave
+    });
+   
+  };
+
+  const handleCloseReporte = () => {
+    setMostrarFormReporte(false);
+    setCategoriaReporte(null);
+  };
+
+
     if (isLoading) {
         return <p>Cargando categorías...</p>;
     }
@@ -155,6 +179,16 @@ const Categorias: React.FC = () => { // 👈 TIPADO: Usa React.FC
     return (
         <>
             <div className="cuerpoCategorias">
+                <ReporteCategoria onClose={handleCloseReporte} visible={mostrarFormReporte} categoriaId={categoriaRerport}/>
+
+                {/* 💡 RENDERIZADO CONDICIONAL DEL FORMULARIO PRINCIPAL */}
+                {showCreateCategoriaForm && (
+                    <CreateCategoriaForm
+                        tiendaId={TIENDA_ID}
+                        onClose={() => setShowCreateCategoriaForm(false)}
+                    />
+                )}
+
                 <div className="titulo">
                     <p>Categorías</p>
                     <Boton1 
@@ -166,13 +200,10 @@ const Categorias: React.FC = () => { // 👈 TIPADO: Usa React.FC
                     </Boton1>
                 </div>
 
-                {/* 💡 RENDERIZADO CONDICIONAL DEL FORMULARIO PRINCIPAL */}
-                {showCreateCategoriaForm && (
-                    <CreateCategoriaForm
-                        tiendaId={TIENDA_ID}
-                        onClose={() => setShowCreateCategoriaForm(false)}
-                    />
-                )}
+                
+ 
+
+                
 
                 <div className="buscador">
                     <InputText1
@@ -205,10 +236,11 @@ const Categorias: React.FC = () => { // 👈 TIPADO: Usa React.FC
                                     </p>
                                 </div>
                                 <div style={{ display: "flex", gap: "10px" }}>
-                                    <Boton1 variant="warning" onClick={() => {/* Lógica editar */}}>Editar</Boton1>
+                                    <Boton1 variant="warning" onClick={()=>handleReporte(categoria.id)}>Reporte</Boton1>
                                     <Boton1 variant="danger" onClick={() => handleDelete(categoria.id)} disabled={isDeleting}>
                                         {isDeleting ? "Eliminando..." : "Eliminar"}
                                     </Boton1>
+                                    
                                 </div>
                             </div>
 

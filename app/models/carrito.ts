@@ -1,0 +1,53 @@
+// En ~/models/carrito.ts
+
+export enum CarritoEstado {
+    NUEVO = 'nuevo',
+    PENDIENTE = 'pendiente',
+    TERMINADO = 'terminado',
+    TODOS = 'todos' // Valor para indicar que no hay filtro de estado
+}
+
+export class CarritoItemResponseDto {
+    id: number;
+    cantidad: number;
+    productoId: number;
+    precio: number;
+    productoNombre?: string; 
+
+    constructor(item: any) {
+        this.id = item.id;
+        this.cantidad = item.cantidad;
+        this.productoId = item.productoId;
+        this.precio = item.precio || 0;
+        this.productoNombre = item.producto?.nombre; // Asumiendo que el include trae el nombre del producto
+    }
+}
+
+export class CarritoResponseDto {
+    id: number;
+    clienteId: number;
+    tiendaId: number;
+    estado: CarritoEstado;
+    cliente?: string;
+    telefono?: string;
+    direccion?: string;
+    notas?: string;
+    precio: number;
+    createdAt: Date;
+    items: CarritoItemResponseDto[];
+
+    constructor(carrito: any) {
+        this.id = carrito.id;
+        this.clienteId = carrito.clienteId;
+        this.tiendaId = carrito.tiendaId;
+        this.estado = carrito.estado as CarritoEstado;
+        this.cliente = carrito.cliente;
+        this.telefono = carrito.telefono;
+        this.direccion = carrito.direccion;
+        this.notas = carrito.notas;
+        this.precio = carrito.precio || 0;
+        // ⭐ CRÍTICO: Asegúrate de convertir la fecha si viene como string
+        this.createdAt = new Date(carrito.createdAt); 
+        this.items = carrito.items?.map(item => new CarritoItemResponseDto(item)) || [];
+    }
+}

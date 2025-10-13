@@ -6,6 +6,7 @@ import { useState } from "react";
 import type { SucursalResponseDto } from "~/models/sucursal";
 import SucursalForm from "~/formularios/SucursalesForm/Sucursales.form";
 import SucursalEditForm from "~/formularios/SucursalesForm/SucursalEdit.form";
+import ReporteSucursal from "~/reportes/ReportSucursal/ReporteSucursal.reporte";
 
 const Sucursales = () => {
   const [debouncedSearch, setDebouncedSearch] = useState("");
@@ -35,6 +36,9 @@ const Sucursales = () => {
     setSearchTerm("");
     setDebouncedSearch("");
   };
+
+  const [sucursalRerport, setSucursalReporte] = useState(0);
+    const [mostrarFormReporte, setMostrarFormReporte] = useState(false);
 
   const handleDelete = async (id: number) => {
     if (window.confirm("¿Estás seguro de eliminar esta sucursal?")) {
@@ -82,6 +86,23 @@ const Sucursales = () => {
   }
 
   
+const handleReporte = (idProducto: number) => {
+    setSucursalReporte(idProducto)
+    setMostrarFormReporte(true);
+
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth' // Desplazamiento suave
+    });
+   
+  };
+
+  const handleCloseReporte = () => {
+    setMostrarFormReporte(false);
+    setSucursalReporte(null);
+  };
+
+  
     
   
   const handleNuevo = () => {
@@ -95,6 +116,7 @@ const Sucursales = () => {
 
         <SucursalForm onClose={handleNuevo} visible={mostrarForm}></SucursalForm>
         <SucursalEditForm initialData={sucursalEdit} onClose={handleCloseEdit} visible={mostrarFormEdit}/>
+        <ReporteSucursal onClose={handleCloseReporte} visible={mostrarFormReporte} sucursalId={sucursalRerport}/>
 
         <div className="titulo">
           <p>Sucursales</p>
@@ -204,6 +226,20 @@ const Sucursales = () => {
                     }}
                   >
                     Editar
+                  </button>
+                  <button
+                    onClick={() => handleReporte(sucursal.id)}
+                    style={{
+                      padding: "8px 12px",
+                      backgroundColor: "#fff01bff",
+                      color: "white",
+                      border: "none",
+                      borderRadius: "4px",
+                      cursor: "pointer",
+                      fontSize: "14px",
+                    }}
+                  >
+                    Reporte
                   </button>
                 </div>
               </div>

@@ -59,9 +59,13 @@ export const configWebService = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),
     });
+  
+    console.log(data)
+   
 
     if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
+         console.log(errorData)
         throw new Error( `Error server ${errorData.message} `|| `Error ${response.status}: No se pudo actualizar la configuración.`);
     }
     return response.json(); 

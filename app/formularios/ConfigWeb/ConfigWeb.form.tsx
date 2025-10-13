@@ -275,8 +275,8 @@ const ConfigWebForm: React.FC<ConfigWebFormProps> = ({ visible, onClose }) => {
 
                 // Lógica para Logo
                 if (formData.logoBase64) {
-                    dataToSend.logoBase64 = formData.logoBase64;
-                    dataToSend.logoUrl = undefined; 
+                    dataToSend.logoUrl = formData.logoBase64;
+                   // dataToSend.logoUrl = undefined; 
                 } else {
                     dataToSend.logoUrl = formData.currentLogoUrl || undefined; 
                 }

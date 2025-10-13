@@ -25,6 +25,14 @@ export default [
           route("usuarios","./SubPages/Usuarios/Usuarios.subpage.tsx"),
            route("configWeb","./SubPages/ConfigWeb/ConfigWeb.subpage.tsx"),
              route("tienda","./SubPages/Tienda/Tienda.subpage.tsx"),
+              route("carrito","./SubPages/Carrito/CarritoSubPage.subpage.tsx"),
+              route("reporteVentas","./reportes/ReporteVentas/reporteVentas.reporte.tsx"),
+              route("reporteTienda","./reportes/ReporteTienda/ReporteTienda.tsx"),
+               route("reporteInventarioSucursal","./reportes/ReporteInventarioSucursal/ReporteInventarioSucursal.tsx"),
+        route("reporteTranajosFinlaizados","./reportes/ReporteTrabajos/ReporteTrabajos.tsx"),
+              
+
+        
 
           
         

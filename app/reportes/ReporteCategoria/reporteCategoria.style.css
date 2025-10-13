@@ -1,0 +1,32 @@
+.contenedorReportCategoria{
+  width: 100%;
+    min-height: 100vh;
+    position: absolute;
+     background-color: white;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+
+   
+   
+}
+
+.contenedorReportCategoria.visible{
+    visibility: visible;
+    display: flex;
+}
+.contenedorReportCategoria.noVisible{
+    visibility: hidden;
+    display: none;
+}
+.atras{
+    width: 150px;
+    margin: 50px 20px;
+}
+.cuerpoVentaForm{
+    width: 100%;
+
+
+    
+
+}

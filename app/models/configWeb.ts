@@ -34,5 +34,5 @@ export interface ConfigWebResponseDto extends CreateConfigWebDto {
 // Usaremos este DTO internamente en el Service y el Componente.
 export interface UpdateConfigWebBase64Dto extends CreateConfigWebDto {
     // Si el logo se actualiza, mandamos la data en Base64
-    logoBase64?: string;
+    logoUrl?: string;
 }
