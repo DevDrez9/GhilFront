@@ -5,6 +5,7 @@ import ComboBox1 from '~/componentes/ComboBox1'; // Asume este componente existe
 import Boton1 from '~/componentes/Boton1';   // Asume este componente existe
 import { usePedidos } from '~/hooks/usePedidos';
 import { CarritoResponseDto, CarritoEstado } from '~/models/carrito';
+import { formatCurrency } from '~/reportes/ReporteVentas/reporteVentas.reporte';
 
 // 🛑 Constantes para el ComboBox
 const ESTADO_OPTIONS = [
@@ -50,7 +51,7 @@ const CarritoSubPage = () => {
 
     return (
         <div className="listadoPedidos">
-            <h2>📦 Listado de Pedidos</h2>
+            <h2 style={{fontSize:"30px", fontWeight:"bold"}}>📦 Listado de Pedidos</h2>
 
             {/* --- CONTROLES DE FILTRO --- */}
             <div style={{ width: '300px', marginBottom: '25px' }}>
@@ -90,6 +91,9 @@ const CarritoSubPage = () => {
 
 // Componente PedidoCard
 const PedidoCard = ({ pedido, onComplete, isCompleting }) => {
+
+    // Estado para el despliegue del detalle
+    const [isDetailOpen, setIsDetailOpen] = useState(false);
     
     const estadoMap = {
         [CarritoEstado.PENDIENTE]: { color: '#e67e22', bg: '#fef3e3', label: 'Pendiente' },
@@ -97,6 +101,10 @@ const PedidoCard = ({ pedido, onComplete, isCompleting }) => {
         default: { color: '#34495e', bg: '#ecf0f1', label: pedido.estado }
     };
     const style = estadoMap[pedido.estado] || estadoMap.default;
+
+      const toggleDetail = () => {
+        setIsDetailOpen(!isDetailOpen);
+    };
     
     return (
         <div style={{ padding: '15px', border: `1px solid ${style.bg}`, borderRadius: '8px', backgroundColor: '#ffffff', boxShadow: '0 2px 5px rgba(0,0,0,0.05)' }}>
@@ -132,7 +140,62 @@ const PedidoCard = ({ pedido, onComplete, isCompleting }) => {
                     </span>
                 )}
                 
-                <Boton1 size="small" variant="secondary">Ver Detalle</Boton1>
+                 {/* Botón Ver Detalle (Toggle) */}
+                <Boton1 
+                    size="small" 
+                    variant="secondary" 
+                    onClick={toggleDetail}
+                    style={{ padding: '8px 12px' }}
+                >
+                    {isDetailOpen ? 'Ocultar Detalle ▲' : 'Ver Detalle ▼'}
+                </Boton1>
+            </div>
+            
+            {/* --- CONTENIDO DESPLEGABLE DE DETALLE (VentaItem) --- */}
+            <div style={{ 
+                maxHeight: isDetailOpen ? '500px' : '0', 
+                overflow: 'hidden', 
+                transition: 'max-height 0.4s ease-in-out',
+                marginTop: isDetailOpen ? '15px' : '0',
+                paddingTop: isDetailOpen ? '15px' : '0',
+                borderTop: isDetailOpen ? '1px solid #eee' : 'none'
+            }}>
+                <h5 style={{ margin: '0 0 10px 0', color: '#555', borderBottom: '1px solid #f0f0f0', paddingBottom: '5px' }}>Detalles de Ítems ({pedido.items.length})</h5>
+                
+                <div style={{ 
+                    maxHeight: '200px', 
+                    overflowY: 'auto', 
+                    paddingRight: '10px' 
+                }}>
+                    <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+                        {pedido.items.map((item, index) => (
+                            <li 
+                                key={item.id || index} 
+                                style={{ 
+                                    display: 'flex', 
+                                    justifyContent: 'space-between', 
+                                    padding: '8px 0', 
+                                    borderBottom: '1px dashed #f0f0f0',
+                                    fontSize: '14px'
+                                }}
+                            >
+                                <span style={{ color: '#555', flex: 2 }}>
+                                    {item.cantidad}x <strong>{item.productoNombre || 'Producto Desconocido'}</strong>
+                                </span>
+                                 <span style={{ color: '#777', flex: 1, textAlign: 'center' }}>
+                                    {"talla: "+item.talla}
+                                </span>
+
+                                <span style={{ color: '#777', flex: 1, textAlign: 'right' }}>
+                                    {formatCurrency(item.precio)} c/u
+                                </span>
+                                <span style={{ color: '#333', flex: 1, textAlign: 'right', fontWeight: 'bold' }}>
+                                    {formatCurrency(item.precio * item.cantidad)}
+                                </span>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
             </div>
             
             <p style={{ fontSize: '12px', color: '#888', marginTop: '10px' }}>

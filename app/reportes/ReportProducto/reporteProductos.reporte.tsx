@@ -5,6 +5,7 @@ import { useProductoPerformance } from '~/hooks/useProductoPerformance';
 import "./reportProducto.style.css"
 import Boton1 from '~/componentes/Boton1';
 import {  exportToPDF } from '~/utils/exportUtils'; 
+import type { ProductoResponseDto } from '~/models/producto.model';
 
 
 const formatCurrency = (amount) => {
@@ -32,12 +33,20 @@ interface ReporteProducto {
     visible: boolean;
     onClose: () => void;
     productoId:number,
-    tiendaId:number
+    tiendaId:number,
+    producto:ProductoResponseDto
 }
-const ProductoPerformanceCard : React.FC<ReporteProducto>  = ({ productoId, tiendaId, onClose, visible}) => {
+const ProductoPerformanceCard : React.FC<ReporteProducto>  = ({ productoId, tiendaId, onClose, visible, producto}) => {
 
     // 🛑 1. Crear la referencia
     const componentRef = useRef(null); 
+
+     const fechaActual = new Date();
+  const dia = String(fechaActual.getDate()).padStart(2, '0');
+  const mes = String(fechaActual.getMonth() + 1).padStart(2, '0'); // Los meses son de 0-11, por eso se suma 1
+  const anio = fechaActual.getFullYear();
+
+  const fechaFormateada = `${dia}/${mes}/${anio}`;
 
      const containerClasses = [
     "contenedorReportProducto",
@@ -76,6 +85,9 @@ const ProductoPerformanceCard : React.FC<ReporteProducto>  = ({ productoId, tien
     // Lógica para determinar el color de la diferencia de stock
     const stockColor = data.diferenciaStock > 0 ? '#198754' : data.diferenciaStock < 0 ? '#dc3545' : '#6c757d';
     const ingresoColor = data.ingresoNetoEstimado >= 0 ? '#198754' : '#dc3545';
+
+    const precioProduccionUnd=Number(data.totalCosto)/Number(data.totalCantidadProducida);
+    const diferenciaProdccion=Number(data.totalIngresos)-(Number(precioProduccionUnd)*Number(data.totalUnidadesVendidas))
     
     return (
         <div className={containerClasses}>
@@ -87,7 +99,39 @@ const ProductoPerformanceCard : React.FC<ReporteProducto>  = ({ productoId, tien
            
 
         <div  className="productoPerformanceCard" ref={componentRef} >
-            <h2>📈 Rendimiento de Producto: {data.nombreProducto}</h2>
+            <h2 style={{fontSize:"30px", fontWeight:"bold"}}>📈 Rendimiento de Producto: {data.nombreProducto}</h2>
+
+            <div style={{ flexShrink: 0 }}>
+                {producto.imagenes.length > 0 ? (
+                  <img
+                    src={"http://localhost:3000/uploads/productos/"+producto.imagenes[0].url}
+                    alt={producto.nombre}
+                    style={{
+                      width: "200px",
+                      height: "200px",
+                      objectFit: "cover",
+                      borderRadius: "4px"
+                    }}
+                  />
+                ) : (
+                  <div
+                    style={{
+                      width: "100px",
+                      height: "100px",
+                      backgroundColor: "#f0f0f0",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      borderRadius: "4px",
+                      color: "#999",
+                      fontSize: "12px",
+                      textAlign: "center"
+                    }}
+                  >
+                    Sin Imagen
+                  </div>
+                )}
+              </div>
 
             
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px', marginTop: "20px"}}>
@@ -96,18 +140,20 @@ const ProductoPerformanceCard : React.FC<ReporteProducto>  = ({ productoId, tien
                 <CardMétrica title="Cant. Vendida" value={data.totalUnidadesVendidas} />
                 
                 {/* Métricas Financieras */}
-                <CardMétrica title="Costo Total Prod." value={formatCurrency(data.totalCosto)} />
+                <CardMétrica title="Costo Total Produccion." value={formatCurrency(data.totalCosto)} />
                 <CardMétrica title="Ingresos Totales" value={formatCurrency(data.totalIngresos)} color="#0d6efd" />
+
+                <CardMétrica title="Costo Promedio de Produccion." value={formatCurrency(precioProduccionUnd.toFixed(2))} />
                 
                 {/* Métricas de Performance */}
                 <CardMétrica 
-                    title="Diferencia Stock (Prod. - Venta)" 
-                    value={data.diferenciaStock} 
+                    title="Diferencia (Venta - Producción)" 
+                    value={diferenciaProdccion.toFixed(2)} 
                     unit="bs" 
                     color={stockColor} 
                 />
                 <CardMétrica 
-                    title="Ingreso Neto Estimado" 
+                    title="Ganancia Bruta" 
                     value={formatCurrency(data.ingresoNetoEstimado)} 
                     color={ingresoColor} 
                 />
@@ -118,6 +164,7 @@ const ProductoPerformanceCard : React.FC<ReporteProducto>  = ({ productoId, tien
 
                 
             </p>
+            <h2>Generado: {fechaFormateada}</h2>
             
              
         </div>

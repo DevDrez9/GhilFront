@@ -13,12 +13,14 @@ export class CarritoItemResponseDto {
     productoId: number;
     precio: number;
     productoNombre?: string; 
+    talla?: string;
 
     constructor(item: any) {
         this.id = item.id;
         this.cantidad = item.cantidad;
         this.productoId = item.productoId;
         this.precio = item.precio || 0;
+        this.talla=item.talla;
         this.productoNombre = item.producto?.nombre; // Asumiendo que el include trae el nombre del producto
     }
 }

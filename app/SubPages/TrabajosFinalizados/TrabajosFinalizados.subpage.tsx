@@ -126,7 +126,7 @@ const TrabajosFinalizados = () => {
                       <strong>Costurero:</strong> {trabajo.trabajoEnProceso?.costurero ? `${trabajo.trabajoEnProceso.costurero.nombre} ${trabajo.trabajoEnProceso.costurero.apellido}` : 'Sin asignar'}
                     </div>
                     <div>
-                      <strong>Costo:</strong> {trabajo.costo ? `${trabajo.costo}` : 'Sin datos'}
+                      <strong>Costo Total:</strong> {trabajo.costo ? `${trabajo.costo}` : 'Sin datos'}
                     </div>
                   </div>
                 </div>

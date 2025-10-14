@@ -309,7 +309,7 @@ const ProductoEditForm: React.FC<ProductoEditFormProps> = ({ visible, onClose, i
                             <legend>Información Básica</legend>
                             <InputText1 label="Nombre *" value={formData.nombre} onChange={(val) => handleChange("nombre", val)} errorMessage={errors.nombreError} required type="text" width={450} />
                             <InputText1 label="Descripción" value={formData.descripcion} onChange={(val) => handleChange("descripcion", val)} type="text" width={450} />
-                            <InputText1 label="SKU" value={formData.sku} onChange={(val) => handleChange("sku", val)} type="text" width={450} />
+                            <InputText1 label="Tallas" value={formData.sku} onChange={(val) => handleChange("sku", val)} type="text" width={450} />
                         </fieldset>
 
                         <fieldset disabled={isDisabled}>

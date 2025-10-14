@@ -73,6 +73,11 @@ const ParametrosTela = () => {
     return <p>Error al cargar los datos: {error?.message}</p>;
   }
 
+  const convertirJSON=(datos:string)=>{
+    datos=datos.replaceAll('"','').replaceAll(":","=").replaceAll("{","").replaceAll("}","");
+    return datos;
+  }
+
   return (
     <>
 
@@ -137,10 +142,10 @@ const ParametrosTela = () => {
                     }}
                   >
                     <div>
-                      <strong>Tela recomendada:</strong> {parametro.tipoTelaRecomendada}
+                      <strong>Tela recomendada:</strong> {parametro.tela?.tela?.nombreComercial +" "+parametro.tela?.color}
                     </div>
                     <div>
-                      <strong>Consumo por lote:</strong> {parametro.consumoTelaPorLote}
+                      <strong>Consumo por talla:</strong> {convertirJSON(parametro.consumoTelaPorTalla)}
                     </div>
                     <div>
                       <strong>Tallas disponibles:</strong> {parametro.tallasDisponibles}

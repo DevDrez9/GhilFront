@@ -15,6 +15,13 @@ const ReporteInventarioDetalle: React.FC = () => {
     // Usaremos un debounce simple para simular el que usarías en producción
     const [debouncedSearch, setDebouncedSearch] = useState(''); 
 
+     const fechaActual = new Date();
+  const dia = String(fechaActual.getDate()).padStart(2, '0');
+  const mes = String(fechaActual.getMonth() + 1).padStart(2, '0'); // Los meses son de 0-11, por eso se suma 1
+  const anio = fechaActual.getFullYear();
+
+  const fechaFormateada = `${dia}/${mes}/${anio}`;
+
     // Aquí deberías tener tu lógica de debounce (e.g., usando useDebounce hook)
     // Por simplicidad, en este ejemplo, no estamos haciendo el debounce real aquí.
     const {
@@ -45,7 +52,7 @@ const ReporteInventarioDetalle: React.FC = () => {
         <div className="contenedorReporteDetalle" style={{ padding: '20px' }}>
             
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-                <h2>📋 Inventario Detallado (Productos)</h2>
+                <h2 style={{fontSize:"30px", fontWeight:"bold"}}>📋 Reporte Alamacem de productos</h2>
                 <Boton1 
                     variant="primary" 
                     size="medium" 
@@ -56,7 +63,7 @@ const ReporteInventarioDetalle: React.FC = () => {
                 </Boton1>
             </div>
 
-            {/* FILTRO DE BÚSQUEDA */}
+            {/* FILTRO DE BÚSQUEDA 
             <div style={{ marginBottom: '20px' }}>
                 <input
                     type="text"
@@ -67,9 +74,10 @@ const ReporteInventarioDetalle: React.FC = () => {
                     disabled={isLoading}
                 />
             </div>
+            */}
             
             {/* CONTENIDO PARA CAPTURA PDF */}
-            <div ref={reporteRef} className="reporteContent" style={{ backgroundColor: '#ffffff', borderRadius: '8px', border: '1px solid #eee', padding: '15px' }}>
+            <div ref={reporteRef} className="reporteContent" style={{ backgroundColor: '#ffffff', borderRadius: '8px', border: '1px solid #eee', padding: '30px' }}>
                 
                 {isLoading && <p>Cargando inventario...</p>}
                 
@@ -82,11 +90,12 @@ const ReporteInventarioDetalle: React.FC = () => {
                 )}
 
                 {!isLoading && inventario.length > 0 && (
+                    <div>  <h2 style={{fontSize:"18px", fontWeight:"bold"}}> Reporte Almacen de productos </h2>
                     <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '15px', fontSize: '14px' }}>
                         <thead>
                             <tr style={{ backgroundColor: '#f8f9fa' }}>
                                 <th style={tableHeaderStyle}>ID Inventario</th>
-                                <th style={tableHeaderStyle}>Código Producto</th>
+                              {/*  <th style={tableHeaderStyle}>Código Producto</th>*/}
                                 <th style={tableHeaderStyle}>Nombre Producto</th>
                                 <th style={{...tableHeaderStyle, textAlign: 'right'}}>Stock Actual</th>
                                 <th style={{...tableHeaderStyle, textAlign: 'right'}}>Precio Venta</th>
@@ -97,7 +106,7 @@ const ReporteInventarioDetalle: React.FC = () => {
                             {inventario.map((item) => (
                                 <tr key={item.id}>
                                     <td style={tableCellStyle}>{item.id}</td>
-                                    <td style={tableCellStyle}>{item.producto.codigo}</td>
+                                   {/* <td style={tableCellStyle}>{item.producto.codigo}</td>*/}
                                     <td style={tableCellStyle}>{item.producto.nombre}</td>
                                     <td style={{...tableCellStyle, textAlign: 'right'}}>{item.stock}</td>
                                     <td style={{...tableCellStyle, textAlign: 'right'}}>{formatCurrency(item.producto.precio)}</td>
@@ -110,6 +119,8 @@ const ReporteInventarioDetalle: React.FC = () => {
                             ))}
                         </tbody>
                     </table>
+                    <h2 style={{color:"gray", margin:"10px 0"}}>Generado: {fechaFormateada}</h2>
+                    </div>
                 )}
             </div>
         </div>

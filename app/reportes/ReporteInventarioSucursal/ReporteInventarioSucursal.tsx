@@ -77,6 +77,13 @@ const ReporteInventarioSucursal: React.FC = () => {
     const isLoading = isLoadingSucursales || isLoadingInventario;
     
     // --- LÓGICA DE FILTROS ---
+
+      const fechaActual = new Date();
+  const dia = String(fechaActual.getDate()).padStart(2, '0');
+  const mes = String(fechaActual.getMonth() + 1).padStart(2, '0'); // Los meses son de 0-11, por eso se suma 1
+  const anio = fechaActual.getFullYear();
+
+  const fechaFormateada = `${dia}/${mes}/${anio}`;
     
     // Opciones para el ComboBox (incluye la opción consolidada/todas)
     const sucursalComboBoxOptions: ComboBoxOption[] = useMemo(() => {
@@ -151,7 +158,7 @@ const ReporteInventarioSucursal: React.FC = () => {
         <div className="reporteInventarioSucursalContainer" style={{ padding: '20px' }}>
             
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-                <h2>📦 Inventario por Sucursal: {titleScope}</h2>
+                <h2 style={{fontSize:"30px", fontWeight:"bold"}}>📦 Inventario por Sucursal: {titleScope}</h2>
                 <Boton1 
                     variant="primary" 
                     size="medium" 
@@ -178,7 +185,7 @@ const ReporteInventarioSucursal: React.FC = () => {
                     />
                 </div>
                 
-                {/* 2. Campo de Búsqueda */}
+                {/* 2. Campo de Búsqueda
                 <div style={{ width: '300px' }}>
                     <label style={{ fontSize: '14px', color: '#666', display: 'block', marginBottom: '5px' }}>Buscar Producto</label>
                     <input
@@ -190,6 +197,7 @@ const ReporteInventarioSucursal: React.FC = () => {
                         disabled={isLoadingInventario}
                     />
                 </div>
+                 */}
             </div>
             
             {/* CONTENIDO DE LA TABLA (PARA CAPTURA PDF) */}
@@ -204,11 +212,12 @@ const ReporteInventarioSucursal: React.FC = () => {
                 )}
 
                 {!isLoading && inventario.length > 0 && (
+                    <div>  <h2 style={{fontSize:"18px", fontWeight:"bold"}}> Reporte Inventario Sucursal: {titleScope} </h2>
                     <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '15px', fontSize: '14px' }}>
                         <thead>
                             <tr style={{ backgroundColor: '#f8f9fa' }}>
-                                <th style={tableHeaderStyle}>ID Inventario</th>
-                                <th style={tableHeaderStyle}>Código</th>
+                                <th style={tableHeaderStyle}>Codigo</th>
+                               {/* <th style={tableHeaderStyle}>Código</th>*/}
                                 <th style={tableHeaderStyle}>Producto</th>
                                 <th style={{...tableHeaderStyle, textAlign: 'right'}}>Stock</th>
                                 <th style={{...tableHeaderStyle, textAlign: 'right'}}>Mínimo</th>
@@ -220,7 +229,7 @@ const ReporteInventarioSucursal: React.FC = () => {
                             {inventario.map((item) => (
                                 <tr key={item.id}>
                                     <td style={tableCellStyle}>{item.id}</td>
-                                    <td style={tableCellStyle}>{item.producto.codigo}</td>
+                                   {/* <td style={tableCellStyle}>{item.producto.codigo}</td>*/}
                                     <td style={tableCellStyle}>{item.producto.nombre}</td>
                                     <td style={{...tableCellStyle, textAlign: 'right'}}>{item.stock}</td>
                                     <td style={{...tableCellStyle, textAlign: 'right'}}>{item.stockMinimo || '-'}</td>
@@ -236,6 +245,8 @@ const ReporteInventarioSucursal: React.FC = () => {
                             ))}
                         </tbody>
                     </table>
+                    <h2 style={{color:"gray", margin:"10px 0"}}>Generado: {fechaFormateada}</h2>
+                    </div>
                 )}
             </div>
         </div>

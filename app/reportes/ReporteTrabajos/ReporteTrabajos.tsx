@@ -22,6 +22,13 @@ const ReporteTrabajosFinalizados: React.FC = () => {
     const [search, setSearch] = useState('');
     const [debouncedSearch, setDebouncedSearch] = useState(''); // 🚨 Debe implementarse el debounce real
 
+     const fechaActual = new Date();
+  const dia = String(fechaActual.getDate()).padStart(2, '0');
+  const mes = String(fechaActual.getMonth() + 1).padStart(2, '0'); // Los meses son de 0-11, por eso se suma 1
+  const anio = fechaActual.getFullYear();
+
+  const fechaFormateada = `${dia}/${mes}/${anio}`;
+
     const {
         trabajos = [],
         total = 0,
@@ -51,7 +58,7 @@ const ReporteTrabajosFinalizados: React.FC = () => {
         <div className="contenedorReporteTrabajos" style={{ padding: '20px' }}>
             
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-                <h2>✅ Reporte de Trabajos de Producción Finalizados</h2>
+                <h2 style={{fontSize:"30px", fontWeight:"bold"}}>✅ Reporte de Trabajos de Producción Finalizados</h2>
                 <Boton1 
                     variant="primary" 
                     size="medium" 
@@ -62,7 +69,7 @@ const ReporteTrabajosFinalizados: React.FC = () => {
                 </Boton1>
             </div>
 
-            {/* FILTRO DE BÚSQUEDA */}
+            {/* FILTRO DE BÚSQUEDA 
             <div style={{ marginBottom: '20px' }}>
                 <input
                     type="text"
@@ -73,6 +80,7 @@ const ReporteTrabajosFinalizados: React.FC = () => {
                     disabled={isLoading}
                 />
             </div>
+            */}
             
             {/* CONTENIDO PARA CAPTURA PDF */}
             <div ref={reporteRef} className="reporteContent" style={{ backgroundColor: '#ffffff', borderRadius: '8px', border: '1px solid #eee', padding: '15px' }}>
@@ -88,6 +96,7 @@ const ReporteTrabajosFinalizados: React.FC = () => {
                 )}
 
                 {!isLoading && trabajos.length > 0 && (
+                    <div>  <h2 style={{fontSize:"18px", fontWeight:"bold"}}> Reporte de Trabajos de Producción Finalizados </h2>
                     <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '15px', fontSize: '14px' }}>
                         <thead>
                             <tr style={{ backgroundColor: '#f8f9fa' }}>
@@ -124,6 +133,8 @@ const ReporteTrabajosFinalizados: React.FC = () => {
                             ))}
                         </tbody>
                     </table>
+                    <h2 style={{color:"gray", margin:"10px 0"}}>Generado: {fechaFormateada}</h2>
+                    </div>
                 )}
             </div>
         </div>

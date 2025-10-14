@@ -68,7 +68,7 @@ export default function InventarioTelasList() {
       <InventarioTelaForm onClose={handleNuevo} visible={mostrarForm} />
        
         <div className="titulo">
-          <p>Inventario Telas</p>
+          <p>Almacen Telas</p>
 
           <Boton1 variant="info" onClick={() => {handleNuevo()}}>
             + Agregar
@@ -103,7 +103,7 @@ export default function InventarioTelasList() {
             backgroundColor: '#ffffff',
             position: 'relative'
           }}>
-            {/* Badge de cantidad */}
+            {/* Badge de cantidad 
             <div style={{
               position: 'absolute',
               top: '10px',
@@ -116,7 +116,7 @@ export default function InventarioTelasList() {
               fontWeight: 'bold'
             }}>
               {item.cantidadRollos} rollos
-            </div>
+            </div>*/}
 
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <div style={{ flex: 1 }}>
@@ -145,7 +145,7 @@ export default function InventarioTelasList() {
                     {item.color}
                   </div>
                   <div>
-                    <strong>Precio/KG:</strong> Bs{item.precioKG.toLocaleString()}
+                    <strong>Precio/KG:</strong> Bs. {item.precioKG.toLocaleString()}
                   </div>
                   <div>
                     <strong>Peso Grupo:</strong> {item.pesoGrupo} kg
@@ -157,7 +157,7 @@ export default function InventarioTelasList() {
                       fontWeight: 'bold',
                       marginLeft: '5px'
                     }}>
-                      Bs{item.importe?.toLocaleString()}
+                      Bs. {item.importe?.toLocaleString()}
                     </span>
                   </div>
                 </div>

@@ -9,6 +9,7 @@ import { exportToPDF } from '~/utils/exportUtils';
 // Importa los hooks y tipos
 import { useVentaEstadisticas, useVentaTendencia } from '~/services/reportes/ventas/hookVentaReporte'; 
 import type { PeriodoVenta, VentaReporteOptions } from '~/models/ventaReporte'; 
+import "./reporteVentas.style.css"
 
 
 // Asume que este tipo existe en tu proyecto (SucursalResponseDto)
@@ -65,12 +66,20 @@ const ReporteVentas : React.FC<ReporteVentasProps> = ({ onClose, visible }) => {
     
     const { sucursales = [], isLoading: isLoadingSucursales } = useSucursales(""); 
 
+
+     const fechaActual = new Date();
+  const dia = String(fechaActual.getDate()).padStart(2, '0');
+  const mes = String(fechaActual.getMonth() + 1).padStart(2, '0'); // Los meses son de 0-11, por eso se suma 1
+  const anio = fechaActual.getFullYear();
+
+  const fechaFormateada = `${dia}/${mes}/${anio}`;
+
     
     // 1. Opciones para el ComboBox (incluye la opción consolidada)
     const sucursalComboBoxOptions: ComboBoxOption[] = useMemo(() => {
         const defaultOption: ComboBoxOption = {
             value: 'tienda_consolidada',
-            label: `Consolidado (Tienda ${DEFAULT_TIENDA_ID})`,
+            label: `Todas las sucursales`,
             data: { id: undefined }
         };
 
@@ -124,7 +133,7 @@ const ReporteVentas : React.FC<ReporteVentasProps> = ({ onClose, visible }) => {
     // 6. Título dinámico
     let titleScope: string;
     if (selectedSucursalId === undefined) {
-        titleScope = `Tienda ID: ${DEFAULT_TIENDA_ID} (Consolidado)`;
+        titleScope = `Todas las Sucursales`;
     } else {
         const sucursal = sucursales.find((s) => s.id === selectedSucursalId);
         titleScope = sucursal ? `Sucursal: ${sucursal.nombre}` : `Sucursal ID: ${selectedSucursalId}`;
@@ -167,16 +176,9 @@ const ReporteVentas : React.FC<ReporteVentasProps> = ({ onClose, visible }) => {
             
             <div className="reporteVentasContainer">
                 
-                <h2>💰 Reporte de Ventas: {titleScope}</h2>
+                <h2 style={{fontSize:"30px", fontWeight:"bold"}}>💰 Reporte de Ventas: {titleScope}</h2>
                 {/* ... Botón Descargar PDF ... */}
-                 <Boton1 
-                        variant="primary" 
-                        size="medium" 
-                        onClick={handleDownloadPDF}
-                        disabled={isLoading} 
-                    >
-                        Descargar PDF
-                    </Boton1>
+                
                 {/* FILTRO COMBOBOX */}
                 <div style={{ marginBottom: '20px', padding: '15px', border: '1px solid #eee', borderRadius: '4px' }}>
                     <div style={{ width: '300px' }}>
@@ -190,23 +192,8 @@ const ReporteVentas : React.FC<ReporteVentasProps> = ({ onClose, visible }) => {
                             disabled={isLoadingSucursales || isLoading} 
                         />
                     </div>
-                </div>
-                
-                {/* Contenido del reporte */}
-                <div ref={reporteRef} className="reporteContent">
-                    
-                    <h3 style={{ borderBottom: '2px solid #f0f0f0', paddingBottom: '10px' }}>Métricas Clave</h3>
-                    
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px', marginBottom: '30px' }}>
-                        
-                        <MetricCard title="Ingreso Total" value={formatCurrency(estadisticas.ingresoTotal)} color="#0d6efd"/>
-                        <MetricCard title="Total de Transacciones" value={estadisticas.totalVentas} unit="transacciones" color="#198754"/>
-                        <MetricCard title="Venta Promedio" value={formatCurrency(estadisticas.promedioVenta)} color="#ffc107"/>
-                        <MetricCard title="Ingreso de Hoy" value={formatCurrency(estadisticas.ingresoHoy)} color="#6f42c1"/>
-                        <MetricCard title="Productos Vendidos" value={estadisticas.productosVendidos} unit="uds" color="#dc3545"/>
-                    </div>
 
-                    <h3 style={{ borderBottom: '2px solid #f0f0f0', paddingBottom: '10px' }}>
+                    <h3 style={{  paddingBottom: '10px' }}>
                         Tendencia de Ventas Agrupada por {periodoTendencia.toUpperCase()}
                     </h3>
                     
@@ -226,7 +213,36 @@ const ReporteVentas : React.FC<ReporteVentasProps> = ({ onClose, visible }) => {
                             </Boton1>
                         ))}
                     </div>
+
+                     <Boton1 
+                        variant="primary" 
+                        size="medium" 
+                        onClick={handleDownloadPDF}
+                        disabled={isLoading} 
+                    >
+                        Descargar PDF
+                    </Boton1>
+
+                </div>
+                  
+                
+                {/* Contenido del reporte */}
+                <div ref={reporteRef} className="reporteContent">
+                    <div style={{margin:"0 200px "}}>
                     
+                    <h3 style={{ borderBottom: '2px solid #f0f0f0', paddingBottom: '10px' }}>Métricas Historicas </h3>
+                    
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px', marginBottom: '30px' }}>
+                        
+                        <MetricCard title="Ventas Totales" value={formatCurrency(estadisticas.ingresoTotal)} color="#0d6efd"/>
+                        <MetricCard title="Total de Transacciones" value={estadisticas.totalVentas} unit="transacciones" color="#198754"/>
+                        <MetricCard title="Venta Promedio" value={formatCurrency(estadisticas.promedioVenta)} color="#ffc107"/>
+                        <MetricCard title="Ingreso de Hoy" value={formatCurrency(estadisticas.ingresoHoy)} color="#6f42c1"/>
+                        <MetricCard title="Productos Vendidos" value={estadisticas.productosVendidos} unit="uds" color="#dc3545"/>
+                    </div>
+
+                  
+                    <h3 style={{ borderBottom: '2px solid #f0f0f0', paddingBottom: '10px' }}>Métricas de {titleScope} por {periodoTendencia.toUpperCase()} </h3>
                     <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '15px', fontSize: '14px' }}>
                         <thead>
                             {/* ... Encabezados de tabla ... */}
@@ -249,7 +265,8 @@ const ReporteVentas : React.FC<ReporteVentasProps> = ({ onClose, visible }) => {
                             )}
                         </tbody>
                     </table>
-                    
+                    <h2 style={{color:"gray", margin:"10px 0"}}>Generado: {fechaFormateada}</h2>
+                    </div>
                 </div>
             </div>
         </div>

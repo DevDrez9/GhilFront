@@ -153,6 +153,9 @@ const Trabajos = () => {
                     <div>
                       <strong>Cantidad:</strong> {trabajo.cantidad}
                     </div>
+                     <div>
+                      <strong>Peso Total Tela:</strong> {trabajo.pesoTotal+" kg"} 
+                    </div>
                     {trabajo.trabajoFinalizado && (
                       <div>
                         <strong>Producción:</strong> {trabajo.trabajoFinalizado.cantidadProducida}

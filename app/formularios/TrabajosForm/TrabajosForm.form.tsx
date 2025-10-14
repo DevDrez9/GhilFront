@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import InputText1 from "~/componentes/InputText1";
 import Boton1 from "~/componentes/Boton1";
 import { useTrabajos } from "~/hooks/useTrabajos"; // Nuevo hook
@@ -9,7 +9,14 @@ import { useParametrosFisicosTelas } from "~/hooks/useParametrosFisicosTelas";
 import { useCostureros } from "~/hooks/useCostureros";
 import ComboBox1 from "~/componentes/ComboBox1";
 import { useParametrosTela } from "~/hooks/useParametrosTela";
+import { ParametrosFisicosResponseDto } from "~/models/telas.model";
+import type { ParametrosTelaResponseDto } from "~/models/ParametrosTela";
 
+// 1. Tipos de datos para el estado local
+interface TallaConsumoItem {
+  talla: string;
+  consumo: string | number;
+}
 
 interface TrabajoFormProps {
   visible: boolean;
@@ -17,13 +24,13 @@ interface TrabajoFormProps {
 }
 const TrabajoForm: React.FC<TrabajoFormProps> = ({ visible, onClose }) => {
   const { createTrabajo, isCreating, createError } = useTrabajos();
-  const { parametros } = useParametrosTela() as { parametros };
+  const { parametros, error: parametrosError, isLoading } = useParametrosTela();
   const { costureros } = useCostureros();
 
   // Mapeo de opciones para ComboBox1
   const parametroOptions = parametros.map((p) => ({
     value: String(p.id),
-    label: `ID ${p.id} - ${p.nombreModelo}`,
+    label: `Tela: ${p.nombreModelo} | Producto: ${p.producto?.nombre}`,
   }));
   const costureroOptions = costureros.map((c) => ({
     value: String(c.id),
@@ -48,12 +55,16 @@ const TrabajoForm: React.FC<TrabajoFormProps> = ({ visible, onClose }) => {
     fechaInicio: new Date().toISOString().substring(0, 10),
     fechaFinEstimada: "", // Se calculará
     notas: "",
+    pesoTotal:0
   });
 
   // Estado para guardar el tiempo de fabricación de la tela seleccionada
   const [tiempoPorUnidad, setTiempoPorUnidad] = useState<number>(0);
   const [costoEstimado, setCostoEstimado] = useState<number>(0);
   const [costoUnitario, setCostoUnitario] = useState<number>(0);
+
+  // ...
+  const [gastoTotalTela, setGastoTotalTela] = useState<number>(0);
 
   // ----------------------------------------------------
   // LÓGICA DE CÁLCULO DE FECHA FIN
@@ -104,26 +115,26 @@ const TrabajoForm: React.FC<TrabajoFormProps> = ({ visible, onClose }) => {
     }
   }, [formData.fechaInicio, formData.cantidad, tiempoPorUnidad]);
 
-   useEffect(() => {
-    const cantidad = Number(formData.cantidad);
-    const nuevoCostoEstimado = cantidad * costoUnitario;
+  useEffect(() => {
+    const cantidad = Number(formData.cantidad);
+    const nuevoCostoEstimado = cantidad * costoUnitario; // Solo actualiza si el valor realmente ha cambiado para evitar re-render innecesarios
 
-    // Solo actualiza si el valor realmente ha cambiado para evitar re-render innecesarios
-    if (nuevoCostoEstimado !== costoEstimado) {
-      setCostoEstimado(nuevoCostoEstimado);
-    }
-
-  }, [formData.cantidad, costoUnitario]); // <--- Depende de la cantidad y el costo unitario
-
+    if (nuevoCostoEstimado !== costoEstimado) {
+      setCostoEstimado(nuevoCostoEstimado);
+    }
+  }, [formData.cantidad, costoUnitario]); // <--- Depende de la cantidad y el costo unitario
 
   // ----------------------------------------------------
   // MANEJADOR DE CAMBIOS GENERAL
   // ----------------------------------------------------
 
+  const [parametroSelec, setParametroSelec] =
+    useState<ParametrosTelaResponseDto>(null);
+
   const handleChange = (field: string, value: string | number) => {
     let finalValue = value;
     let newTiempoPorUnidad = tiempoPorUnidad;
-    let newCostoUnitario = costoUnitario; 
+    let newCostoUnitario = costoUnitario;
 
     // Lógica especial para 'parametrosTelaId' (ID Numérico)
     if (field === "parametrosTelaId") {
@@ -135,12 +146,15 @@ const TrabajoForm: React.FC<TrabajoFormProps> = ({ visible, onClose }) => {
       if (parametroSeleccionado) {
         // Guardar el tiempo de fabricación para el cálculo
         newTiempoPorUnidad = parametroSeleccionado.tiempoFabricacionPorUnidad;
-         newCostoUnitario = Number(parametroSeleccionado.fotoReferenciaUrl) || 0; 
+        newCostoUnitario = Number(parametroSeleccionado.fotoReferenciaUrl) || 0;
+        setParametroSelec(parametroSeleccionado);
         
       } else {
         newTiempoPorUnidad = 0;
         newCostoUnitario = 0;
+        setParametroSelec(null);
       }
+      setGastoTotalTela(0)
     }
 
     // Actualizar el estado de tiempo por unidad si ha cambiado
@@ -148,8 +162,8 @@ const TrabajoForm: React.FC<TrabajoFormProps> = ({ visible, onClose }) => {
       setTiempoPorUnidad(newTiempoPorUnidad);
     }
     if (newCostoUnitario !== costoUnitario) {
-      setCostoUnitario(newCostoUnitario);
-    }
+      setCostoUnitario(newCostoUnitario);
+    }
 
     setFormData((prev) => ({
       ...prev,
@@ -196,6 +210,7 @@ const TrabajoForm: React.FC<TrabajoFormProps> = ({ visible, onClose }) => {
           fechaFinEstimada: formData.fechaFinEstimada
             ? new Date(formData.fechaFinEstimada)
             : undefined,
+            pesoTotal:Number(formData.pesoTotal.toFixed(2))
         };
 
         await createTrabajo(dataToSend as any);
@@ -207,6 +222,132 @@ const TrabajoForm: React.FC<TrabajoFormProps> = ({ visible, onClose }) => {
     }
   };
 
+  // 2. ESTADO LOCAL: Usa TallaConsumoItem[] para la tabla
+  const [tallaConsumoData, setTallaConsumoData] = useState<TallaConsumoItem[]>(
+    []
+  );
+
+  // Función para procesar y mapear el JSON de consumo
+  const mapJsonToState = useCallback(
+    (jsonString: string): TallaConsumoItem[] => {
+      try {
+        const consumoMap: Record<string, number> = JSON.parse(jsonString);
+
+        // 🚨 CAMBIO CLAVE: Retorna la talla, pero establece 'consumo' a ""
+        return Object.keys(consumoMap).map((talla) => ({
+          talla,
+          consumo: "", // 👈 AQUÍ SE ESTABLECE LA CADENA VACÍA
+        }));
+      } catch (e) {
+        console.error("Error al parsear consumoTelaPorTalla:", e);
+        return [];
+      }
+    },
+    []
+  );
+
+  const handleConsumoChange = (talla: string, value: string) => {
+    
+    // 1. Verificar la disponibilidad de datos antes de proceder
+    if (!parametroSelec || !parametroSelec.consumoTelaPorTalla) {
+        // Si no hay datos, limpiamos el total y detenemos la ejecución.
+        setGastoTotalTela(0); 
+        return;
+    }
+
+    // 2. Parsear el JSON de precios (consumoTelaPorTalla) una sola vez
+    let preciosMap: Record<string, number> = {};
+    try {
+        // ⚠️ Nota: Estamos asumiendo que consumoTelaPorTalla contiene los PRECIOS, no el consumo.
+        preciosMap = JSON.parse(parametroSelec.consumoTelaPorTalla);
+    } catch (e) {
+        console.error("Error al parsear el JSON de precios:", e);
+    }
+
+
+    setTallaConsumoData((prevData) => {
+        // 3. Actualizar el dato que acaba de cambiar
+        const newData = prevData.map((item) =>
+            // Nota: item.consumo ahora representa la 'Cantidad a Producir' para esa talla
+            item.talla === talla ? { ...item, consumo: value } : item
+        );
+
+        let sumatoriaCantidades = 0;
+        let costoTotalCalculado = 0; // 👈 Aquí se acumulará el costo total
+        const newConsumoMap: Record<string, number> = {}; 
+
+        // 4. ITERAR SOBRE TODOS LOS DATOS PARA CALCULAR LA SUMATORIA TOTAL
+        newData.forEach((item) => {
+            const cantidadProducir = parseFloat(item.consumo + "");
+            const precioUnitario = preciosMap[item.talla] || 0; // Obtiene el precio/costo del JSON
+
+            if (!isNaN(cantidadProducir) && cantidadProducir > 0) {
+                
+                // a. CÁLCULO DEL COSTO: Cantidad a Producir x Precio Unitario
+                costoTotalCalculado += cantidadProducir * precioUnitario; 
+
+                // b. Sumar todas las cantidades (para actualizar formData.cantidad)
+                sumatoriaCantidades += cantidadProducir;
+
+                // c. Preparar el JSON de cantidades para formData.notas
+                newConsumoMap[item.talla] = cantidadProducir;
+            }
+        });
+
+        // 5. Actualizar los estados dependientes (Fuera del setter de prevData, usando sus funciones)
+        
+        // 🚨 Actualizar el estado del COSTO TOTAL
+        setGastoTotalTela(costoTotalCalculado); 
+        
+        // Actualizar la CANTIDAD general del formulario
+        handleChange("cantidad", sumatoriaCantidades);
+        handleChange("pesoTotal", costoTotalCalculado);
+
+        // Actualizar las NOTAS (JSON de cantidades)
+        handleChange("notas", JSON.stringify(newConsumoMap));
+
+        // 6. Retornar los nuevos datos para actualizar la tabla
+        return newData;
+    });
+};
+
+  // 🚨 4. useEffect PARA INICIALIZAR LA TABLA AL CARGAR LOS PARÁMETROS
+  useEffect(() => {
+    if (isLoading || !parametros) {
+      return;
+    }
+
+    const selectedId = Number(formData.parametrosTelaId);
+    const parametroSeleccionado = parametros.find((p) => p.id === selectedId);
+
+    if (parametroSeleccionado && parametroSeleccionado.consumoTelaPorTalla) {
+      // 1. Inicializar la data de la tabla con tallas (consumo = "")
+      const consumoJsonString = parametroSeleccionado.consumoTelaPorTalla;
+      const initialData = mapJsonToState(consumoJsonString);
+      setTallaConsumoData(initialData);
+
+      // 🚨 CAMBIO CLAVE: Inicializar 'notas' como vacío o JSON vacío
+      // Usaremos JSON vacío "{}" para que sea consistente con la estructura de guardado
+      handleChange("notas", "{}");
+      handleChange("cantidad", 0);
+    } else {
+      // Si no hay parámetro o consumo, limpiar la lista y las notas
+      setTallaConsumoData([]);
+      handleChange("notas", "");
+      handleChange("cantidad", 0);
+    }
+  }, [parametros, isLoading, formData.parametrosTelaId, mapJsonToState]);
+
+  // 5. Manejo de estados de carga y error en la UI
+  if (isLoading) {
+    return <p>Cargando configuración de tallas...</p>;
+  }
+  if (parametrosError) {
+    return (
+      <p style={{ color: "red" }}>Error al cargar parámetros de tallas.</p>
+    );
+  }
+
   // ----------------------------------------------------
   // RENDERIZADO
   // ----------------------------------------------------
@@ -215,7 +356,7 @@ const TrabajoForm: React.FC<TrabajoFormProps> = ({ visible, onClose }) => {
     <>
       <div className={containerClasses}>
         <div className="cuerpoTrabajoForm">
-          <h2>Nuevo Trabajo</h2>
+          <h2>Nuevo Trabajo </h2>
 
           <Boton1 type="button" size="medium" variant="info" onClick={onClose}>
             Atrás
@@ -247,15 +388,80 @@ const TrabajoForm: React.FC<TrabajoFormProps> = ({ visible, onClose }) => {
                 />
               </div>
 
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  width: "450px",
+                  marginBottom: "15px",
+                }}
+              >
+                <div
+                  style={{
+                    color: parametrosError ? "red" : "inherit",
+                    marginBottom: "8px",
+                    fontWeight: "bold",
+                  }}
+                >
+                  Cantidad por talla: *
+                </div>
+
+                {/* Tabla/Lista de Consumo por Talla */}
+                <div className="consumo-talla-container">
+                  {tallaConsumoData.map((item) => (
+                    <div>
+                    <div
+                      key={item.talla}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        marginBottom: "10px",
+                        gap: "10px",
+                      }}
+                    >
+                      <label style={{ width: "60px", fontWeight: "bold" }}>
+                        {item.talla}:
+                      </label>
+                      <InputText1
+                        value={item.consumo + ""} // Asegura que el valor sea string para el input
+                        onChange={(val) => handleConsumoChange(item.talla, val)}
+                        type="number"
+                        placeholder="Cantidad"
+                        width="calc(100% - 70px)"
+                      />
+                      
+                    </div>
+                    
+                    </div>
+                  ))}
+                </div>
+
+                {/* Mensaje de Error General */}
+                {parametrosError && (
+                  <p
+                    style={{ color: "red", fontSize: "12px", marginTop: "5px" }}
+                  >
+                    {parametrosError.message}
+                  </p>
+                )}
+<p>Gasto de tela total {gastoTotalTela} (KG)</p>
+                <small style={{ marginTop: "5px", color: "#666" }}>
+                  * Solo los campos con valor numérico mayor a 0 se guardarán en
+                  las notas.
+                </small>
+                
+              </div>
+
               <div className="form-row">
                 <InputText1
-                  label="Cantidad *"
+                  label="Cantidad Total"
                   value={formData.cantidad + ""}
                   onChange={(val) => handleChange("cantidad", val)}
                   errorMessage={errors.cantidadError}
                   required
                   type="number"
                   width={220}
+                  disabled
                 />
                 {/* <InputText1
                   label="ID de Tienda *"
@@ -319,15 +525,14 @@ const TrabajoForm: React.FC<TrabajoFormProps> = ({ visible, onClose }) => {
                 width={450}
               />
               <InputText1
-                label="CostoEstimado"
+                label="Costo Estimado"
                 value={costoEstimado + ""}
-                onChange={(value) => {
-                 
-                }}
+                onChange={(value) => {}}
                 readOnly
                 type="text"
                 width={450}
               />
+              {/*
 
               <InputText1
                 label="Notas"
@@ -336,7 +541,7 @@ const TrabajoForm: React.FC<TrabajoFormProps> = ({ visible, onClose }) => {
                 type="text"
                 width={450}
               />
-
+*/}
               <Boton1
                 type="submit"
                 fullWidth

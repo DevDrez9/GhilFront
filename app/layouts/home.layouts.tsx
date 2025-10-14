@@ -34,17 +34,17 @@ export default function HomeLayout({
           id: "Telas",
           label: "Telas",
           children: [
-            { id: "Telas", label: "Telas", path: "/telas" },
+            { id: "Telas", label: "Tipo de Telas", path: "/telas" },
             {
               id: "Presentacion",
-              label: "Presentacion",
+              label: "Presentacion Rollo",
               path: "/presentacionTelas",
             },
           ],
         },
         {
           id: "ComprasTela",
-          label: "Inventario Telas",
+          label: "Almacen Telas",
           path: "/inventarioTelas",
         },
       ],
@@ -150,7 +150,7 @@ export default function HomeLayout({
         },
         {
           id: "reporteTienda",
-          label: "Reporte Tienda",
+          label: "Reporte Alamacem",
           path: "/reporteTienda",
         },
 {

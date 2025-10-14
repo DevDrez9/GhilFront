@@ -278,11 +278,13 @@ const subcategoriasDisponibles = useMemo(() => {
                                     width={450}
                                 />
                                 <InputText1
-                                    label="SKU"
+                                    label="Tallas"
                                     value={formData.sku}
                                     onChange={(val) => handleChange("sku", val)}
                                     type="text"
                                     width={450}
+                                    
+                                    
                                 />
                             </fieldset>
 
@@ -314,7 +316,7 @@ const subcategoriasDisponibles = useMemo(() => {
                                         />
                                     </div>
                                 </div>
-                                <div className="form-row">
+                               {/* <div className="form-row">
                                     <InputText1
                                         label="Stock"
                                         value={formData.stock+ ""}
@@ -329,7 +331,7 @@ const subcategoriasDisponibles = useMemo(() => {
                                         type="number"
                                         width={220}
                                     />
-                                </div>
+                                </div>*/}
                             </fieldset>
 
                             {/* === CLASIFICACIÓN Y PROVEEDOR (COMBOBOXES) === */}

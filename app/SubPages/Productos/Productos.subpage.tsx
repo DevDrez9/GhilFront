@@ -40,6 +40,8 @@ const Productos = () => {
    const [productoRerport, setProductoReporte] = useState(0);
     const [mostrarFormReporte, setMostrarFormReporte] = useState(false);
 
+    const [productoReporte, setProductoReport] = useState<ProductoResponseDto | null>(null);
+
   const [searchTerm, setSearchTerm] = useState("");
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -78,9 +80,11 @@ const Productos = () => {
     setProductoEdit(null);
   };
 
-const handleReporte = (idProducto: number) => {
+const handleReporte = (idProducto: number, productoRepor:ProductoResponseDto) => {
     setProductoReporte(idProducto)
     setMostrarFormReporte(true);
+    setProductoReport(productoRepor)
+
 
     window.scrollTo({
       top: 0,
@@ -139,7 +143,7 @@ const handleReporte = (idProducto: number) => {
         {mostrarFormEdit && productoEdit && (
         <ProductoEditForm onClose={handleCloseEdit} visible={mostrarFormEdit} initialProductData={productoEdit} />)}
         <ProductosForm  onClose={handleNuevo} visible={mostrarForm}></ProductosForm>
-        {mostrarFormReporte && productoRerport!=0 && <ProductoPerformanceCard visible={mostrarFormReporte} onClose={handleCloseReporte} productoId={productoRerport} tiendaId={1}/> }
+        {mostrarFormReporte && productoRerport!=0 && <ProductoPerformanceCard producto={productoReporte} visible={mostrarFormReporte} onClose={handleCloseReporte} productoId={productoRerport} tiendaId={1}/> }
         
        
         
@@ -225,9 +229,7 @@ const handleReporte = (idProducto: number) => {
                   <div style={{ flex: 1 }}>
                     <h3 style={{ margin: "0 0 12px 0", color: "#333" }}>
                       {producto.nombre}
-                      <span style={{ marginLeft: "10px", fontSize: "14px", fontWeight: "normal", color: "#666" }}>
-                        ({producto.sku || 'N/A'})
-                      </span>
+                      
                     </h3>
                     <div
                       style={{
@@ -240,9 +242,9 @@ const handleReporte = (idProducto: number) => {
                       <div>
                         <strong>Precio:</strong> Bs{producto.precio}
                       </div>
-                     {/* <div>
-                        <strong>Stock:</strong> {producto.stock}
-                      </div>*/}
+                     <div>
+                        <strong>Tallas:</strong> {producto.sku}
+                      </div>
                       <div>
                         <strong>Categoría:</strong> {asiganarCate(producto.categoriaId+"")}
                       </div>
@@ -301,7 +303,7 @@ const handleReporte = (idProducto: number) => {
                     </button>
 
                      <button
-                      onClick={() => handleReporte(producto.id)}
+                      onClick={() => handleReporte(producto.id, producto)}
                       style={{
                         padding: "8px 12px",
                         backgroundColor: "#f0ca4dff",

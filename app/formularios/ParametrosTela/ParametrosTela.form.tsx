@@ -9,6 +9,7 @@ import { useParametrosTela } from "~/hooks/useParametrosTela";
 import { EstadoPrenda } from "~/models/ParametrosTela";
 import { useProductos } from "~/hooks/useProductos";
 import ComboBox1 from "~/componentes/ComboBox1";
+import { useInventarioTelas } from "~/hooks/useInventarioTelas";
 
 
 interface ParametrosTelaFormProps {
@@ -43,11 +44,28 @@ const ParametrosTelaForm: React.FC<ParametrosTelaFormProps> = ({
         isLoading: isLoadingProds, // Renombramos para evitar conflicto con otros isLoading
     } = useProductos(debouncedSearch);
 
+    const [filters, setFilters] = useState({
+    search: '',
+    tipoTela: '',
+    color: '',
+  });
+  const { 
+      inventario, 
+      isLoading, 
+      isError, 
+      error,
+      deleteInventario,
+      isDeleting,
+      stats,
+      isStatsLoading 
+    } = useInventarioTelas(filters);
+
+
   const [formData, setFormData] = useState({
     codigoReferencia: "",
     nombreModelo: "",
     tipoTelaRecomendada: "",
-    estadoPrenda: EstadoPrenda.PENDIENTE,
+    estadoPrenda: EstadoPrenda.APROBADO,
     fotoReferenciaUrl: "",
     cantidadEstandarPorLote: 0,
     tabla: "",
@@ -57,7 +75,7 @@ const ParametrosTelaForm: React.FC<ParametrosTelaFormProps> = ({
     tiempoFabricacionPorUnidad: 0,
     tiempoTotalPorLote: 0,
     productoId: undefined,
-    telaId: undefined,
+    telaId: 0,
   });
 
 // 2. Preparación de las options
@@ -65,9 +83,17 @@ const productoOptions = useMemo(() =>
     (Array.isArray(productos) ? productos : []).map(p => ({ 
         // ¡Crucial!: El valor debe ser string
         value: p.id.toString(), 
-        label: `${p.nombre} (ID: ${p.id})` 
+        label: `${p.nombre}  ${p.id})` 
     }))
 , [productos]);
+
+const telasOptions = useMemo(() => 
+    (Array.isArray(inventario) ? inventario : []).map(p => ({ 
+        // ¡Crucial!: El valor debe ser string
+        value: p.id.toString(), 
+        label: `${p.tela?.nombreComercial}  (${p.color})` 
+    }))
+, [inventario]);
 
   // 🎯 NUEVO ESTADO LOCAL PARA LA TABLA
   const [tallaConsumoData, setTallaConsumoData] = useState<TallaConsumoItem[]>(
@@ -154,7 +180,7 @@ const productoOptions = useMemo(() =>
     if (!formData.nombreModelo.trim())
       newErrors.nombreModeloError = "El nombre del modelo es obligatorio";
 
-    if (!formData.tipoTelaRecomendada.trim())
+    /*if (!formData.tipoTelaRecomendada.trim())
       newErrors.tipoTelaRecomendadaError =
         "El tipo de tela recomendada es obligatorio";
 
@@ -163,6 +189,7 @@ const productoOptions = useMemo(() =>
 
     if (!formData.tallasDisponibles.trim())
       newErrors.tallasDisponiblesError = "Las tallas disponibles son obligatorias";
+*/
 if (!formData.fotoReferenciaUrl)
       newErrors.fotoReferenciaUrl = "Debe agregar un costo por unidad";
 
@@ -177,16 +204,16 @@ if (!formData.fotoReferenciaUrl)
         newErrors.consumoTelaPorTallaError = "Error interno de formato de JSON.";
     }
 
-
+    /*
     if (!formData.consumoTelaPorLote || formData.consumoTelaPorLote <= 0)
-      newErrors.consumoTelaPorLoteError = "El consumo por lote debe ser mayor a 0";
+      newErrors.consumoTelaPorLoteError = "El consumo por lote debe ser mayor a 0";*/
 
     if (!formData.tiempoFabricacionPorUnidad || formData.tiempoFabricacionPorUnidad <= 0)
       newErrors.tiempoFabricacionPorUnidadError = "El tiempo de fabricación debe ser mayor a 0";
-
+    /*
     if (!formData.tiempoTotalPorLote || formData.tiempoTotalPorLote <= 0)
       newErrors.tiempoTotalPorLoteError = "El tiempo total por lote debe ser mayor a 0";
-
+*/
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -202,6 +229,7 @@ if (!formData.fotoReferenciaUrl)
           // 🎯 consumoTelaPorTalla YA ES UN JSON STRING VÁLIDO GRACIAS AL useEffect
           consumoTelaPorTalla: formData.consumoTelaPorTalla,
           // ... [Conversiones a number] ...
+         
            cantidadEstandarPorLote: Number(formData.cantidadEstandarPorLote),
           consumoTelaPorLote: Number(formData.consumoTelaPorLote),
           tiempoFabricacionPorUnidad: Number(formData.tiempoFabricacionPorUnidad),
@@ -252,7 +280,7 @@ if (!formData.fotoReferenciaUrl)
                   errorMessage={errors.codigoReferenciaError}
                   required
                   type="text"
-                  width={220}
+                  width="100%"
                 />
 
 <ComboBox1
@@ -263,10 +291,23 @@ if (!formData.fotoReferenciaUrl)
     onChange={(val) => handleChange("productoId", val)} 
     options={productoOptions}
     disabled={isLoadingProds}
-    required={true}
+    required
     placeholder={isLoadingProds ? "Cargando productos..." : "Seleccione producto"}
     errorMessage={errors.productoIdError}
-    width={220}
+    width="100%"
+/>
+<ComboBox1
+    label="Tela Inventario *"
+    // Muestra el ID NUMÉRICO como STRING para que coincida con las options
+    value={formData.telaId+""} 
+    // El onChange enviará el ID como string (ej: "15") a handleChange
+    onChange={(val) => handleChange("telaId", val)} 
+    options={telasOptions}
+    disabled={isLoading}
+    required
+    placeholder={isLoading ? "Cargando telas..." : "Seleccione tela"}
+    errorMessage={errors.telaIdError}
+     width="100%"
 />
                 <InputText1
                   label="Nombre del Modelo *"
@@ -275,10 +316,11 @@ if (!formData.fotoReferenciaUrl)
                   errorMessage={errors.nombreModeloError}
                   required
                   type="text"
-                  width={220}
+                   width="100%"
                 />
               </div>
-                <div className="form-row">
+             <div className="form-row">
+                  {/* 
                 <InputText1
                   label="Tipo de Tela Recomendada *"
                   value={formData.tipoTelaRecomendada}
@@ -300,8 +342,7 @@ if (!formData.fotoReferenciaUrl)
                     <option value={EstadoPrenda.OBSERVADO}>Observado</option>
                   </select>
                 </div>
-              </div>
-              <InputText1
+<InputText1
                 label="Tallas Disponibles *"
                 value={formData.tallasDisponibles}
                 onChange={(val) => handleChange("tallasDisponibles", val)}
@@ -309,13 +350,17 @@ if (!formData.fotoReferenciaUrl)
                 required
                 type="text"
                 width={450}
-              />
+              />*/}
+
+              </div>
+              
 
               <div className="linea"></div>
-
+ {/*
               <h2>Consumo y Tiempos de Producción</h2>
-
+               
               <div className="form-row">
+
                 <InputText1
                   label="Cantidad por Lote *"
                   value={formData.cantidadEstandarPorLote+""}
@@ -334,12 +379,12 @@ if (!formData.fotoReferenciaUrl)
                   type="number"
                   width={220}
                 />
-              </div>
+              </div>*/}
 
               {/* 🎯 REEMPLAZO DEL INPUT DE CONSUMO POR TALLA */}
                 <div style={{ display: 'flex', flexDirection: 'column', width: '450px', marginBottom: '15px' }}>
                     <div style={{ color: errors.consumoTelaPorTallaError ? 'red' : 'inherit', marginBottom: '8px', fontWeight: 'bold' }}>
-                        Consumo de Tela por Talla (metros): *
+                        Consumo de Tela por Talla (kg): *
                     </div>
                     
                     {/* Tabla/Lista de Consumo por Talla */}
@@ -379,8 +424,9 @@ if (!formData.fotoReferenciaUrl)
                   errorMessage={errors.tiempoFabricacionPorUnidadError}
                   required
                   type="number"
-                  width={220}
+                   width="100%"
                 />
+{/*
                 <InputText1
                   label="Tiempo Total por Lote (horas) *"
                   value={formData.tiempoTotalPorLote+""}
@@ -390,7 +436,9 @@ if (!formData.fotoReferenciaUrl)
                   type="number"
                   width={220}
                 />
-              </div>
+             
+*/}
+ </div>
 
  <InputText1
                   label="Costo por unidad"
@@ -398,7 +446,7 @@ if (!formData.fotoReferenciaUrl)
                   onChange={(val) => handleChange("fotoReferenciaUrl", val)}
                   type="number"
 required
-                  width={220}
+                  width="100%"
                 />
                 {/*
               <div className="linea"></div>
