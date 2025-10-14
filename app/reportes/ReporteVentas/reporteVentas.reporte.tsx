@@ -62,8 +62,9 @@ const ReporteVentas : React.FC<ReporteVentasProps> = ({ onClose, visible }) => {
     // Asume que useSucursales devuelve la lista de sucursales
     // const { sucursales = [], isLoading: isLoadingSucursales } = useSucursales(""); 
     // Usaremos un mock temporal para que el código compile:
-    const sucursales: SucursalResponseDto[] = [{ id: 1, nombre: 'Sucursal Central' }, { id: 2, nombre: 'Sucursal Norte' }];
-    const isLoadingSucursales = false;
+    
+    const { sucursales = [], isLoading: isLoadingSucursales } = useSucursales(""); 
+
     
     // 1. Opciones para el ComboBox (incluye la opción consolidada)
     const sucursalComboBoxOptions: ComboBoxOption[] = useMemo(() => {
