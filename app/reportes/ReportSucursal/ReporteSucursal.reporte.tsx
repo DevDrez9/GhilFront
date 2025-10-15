@@ -6,6 +6,7 @@ import Boton1 from '~/componentes/Boton1';
 import { useSucursalEstadisticas } from '~/services/reportes/sucursales/hookSucursalReport';
 import { exportToPDF } from '~/utils/exportUtils'; // 🛑 Función de exportación a PDF reutilizable
 import "./ReporteSucursal.style.css"
+import { useOutletContext } from 'react-router';
 
 
 const formatCurrency = (amount) => {
@@ -27,11 +28,16 @@ interface ReporteSucursalProps {
     sucursalId:number,
     
 }
+// 🚨 Reutiliza o define la interfaz
+interface LayoutContext {
+    user,tienda
+}
+
 
 const ReporteSucursal  : React.FC<ReporteSucursalProps> = ({ sucursalId,onClose, visible }) => {
     // 🛑 1. Crear la referencia para el contenido del PDF
 
-    
+    const { user, tienda } = useOutletContext<LayoutContext>();
      const containerClasses = [
     "contenedorReportSucursal",
     visible ? "visible" : "noVisible",
@@ -93,6 +99,11 @@ const ReporteSucursal  : React.FC<ReporteSucursalProps> = ({ sucursalId,onClose,
                 style={{padding: '30px', backgroundColor: '#ffffff', borderRadius: '8px', border: '1px solid #eee'}}
             >
                 
+                <div ref={reporteRef} className="reporteContent" style={{ backgroundColor: '#ffffff', borderRadius: '8px', border: '1px solid #eee', padding: '15px' }}>
+                <div style={{display:"flex", alignItems:"center"}}>
+<img style={{height: '150px'}} src={ "http://localhost:3000/"+tienda.configWeb.logoUrl}/>
+<h3 style={{fontSize:"30px",  fontWeight:"bold",  marginLeft:"15px"} }> {tienda.nombre}</h3>
+                    </div></div>
                 <h3 style={{ borderBottom: '2px solid #f0f0f0', paddingBottom: '10px' }}>Datos Generales</h3>
                 <p><strong>ID Sucursal:</strong> {sucursal.id}</p>
                 <p><strong>Dirección:</strong> {sucursal.direccion}</p>

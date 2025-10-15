@@ -125,6 +125,7 @@ const Usuarios = () => {
                             </h3>
                             <div style={{ fontSize: "14px", color: "#666" }}>
                                 <p style={{ margin: "4px 0" }}><strong>Email:</strong> {usuario.email}</p>
+                                <p style={{ margin: "4px 0" }}><strong>Telefono:</strong> {usuario.telefono}</p>
                                 <p style={{ margin: "4px 0" }}>
                                     <strong>Creado:</strong> {new Date(usuario.createdAt).toLocaleDateString()}
                                 </p>

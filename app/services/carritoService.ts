@@ -35,4 +35,17 @@ export const carritoService = {
         const data = await response.json();
         return new CarritoResponseDto(data);
     },
+    cancelar: async (id: number): Promise<CarritoResponseDto> => {
+        const response = await fetch(`${API_BASE_URL}/carritos/${id}/cancelado`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+        });
+
+        if (!response.ok) {
+            throw new Error(`Error al finalizar el pedido ${id}.`);
+        }
+        
+        const data = await response.json();
+        return new CarritoResponseDto(data);
+    },
 };

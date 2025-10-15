@@ -6,6 +6,7 @@ import "./reportProducto.style.css"
 import Boton1 from '~/componentes/Boton1';
 import {  exportToPDF } from '~/utils/exportUtils'; 
 import type { ProductoResponseDto } from '~/models/producto.model';
+import { useOutletContext } from 'react-router';
 
 
 const formatCurrency = (amount) => {
@@ -36,8 +37,14 @@ interface ReporteProducto {
     tiendaId:number,
     producto:ProductoResponseDto
 }
+// 🚨 Reutiliza o define la interfaz
+interface LayoutContext {
+    user,tienda
+}
+
 const ProductoPerformanceCard : React.FC<ReporteProducto>  = ({ productoId, tiendaId, onClose, visible, producto}) => {
 
+  const { user, tienda } = useOutletContext<LayoutContext>();
     // 🛑 1. Crear la referencia
     const componentRef = useRef(null); 
 
@@ -99,6 +106,12 @@ const ProductoPerformanceCard : React.FC<ReporteProducto>  = ({ productoId, tien
            
 
         <div  className="productoPerformanceCard" ref={componentRef} >
+
+          <div className="reporteContent" style={{ backgroundColor: '#ffffff', borderRadius: '8px', border: '1px solid #eee', padding: '15px' }}>
+                <div style={{display:"flex", alignItems:"center"}}>
+<img style={{height: '150px'}} src={ "http://localhost:3000/"+tienda.configWeb.logoUrl}/>
+<h3 style={{fontSize:"30px",  fontWeight:"bold",  marginLeft:"15px"} }> {tienda.nombre}</h3>
+                    </div></div>
             <h2 style={{fontSize:"30px", fontWeight:"bold"}}>📈 Rendimiento de Producto: {data.nombreProducto}</h2>
 
             <div style={{ flexShrink: 0 }}>

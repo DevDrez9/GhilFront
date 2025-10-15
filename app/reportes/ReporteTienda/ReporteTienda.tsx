@@ -1,4 +1,5 @@
 import React, { useRef, useState, type CSSProperties } from 'react';
+import { useOutletContext } from 'react-router';
 // 🛑 Reemplaza estas con tus rutas reales de componentes
 import Boton1 from '~/componentes/Boton1'; 
 import { useInventarioTienda } from '~/hooks/useInventarioTienda';
@@ -7,8 +8,14 @@ import { exportToPDF } from '~/utils/exportUtils'; // Requerido para PDF
 
 // Asumimos que formatCurrency está disponible globalmente o se importa
 const formatCurrency = (amount) => `Bs.${Number(amount).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}`; 
+// 🚨 Reutiliza o define la interfaz
+interface LayoutContext {
+    user,tienda
+}
+
 
 const ReporteInventarioDetalle: React.FC = () => {
+    const { user, tienda } = useOutletContext<LayoutContext>();
     
     const reporteRef = useRef(null); 
     const [search, setSearch] = useState('');
@@ -79,6 +86,7 @@ const ReporteInventarioDetalle: React.FC = () => {
             {/* CONTENIDO PARA CAPTURA PDF */}
             <div ref={reporteRef} className="reporteContent" style={{ backgroundColor: '#ffffff', borderRadius: '8px', border: '1px solid #eee', padding: '30px' }}>
                 
+                
                 {isLoading && <p>Cargando inventario...</p>}
                 
                 {isError && (
@@ -90,7 +98,15 @@ const ReporteInventarioDetalle: React.FC = () => {
                 )}
 
                 {!isLoading && inventario.length > 0 && (
-                    <div>  <h2 style={{fontSize:"18px", fontWeight:"bold"}}> Reporte Almacen de productos </h2>
+
+                    
+                    <div> 
+
+                            <div style={{display:"flex", alignItems:"center"}}>
+<img style={{height: '150px'}} src={ "http://localhost:3000/"+tienda.configWeb.logoUrl}/>
+<h3 style={{fontSize:"30px",  fontWeight:"bold",  marginLeft:"15px"} }> {tienda.nombre}</h3>
+                    </div>
+                         <h2 style={{fontSize:"18px", fontWeight:"bold"}}> Reporte Almacen de productos </h2>
                     <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '15px', fontSize: '14px' }}>
                         <thead>
                             <tr style={{ backgroundColor: '#f8f9fa' }}>

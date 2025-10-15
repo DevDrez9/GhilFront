@@ -1,9 +1,11 @@
 // En ~/models/carrito.ts
 
+
 export enum CarritoEstado {
     NUEVO = 'nuevo',
     PENDIENTE = 'pendiente',
     TERMINADO = 'terminado',
+     CANCELADO = 'cancelado',
     TODOS = 'todos' // Valor para indicar que no hay filtro de estado
 }
 
@@ -37,6 +39,7 @@ export class CarritoResponseDto {
     precio: number;
     createdAt: Date;
     items: CarritoItemResponseDto[];
+    usuario:UsuarioRes;
 
     constructor(carrito: any) {
         this.id = carrito.id;
@@ -48,8 +51,32 @@ export class CarritoResponseDto {
         this.direccion = carrito.direccion;
         this.notas = carrito.notas;
         this.precio = carrito.precio || 0;
+        this.usuario=carrito.usuario;
+
         // ⭐ CRÍTICO: Asegúrate de convertir la fecha si viene como string
         this.createdAt = new Date(carrito.createdAt); 
         this.items = carrito.items?.map(item => new CarritoItemResponseDto(item)) || [];
+    }
+}
+
+
+// DTO de Respuesta (Output)
+export class UsuarioRes {
+    id: number;
+    email: string;
+    nombre: string;
+    apellido?: string;
+    
+   
+    telefono?: string; 
+ 
+    constructor(usuario: any) {
+        this.id = usuario.id;
+        this.email = usuario.email;
+        this.nombre = usuario.nombre;
+        this.apellido = usuario.apellido;
+        
+        this.telefono = usuario.telefono;
+       
     }
 }

@@ -6,6 +6,7 @@ import Boton1 from '~/componentes/Boton1';
 import { exportToPDF } from '~/utils/exportUtils'; // 🛑 Reutilizando la función genérica
 import "./reporteCategoria.style.css" // Asumiendo tu archivo de estilos
 import { useCategoriaEstadisticas } from '~/services/reportes/categorais/hookCategoriaReporte';
+import { useOutletContext } from 'react-router';
 
 
 // --- Utilidades de Presentación (Se mantienen) ---
@@ -25,7 +26,14 @@ interface ReporteCategoriaProps {
     categoriaId: number;
 }
 
+// 🚨 Reutiliza o define la interfaz
+interface LayoutContext {
+    user,tienda
+}
+
 const ReporteCategoria : React.FC<ReporteCategoriaProps> = ({ categoriaId, onClose, visible }) => {
+
+    const { user, tienda } = useOutletContext<LayoutContext>();
     
     // 🛑 1. Crear la referencia reutilizable
     const reporteRef = useRef(null); 
@@ -99,9 +107,16 @@ const ReporteCategoria : React.FC<ReporteCategoriaProps> = ({ categoriaId, onClo
                     ref={reporteRef} 
                     className="reporteContent" 
                     style={{padding: '30px', backgroundColor: '#ffffff', borderRadius: '8px', border: '1px solid #eee'}}
-                >
+
+                >   
                     
-                    <h3 style={{ borderBottom: '2px solid #f0f0f0', paddingBottom: '10px' }}>Datos Generales</h3>
+                    <div style={{display:"flex", alignItems:"center"}}>
+<img style={{height: '150px'}} src={ "http://localhost:3000/"+tienda.configWeb.logoUrl}/>
+<h3 style={{fontSize:"30px",  fontWeight:"bold",  marginLeft:"15px"} }> {tienda.nombre}</h3>
+                    </div>
+                    
+                    
+                    <h2 style={{fontSize:"30px", fontWeight:"bold"}}>Datos Generales</h2>
                     <p><strong>ID Categoría:</strong> {categoria.id}</p>
                     <p><strong>Nombre:</strong> {categoria.nombre}</p>
                     

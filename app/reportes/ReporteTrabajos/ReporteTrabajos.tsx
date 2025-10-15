@@ -1,5 +1,6 @@
 import React, { useRef, useState } from 'react';
 import type { CSSProperties } from 'react';
+import { useOutletContext } from 'react-router';
 // 🛑 Reemplaza estas rutas con las correctas en tu proyecto
 import Boton1 from '~/componentes/Boton1'; 
 import { useTrabajosFinalizados } from '~/hooks/useTrabajosFinalizados';
@@ -16,7 +17,13 @@ const tableHeaderStyle: CSSProperties = { border: '1px solid #dee2e6', padding: 
 const tableCellStyle: CSSProperties = { border: '1px solid #dee2e6', padding: '8px' };
 // -------------------
 
+// 🚨 Reutiliza o define la interfaz
+interface LayoutContext {
+    user,tienda
+}
+
 const ReporteTrabajosFinalizados: React.FC = () => {
+    const { user, tienda } = useOutletContext<LayoutContext>();
     
     const reporteRef = useRef(null); 
     const [search, setSearch] = useState('');
@@ -54,6 +61,26 @@ const ReporteTrabajosFinalizados: React.FC = () => {
         setDebouncedSearch(value); 
     };
 
+     const formatearFechaSimple = (isoDateString: string): string => {
+    // 1. Crear un objeto Date a partir de la cadena ISO.
+    const date = new Date(isoDateString);
+
+   
+    const opciones: Intl.DateTimeFormatOptions = {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        timeZone: 'UTC' // 🚨 Importante: Muestra la fecha tal como está en el ISO (Día 14)
+    };
+
+    // Si la conversión falla (cadena inválida), devuelve la cadena original o un texto de error.
+    if (isNaN(date.getTime())) {
+        return isoDateString; // O 'Fecha inválida'
+    }
+
+    return date.toLocaleDateString('es-ES', opciones);
+};
+    
     return (
         <div className="contenedorReporteTrabajos" style={{ padding: '20px' }}>
             
@@ -96,7 +123,11 @@ const ReporteTrabajosFinalizados: React.FC = () => {
                 )}
 
                 {!isLoading && trabajos.length > 0 && (
-                    <div>  <h2 style={{fontSize:"18px", fontWeight:"bold"}}> Reporte de Trabajos de Producción Finalizados </h2>
+                    <div> <div ref={reporteRef} className="reporteContent" style={{ backgroundColor: '#ffffff', borderRadius: '8px', border: '1px solid #eee', padding: '15px' }}>
+                <div style={{display:"flex", alignItems:"center"}}>
+<img style={{height: '150px'}} src={ "http://localhost:3000/"+tienda.configWeb.logoUrl}/>
+<h3 style={{fontSize:"30px",  fontWeight:"bold",  marginLeft:"15px"} }> {tienda.nombre}</h3>
+                    </div></div> <h2 style={{fontSize:"18px", fontWeight:"bold"}}> Reporte de Trabajos de Producción Finalizados </h2>
                     <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '15px', fontSize: '14px' }}>
                         <thead>
                             <tr style={{ backgroundColor: '#f8f9fa' }}>
@@ -104,7 +135,7 @@ const ReporteTrabajosFinalizados: React.FC = () => {
                                 <th style={tableHeaderStyle}>Producto/Modelo</th>
                                 <th style={tableHeaderStyle}>Costurero</th>
                                {/* <th style={tableHeaderStyle}>Fec. Inicio</th>*/}
-                                <th style={tableHeaderStyle}>Fec. Finalización</th>
+                                <th style={tableHeaderStyle}>Fecha Finalización</th>
                                 <th style={{...tableHeaderStyle, textAlign: 'right'}}>Cant. Producida</th>
                                 <th style={tableHeaderStyle}>Calidad</th>
                                 <th style={{...tableHeaderStyle, textAlign: 'right'}}>Costo (Total)</th>
@@ -121,7 +152,7 @@ const ReporteTrabajosFinalizados: React.FC = () => {
                                     </td>
                                     {/*
                                     <td style={tableCellStyle}>{item.trabajoEnProceso.createdAt}</td>*/}
-                                    <td style={tableCellStyle}>{item.fechaFinalizacion+""}</td>
+                                    <td style={tableCellStyle}>{formatearFechaSimple(item.fechaFinalizacion+"")}</td>
                                     <td style={{...tableCellStyle, textAlign: 'right'}}>{item.cantidadProducida}</td>
                                     <td style={tableCellStyle}>
                                         <span style={{ color: item.calidad === 'DEFECTUOSO' ? 'red' : 'green' }}>

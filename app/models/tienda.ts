@@ -1,5 +1,7 @@
 // ~/models/tienda.ts
 
+import type { ConfigWebResponseDto } from "./configWeb";
+
 // --- DTO de Creación/Actualización (Input) ---
 // Usamos una clase simple para el transporte de datos, excluyendo campos de solo lectura.
 export class TiendaDto {
@@ -8,6 +10,7 @@ export class TiendaDto {
     dominio!: string;
     activa?: boolean;
     esPrincipal?: boolean;
+    
     // Si la tienda está ligada a la configuración web,
     // puedes incluir configWebId si se maneja desde el frontend.
     // configWebId?: number; 
@@ -24,6 +27,7 @@ export class TiendaResponseDto {
     configWebId: number;
     createdAt: Date;
     updatedAt: Date;
+    configWeb?:ConfigWebResponseDto;
 
     // Aquí se omite el constructor para simplificar el uso en TypeScript,
     // pero si lo necesitas para transformación, puedes incluirlo.

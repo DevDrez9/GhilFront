@@ -35,6 +35,18 @@ export const usePedidos = (options: CarritosQueryOptions) => {
         }
     });
 
+    // --- MUTACIÓN: Finalizar Pedido ---
+    const cancelarMutation = useMutation<CarritoResponseDto, Error, number>({
+        mutationFn: (id: number) => carritoService.cancelar(id),
+        onSuccess: () => {
+            // Invalida la lista de pedidos para recargar
+            queryClient.invalidateQueries({ queryKey: ['pedidos'] }); 
+        },
+        onError: (error) => {
+            console.error("Error al finalizar el pedido:", error);
+        }
+    });
+
     return {
         data: pedidosQuery.data || [],
         isLoading: pedidosQuery.isLoading,
@@ -42,7 +54,9 @@ export const usePedidos = (options: CarritosQueryOptions) => {
         error: pedidosQuery.error,
 
         completePedidoAsync: completeMutation.mutateAsync,
+        cancelarPedidoAsync: cancelarMutation.mutateAsync,
         isCompleting: completeMutation.isPending,
+        isCompletingCancelar: cancelarMutation.isPending,
         completionError: completeMutation.error,
     };
 };

@@ -7,6 +7,7 @@ import { exportToPDF } from '~/utils/exportUtils'; // Necesario para la descarga
 // Asumimos que estos hooks existen
 import { useSucursales } from '~/hooks/useSucursales'; 
 import { useInventarioSucursal } from '~/hooks/useInventarioSucursal';
+import { useOutletContext } from 'react-router';
 
 
 // --- DTOs y Tipos (Asumidos) ---
@@ -39,8 +40,14 @@ const formatCurrency = (amount) => `Bs.${Number(amount).toFixed(2).replace(/\B(?
 const tableHeaderStyle: CSSProperties = { border: '1px solid #dee2e6', padding: '10px', textAlign: 'left' };
 const tableCellStyle: CSSProperties = { border: '1px solid #dee2e6', padding: '8px' };
 // -------------------
+// 🚨 Reutiliza o define la interfaz
+interface LayoutContext {
+    user,tienda
+}
 
 const ReporteInventarioSucursal: React.FC = () => {
+
+    const { user, tienda } = useOutletContext<LayoutContext>();
     
     const reporteRef = useRef(null); 
     // Estado de filtros
@@ -203,6 +210,7 @@ const ReporteInventarioSucursal: React.FC = () => {
             {/* CONTENIDO DE LA TABLA (PARA CAPTURA PDF) */}
             <div ref={reporteRef} className="reporteContent" style={{ backgroundColor: '#ffffff', borderRadius: '8px', border: '1px solid #eee', padding: '15px' }}>
                 
+                
                 {isError && (
                     <p style={{ color: 'red' }}>Error al cargar el inventario: {error?.message || "Error desconocido."}</p>
                 )}
@@ -212,7 +220,12 @@ const ReporteInventarioSucursal: React.FC = () => {
                 )}
 
                 {!isLoading && inventario.length > 0 && (
-                    <div>  <h2 style={{fontSize:"18px", fontWeight:"bold"}}> Reporte Inventario Sucursal: {titleScope} </h2>
+                    <div> 
+                        
+                        <div style={{display:"flex", alignItems:"center"}}>
+<img style={{height: '150px'}} src={ "http://localhost:3000/"+tienda.configWeb.logoUrl}/>
+<h3 style={{fontSize:"30px",  fontWeight:"bold",  marginLeft:"15px"} }> {tienda.nombre}</h3>
+                    </div> <h2 style={{fontSize:"18px", fontWeight:"bold"}}> Reporte Inventario Sucursal: {titleScope} </h2>
                     <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '15px', fontSize: '14px' }}>
                         <thead>
                             <tr style={{ backgroundColor: '#f8f9fa' }}>

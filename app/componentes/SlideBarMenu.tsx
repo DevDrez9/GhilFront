@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router';
 import { useAuth } from '~/hooks/useAuth';
+import type { User } from '~/models/auth';
+import type { UsuarioResponseDto } from '~/models/usuario';
 
 export interface MenuItem {
   id: string;
@@ -13,9 +15,12 @@ export interface MenuItem {
 
 interface SidebarMenuProps {
   menuItems: MenuItem[];
+  icono?:string;
+  nombre?:string;
+  usuario?:User
 }
 
-const SidebarMenu: React.FC<SidebarMenuProps> = ({ menuItems }) => {
+const SidebarMenu: React.FC<SidebarMenuProps> = ({ menuItems,icono,nombre, usuario }) => {
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
   const [hoveredItem, setHoveredItem] = useState<string | null>(null);
   const navigate = useNavigate();
@@ -142,15 +147,25 @@ const SidebarMenu: React.FC<SidebarMenuProps> = ({ menuItems }) => {
         top: 0,
         zIndex: 10
       }}>
+        <img style={{height:"150px"}}  src={"http://localhost:3000/"+icono} />
         <h2 style={{ 
           margin: 0, 
           fontSize: '18px', 
           color: '#495057', 
           fontWeight: 600 
         }}>
-          Producción
+          {nombre}
         </h2>
+
+        <h4 style={{ 
+          margin: 0, 
+          fontSize: '15px', 
+          color: '#495057', 
+          fontWeight: 600 
+        }}>{usuario.nombre+" "+usuario.apellido}</h4>
+      <h4> <b>Rol: </b>{usuario.rol}</h4>
       </div>
+      
       
       <div style={{ padding: '8px 0' }}>
         {menuItems.map(item => (

@@ -7,7 +7,7 @@ export enum Rol {
     ADMIN = 'ADMIN',
     MANAGER = 'MANAGER',
     USER = 'USER',
-    COSTURERO = 'COSTURERO',
+    CLIENTE = 'CLIENTE',
 }
 
 // --- DTOs ---
@@ -25,6 +25,7 @@ export class CreateUsuarioDto {
     
    
     apellido?: string;
+    telefono?: string; 
 
 
    
@@ -42,6 +43,7 @@ export class UsuarioResponseDto {
     apellido?: string;
     rol: Rol;
     activo: boolean;
+    telefono?: string; 
     createdAt: Date;
     updatedAt: Date;
     tiendas: any[]; // ✅ Nueva propiedad para el array de tiendas
@@ -53,6 +55,7 @@ export class UsuarioResponseDto {
         this.apellido = usuario.apellido;
         this.rol = usuario.rol;
         this.activo = usuario.activo;
+        this.telefono = usuario.telefono;
         // Conversión de fechas
         this.createdAt = new Date(usuario.createdAt); 
         this.updatedAt = new Date(usuario.updatedAt);

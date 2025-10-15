@@ -10,6 +10,7 @@ import { exportToPDF } from '~/utils/exportUtils';
 import { useVentaEstadisticas, useVentaTendencia } from '~/services/reportes/ventas/hookVentaReporte'; 
 import type { PeriodoVenta, VentaReporteOptions } from '~/models/ventaReporte'; 
 import "./reporteVentas.style.css"
+import { useOutletContext } from 'react-router';
 
 
 // Asume que este tipo existe en tu proyecto (SucursalResponseDto)
@@ -52,7 +53,14 @@ interface ReporteVentasProps {
 
 const DEFAULT_TIENDA_ID = 1; // ID de tienda por defecto
 
+// 🚨 Reutiliza o define la interfaz
+interface LayoutContext {
+    user,tienda
+}
+
 const ReporteVentas : React.FC<ReporteVentasProps> = ({ onClose, visible }) => {
+
+    const { user, tienda } = useOutletContext<LayoutContext>();
     
      const reporteRef = useRef<HTMLDivElement | null>(null); // Referencia al contenido a exportar
    
@@ -228,7 +236,14 @@ const ReporteVentas : React.FC<ReporteVentasProps> = ({ onClose, visible }) => {
                 
                 {/* Contenido del reporte */}
                 <div ref={reporteRef} className="reporteContent">
+
+                    <div ref={reporteRef} className="reporteContent" style={{ backgroundColor: '#ffffff', borderRadius: '8px', border: '1px solid #eee', padding: '15px' }}>
+                <div style={{display:"flex", alignItems:"center"}}>
+<img style={{height: '150px'}} src={ "http://localhost:3000/"+tienda.configWeb.logoUrl}/>
+<h3 style={{fontSize:"30px",  fontWeight:"bold",  marginLeft:"15px"} }> {tienda.nombre}</h3>
+                    </div></div>
                     <div style={{margin:"0 200px "}}>
+
                     
                     <h3 style={{ borderBottom: '2px solid #f0f0f0', paddingBottom: '10px' }}>Métricas Historicas </h3>
                     

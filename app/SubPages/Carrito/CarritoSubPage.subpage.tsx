@@ -6,12 +6,16 @@ import Boton1 from '~/componentes/Boton1';   // Asume este componente existe
 import { usePedidos } from '~/hooks/usePedidos';
 import { CarritoResponseDto, CarritoEstado } from '~/models/carrito';
 import { formatCurrency } from '~/reportes/ReporteVentas/reporteVentas.reporte';
+import CrearVentaCarritoForm from '~/formularios/VentaCarrito/VentaCarrito.form';
 
 // 🛑 Constantes para el ComboBox
 const ESTADO_OPTIONS = [
     { value: CarritoEstado.TODOS, label: 'Todos los Pedidos' },
     { value: CarritoEstado.PENDIENTE, label: 'Pendientes' },
     { value: CarritoEstado.TERMINADO, label: 'Finalizados' },
+    { value: CarritoEstado.CANCELADO, label: 'Cancelados' },
+    
+    
 ];
 
 // 🛑 Reemplaza con tu lógica real para obtener el ID de la tienda
@@ -31,6 +35,8 @@ const CarritoSubPage = () => {
         isError, 
         error,
         completePedidoAsync, 
+        cancelarPedidoAsync,
+        isCompletingCancelar,
         isCompleting 
     } = usePedidos(queryOptions);
 
@@ -49,8 +55,32 @@ const CarritoSubPage = () => {
         }
     };
 
+     const handleCancelarPedido = async (id) => {
+        if (window.confirm(`¿Está seguro de finalizar el Pedido #${id}?`)) {
+            try {
+                await cancelarPedidoAsync(id);
+                // La alerta se maneja con una notificación real en una app grande
+            } catch (e) {
+                alert(`Error al finalizar el Pedido #${id}.`);
+            }
+        }
+    };
+    const [carritoPas, setCarritoPas]=useState<CarritoResponseDto>(null);
+     const [mostrarForm, setMostrarForm] = useState(false);
+    const handleNuevo = (carrito: CarritoResponseDto) => {
+        setCarritoPas(carrito);
+    setMostrarForm(!mostrarForm);
+  };
+  const handleClose=()=>{
+    setMostrarForm(false);
+    setCarritoPas(null);
+  }
+
     return (
         <div className="listadoPedidos">
+
+            <CrearVentaCarritoForm visible={mostrarForm} onClose={handleClose} initialData={carritoPas} />
+
             <h2 style={{fontSize:"30px", fontWeight:"bold"}}>📦 Listado de Pedidos</h2>
 
             {/* --- CONTROLES DE FILTRO --- */}
@@ -82,6 +112,9 @@ const CarritoSubPage = () => {
                         pedido={pedido} 
                         onComplete={handleCompletePedido} 
                         isCompleting={isCompleting}
+                        onCancelar={cancelarPedidoAsync}
+                        isCompletingCancelar={isCompletingCancelar}
+                        handleVenta={handleNuevo}
                     />
                 ))}
             </div>
@@ -89,15 +122,33 @@ const CarritoSubPage = () => {
     );
 };
 
-// Componente PedidoCard
-const PedidoCard = ({ pedido, onComplete, isCompleting }) => {
+interface PedidoCardProps {
+    pedido: any; // Reemplazar 'any' con el DTO correcto para 'pedido' si lo tienes
+    onComplete: (id: number) => void;
+    isCompleting: boolean;
+    onCancelar: (id: number) => void;
+    isCompletingCancelar: boolean;
+    
+    // 🚨 Función que recibe un CarritoResponseDto y no devuelve nada
+    handleVenta: (carrito: CarritoResponseDto) => void; 
+}
 
+// Componente PedidoCard
+const PedidoCard: React.FC<PedidoCardProps> = ({ 
+    pedido, 
+    onComplete, 
+    isCompleting, 
+    onCancelar, 
+    isCompletingCancelar, 
+    handleVenta // <-- Aquí recibes la función tipada
+}) => {
     // Estado para el despliegue del detalle
     const [isDetailOpen, setIsDetailOpen] = useState(false);
     
     const estadoMap = {
         [CarritoEstado.PENDIENTE]: { color: '#e67e22', bg: '#fef3e3', label: 'Pendiente' },
         [CarritoEstado.TERMINADO]: { color: '#27ae60', bg: '#e8f8f5', label: 'Finalizado' },
+        [CarritoEstado.CANCELADO]: { color: '#ae2727ff', bg: '#f8e8e8ff', label: 'Cancelado' },
         default: { color: '#34495e', bg: '#ecf0f1', label: pedido.estado }
     };
     const style = estadoMap[pedido.estado] || estadoMap.default;
@@ -116,7 +167,10 @@ const PedidoCard = ({ pedido, onComplete, isCompleting }) => {
             </div>
             
             <p style={{ margin: '10px 0 5px 0' }}>
-                <strong>Cliente:</strong> {pedido.cliente || 'Anónimo'}
+                <strong>Cliente:</strong> {pedido.usuario.nombre + " "+ pedido.usuario.apellido }
+            </p>
+            <p style={{ margin: '10px 0 5px 0' }}>
+                <strong>Telefono:</strong> {pedido.usuario.telefono }
             </p>
             <p style={{ margin: '0 0 10px 0' }}>
                 <strong>Total:</strong> ${pedido.precio} | 
@@ -125,18 +179,35 @@ const PedidoCard = ({ pedido, onComplete, isCompleting }) => {
             
             <div style={{ marginTop: '15px', display: 'flex', justifyContent: 'space-between' }}>
                 {pedido.estado === CarritoEstado.PENDIENTE && (
-                    <Boton1 
+                    <div>
+ <Boton1 
                         variant="success" 
                         size="small" 
-                        onClick={() => onComplete(pedido.id)} 
+                        onClick={() => handleVenta(pedido)} 
                         disabled={isCompleting} 
                     >
                         {isCompleting ? 'Finalizando...' : '✅ Finalizar Pedido'}
                     </Boton1>
+                     <Boton1 
+                        variant="danger" 
+                        size="small" 
+                        onClick={() => onCancelar(pedido.id)} 
+                        disabled={isCompleting} 
+                    >
+                        {isCompleting ? 'Cancelando...' : 'Cancelar'}
+                    </Boton1>
+                    </div>
+                   
+                    
                 )}
                 {pedido.estado === CarritoEstado.TERMINADO && (
                     <span style={{ color: '#27ae60', fontSize: '14px', fontWeight: 'bold' }}>
                         Pedido Terminado
+                    </span>
+                )}
+                {pedido.estado === CarritoEstado.CANCELADO && (
+                    <span style={{ color: '#ae2727ff', fontSize: '14px', fontWeight: 'bold' }}>
+                        Pedido Cancelado
                     </span>
                 )}
                 

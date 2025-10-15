@@ -16,6 +16,7 @@ interface UsuarioFormState {
     nombre: string;
     apellido: string;
     rol: Rol;
+    telefono:string;
     // 🎯 Renombrado a isActive para coincidir con la lógica del Switch1
     isActive: boolean; 
     confirmPassword?: string; 
@@ -41,6 +42,7 @@ const CrearUsuarioForm: React.FC<CrearUsuarioFormProps> = ({ visible, onClose })
         rol: Rol.USER, 
         isActive: true, // 🎯 Corresponde al campo 'activo' del DTO
         confirmPassword: "",
+        telefono:""
     });
 
     const [errors, setErrors] = useState<Record<string, string>>({});
@@ -99,6 +101,7 @@ const CrearUsuarioForm: React.FC<CrearUsuarioFormProps> = ({ visible, onClose })
                     nombre: formData.nombre.trim(),
                     apellido: formData.apellido.trim() || undefined,
                     rol: formData.rol,
+                    telefono:formData.telefono,
                     activo: formData.isActive, // 🎯 Uso de isActive del estado para el campo activo del DTO
                 };
                 
@@ -140,7 +143,7 @@ const CrearUsuarioForm: React.FC<CrearUsuarioFormProps> = ({ visible, onClose })
                                 errorMessage={errors.email}
                                 required
                                 type="email"
-                                width={220}
+                                width="100%"
                             />
                             
                             {/* ROL (COMBOBOX) */}
@@ -153,7 +156,7 @@ const CrearUsuarioForm: React.FC<CrearUsuarioFormProps> = ({ visible, onClose })
                                 errorMessage={errors.rol}
                                 required
                                 disabled={isDisabled}
-                                width={220}
+                                width="100%"
                             />
                         </div>
 
@@ -165,7 +168,7 @@ const CrearUsuarioForm: React.FC<CrearUsuarioFormProps> = ({ visible, onClose })
                                 onChange={(val) => handleChange("nombre", val)}
                                 errorMessage={errors.nombre}
                                 required
-                                width={220}
+                                 width="100%"
                             />
                             
                             {/* APELLIDO */}
@@ -173,7 +176,14 @@ const CrearUsuarioForm: React.FC<CrearUsuarioFormProps> = ({ visible, onClose })
                                 label="Apellido"
                                 value={formData.apellido}
                                 onChange={(val) => handleChange("apellido", val)}
-                                width={220}
+                                 width="100%"
+                            />
+                            <InputText1
+                                label="Telefono"
+                                value={formData.telefono}
+                                onChange={(val) => handleChange("telefono", val)}
+                                 width="100%"
+                                type="number"
                             />
                         </div>
 
@@ -186,7 +196,7 @@ const CrearUsuarioForm: React.FC<CrearUsuarioFormProps> = ({ visible, onClose })
                                 errorMessage={errors.password}
                                 required
                                 type="password"
-                                width={220}
+                                 width="100%"
                             />
                             
                             {/* CONFIRMAR PASSWORD */}
@@ -197,7 +207,7 @@ const CrearUsuarioForm: React.FC<CrearUsuarioFormProps> = ({ visible, onClose })
                                 errorMessage={errors.confirmPassword}
                                 required
                                 type="password"
-                                width={220}
+                                 width="100%"
                             />
                         </div>
 
@@ -217,7 +227,8 @@ const CrearUsuarioForm: React.FC<CrearUsuarioFormProps> = ({ visible, onClose })
                             fullWidth
                             size="large"
                             disabled={isDisabled}
-                            style={{ marginTop: '20px' }}
+                            style={{ marginTop: '20px', width:"100%" }}
+                            
                         >
                             {isCreating ? "Creando Usuario..." : "Crear Usuario"}
                         </Boton1>
