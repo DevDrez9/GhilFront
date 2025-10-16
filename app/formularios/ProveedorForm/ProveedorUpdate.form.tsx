@@ -25,6 +25,21 @@ const ProveedorUpDatepForm: React.FC<ProveedorFormProps> = ({ visible, onCloseUp
     .filter(Boolean)
     .join(" ");
 
+
+   const toBoolean = (value: any): boolean => {
+    // Si ya es un booleano, lo devuelve.
+    if (typeof value === 'boolean') {
+        return value;
+    }
+    // Si es un número o string que se convierte a 1 (activo).
+    if (value === 1 || value === '1' || String(value).toLowerCase() === 'true') {
+        return true;
+    }
+    // Todos los demás valores (0, '0', null, undefined, "") se consideran inactivos.
+    return false;
+};
+
+ 
   const [formDataProveedorUpDate, setFormData] = useState({
     nombre: proveedor.nombre,
     ruc: proveedor.ruc,
@@ -36,10 +51,11 @@ const ProveedorUpDatepForm: React.FC<ProveedorFormProps> = ({ visible, onCloseUp
     telefono: proveedor.telefono,
     email: proveedor.email,
 
-    activo: proveedor.activo,
+    activo: toBoolean(proveedor.activo),
   });
 
   useEffect(() => {
+      
       setFormData({
        nombre: proveedor.nombre,
     ruc: proveedor.ruc,
@@ -50,8 +66,11 @@ const ProveedorUpDatepForm: React.FC<ProveedorFormProps> = ({ visible, onCloseUp
     direccion: proveedor.direccion,
     telefono: proveedor.telefono,
     email: proveedor.email,
-activo: proveedor.activo,
+    activo: toBoolean(proveedor.activo),
       });
+      console.log(proveedor.activo)
+      
+
     }, [proveedor]); // Se ejecuta cuando cambia el parámetro
   
   const handleSwitchChange = (field: string, value: boolean) => {

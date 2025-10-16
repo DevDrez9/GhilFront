@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 interface SwitchProps {
   label?: string;
@@ -17,7 +17,14 @@ const Switch1: React.FC<SwitchProps> = ({
   width = '80%',
   size = 'medium'
 }) => {
-  const [isChecked, setIsChecked] = useState(checked);
+ const [isChecked, setIsChecked] = useState(checked);
+
+  // 🎯 PASO CRUCIAL: Sincronizar el estado interno con la prop 'checked'
+  useEffect(() => {
+    // Esto asegura que cada vez que el padre actualice 'checked' (con proveedor.activo),
+    // el estado interno del Switch se actualice también.
+    setIsChecked(checked);
+  }, [checked]); // Depende de la prop 'checked'
 
   const handleToggle = () => {
     if (!disabled) {

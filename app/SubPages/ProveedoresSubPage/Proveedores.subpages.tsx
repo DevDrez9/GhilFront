@@ -164,7 +164,19 @@ const Proveedores = () => {
                       >
                         (Inactivo)
                       </span>
+                    )}{proveedor.activo && (
+                      <span
+                        style={{
+                          color: "#43dc35ff",
+                          marginLeft: "10px",
+                          fontSize: "14px",
+                          fontWeight: "normal",
+                        }}
+                      >
+                        (Activo)
+                      </span>
                     )}
+
                   </h3>
 
                   <div
@@ -206,10 +218,10 @@ const Proveedores = () => {
                     <div>
                       <strong>Nit:</strong> {proveedor.ruc}
                     </div>
-                    
+                    {/*
                     <div>
                       <strong>Estado:</strong> {proveedor.activo?"Activo":"Inactivo"}
-                    </div>
+                    </div>*/}
                   </div>
 
                   {proveedor.direccion && (
