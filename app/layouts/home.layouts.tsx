@@ -34,7 +34,7 @@ export default function HomeLayout({
 
  
    const menuItemsADMIN: MenuItem[] = [
-      { id: "Inicio", label: "Inicio", path: "/home" },
+      { id: "Inicio", label: "Inicio", path: "/home", icon:"🏠" },
 
       {
         id: "Materia Prima",
@@ -322,7 +322,7 @@ export default function HomeLayout({
     ];
     
      const menuItemsUser: MenuItem[]= [
-      { id: "Inicio", label: "Inicio", path: "/home" },
+       { id: "Inicio", label: "Inicio", path: "/home", icon:"🏠" },
 
      
       {
@@ -334,6 +334,16 @@ export default function HomeLayout({
             id: "producto",
             label: "Producto",
             path: "/productos",
+          },
+             {
+            id: "inventarioTienda",
+           label: "Almacen de Productos Terminados",
+            path: "/inventarioTienda",
+          },
+          {
+            id: "inventarioSucursal",
+            label: "Inventario Sucursal",
+            path: "/inventarioSucursal",
           },
           {
             id: "ventas",
@@ -377,9 +387,8 @@ export default function HomeLayout({
   
     if(user.rol==="ADMIN"){
       menuItems=menuItemsADMIN
-    }else if(user.rol==="MANAGER"){
-      menuItems=menuItemsMANAGER
-    }else if(user.rol==="USER"){  
+    }
+    else if(user.rol==="USER"){  
       menuItems=menuItemsUser;
     }
  
