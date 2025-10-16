@@ -108,7 +108,7 @@ const ProveedorForm: React.FC<ProveedorFormProps> = ({ visible, onClose, }) => {
                 size="medium"
               />
               <InputText1
-                label="Nombre Empresa"
+                label="Nombre Proveedor"
                 value={formDataProveedor.nombre}
                 onChange={(val) => handleChange("nombre", val)}
                 errorMessage={errors.nombreError}

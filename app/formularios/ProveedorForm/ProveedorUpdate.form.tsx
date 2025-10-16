@@ -125,7 +125,7 @@ activo: proveedor.activo,
                 size="medium"
               />
               <InputText1
-                label="Nombre Empresa"
+                label="Nombre Proveedor"
                 value={formDataProveedorUpDate.nombre}
                 onChange={(val) => handleChange("nombre", val)}
                 errorMessage={errors.nombreError}

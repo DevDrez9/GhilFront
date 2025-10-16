@@ -142,12 +142,8 @@ const Categorias: React.FC = () => { // 👈 TIPADO: Usa React.FC
     const handleRemoveSub = async (categoriaId: number, subcategoriaId: number) => {
         if (window.confirm("¿Estás seguro de eliminar esta subcategoría?")) {
             try {
-                await removeSubcategoria({ categoriaId, subcategoriaId });
-                 if(isErrorSub){
-                    alert(errorSub.message)
-                }else{
-                    alert("Subcategoría eliminada correctamente");
-                }
+                await removeSubcategoria({ categoriaId, subcategoriaId,});
+                alert("Subcategoría eliminada correctamente");
             } catch (error) {
                 alert("Error al eliminar la subcategoría");
             }

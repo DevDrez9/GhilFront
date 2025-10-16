@@ -97,7 +97,7 @@ export const useCategorias = (search?: string) => {
     
     // Mutations de Subcategoría
     addSubcategoria: addSubcategoriaMutation.mutate,
-    removeSubcategoria: removeSubcategoriaMutation.mutate,
+    removeSubcategoria: removeSubcategoriaMutation.mutateAsync,
     isAddingSub: addSubcategoriaMutation.isPending,
     isRemovingSub: removeSubcategoriaMutation.isPending,
     isErrorSub:removeSubcategoriaMutation.isError,
