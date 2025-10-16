@@ -53,7 +53,12 @@ export const useAuth = () => {
 
   const login = async (credentials: LoginCredentials): Promise<boolean> => {
     try {
-      await loginMutation.mutateAsync(credentials);
+      const user=await loginMutation.mutateAsync(credentials);
+      console.log(user)
+      if(user.rol=="CLIENTE"){
+        alert("Usuario no autorizado");
+        return null;
+      }
       return true;
     } catch (error) {
       return false;

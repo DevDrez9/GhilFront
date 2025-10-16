@@ -42,12 +42,18 @@ const Trabajos = () => {
 
   const handleDelete = async (id: number) => {
     if (window.confirm("¿Estás seguro de eliminar este trabajo?")) {
-      try {
-        await deleteTrabajo(id);
-        alert("Trabajo eliminado correctamente");
-      } catch (error) {
-        alert("Error al eliminar el trabajo");
-      }
+    
+        await deleteTrabajo(id,{
+          onSuccess: () => {
+            alert("Trabajo eliminado correctamente");
+          
+        },
+        onError: (error) => {
+            alert(error.message);
+        }
+       }
+      );
+      
     }
   };
 
@@ -93,7 +99,7 @@ const Trabajos = () => {
             + Agregar
           </Boton1>
         </div>
-
+    {/*
         <div className="buscador">
           <InputText1
             value={searchTerm}
@@ -109,9 +115,9 @@ const Trabajos = () => {
           >
             Buscar
           </Boton1>
-        </div>
+        </div>*/}
 
-        <div style={{ display: "grid", gap: "15px" }}>
+        <div style={{ display: "grid", gap: "15px", marginTop:"50px"  }}>
           {trabajos.map((trabajo) => (
             <div
               key={trabajo.id}
@@ -150,15 +156,16 @@ const Trabajos = () => {
                     <div>
                       <strong>Costurero:</strong> {trabajo.costurero ? `${trabajo.costurero.nombre} ${trabajo.costurero.apellido}` : 'Sin asignar'}
                     </div>
+                   
                     <div>
-                      <strong>Cantidad:</strong> {trabajo.cantidad}
+                      <strong>Cantidad Solicitada:</strong> {trabajo.cantidad}
                     </div>
                      <div>
                       <strong>Peso Total Tela:</strong> {trabajo.pesoTotal+" kg"} 
                     </div>
                     {trabajo.trabajoFinalizado && (
                       <div>
-                        <strong>Producción:</strong> {trabajo.trabajoFinalizado.cantidadProducida}
+                        <strong>Cantidad Producida:</strong> {trabajo.trabajoFinalizado.cantidadProducida}
                       </div>
                     )}
                   </div>

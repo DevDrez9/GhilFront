@@ -13,7 +13,7 @@ interface ParametroFisicosTelaUpDateFormProps {
 }
 
 const ParametroFisicosTelaUpDateForm: React.FC<ParametroFisicosTelaUpDateFormProps> = ({ visible, onCloseUpDate,parametro }) => {
-  const { updateParametro, isCreating, createError } =
+  const { updateParametro, isCreating, createError, isUpdating } =
     useParametrosFisicosTelas();
 
 
@@ -74,8 +74,14 @@ const ParametroFisicosTelaUpDateForm: React.FC<ParametroFisicosTelaUpDateFormPro
     if (validate()) {
       try {
          await updateParametro({id: parametro.id,data:formDataParametrosFisicosTelaUpDate});
+         if(isUpdating){
+            alert("No se pudo actualizar la presentacion")
+         }else{
+            alert("Presentacion actualizada correctamente")
+            onCloseUpDate();
+         }
 
-        onCloseUpDate();
+        
       } catch {
         alert("No se pudo guardar el proveedor");
       }
@@ -121,31 +127,31 @@ const ParametroFisicosTelaUpDateForm: React.FC<ParametroFisicosTelaUpDateFormPro
                 errorMessage={errors.nombreError}
                 required
                 type="text"
-                width={450}
+                width="100%"
               />
               <InputText1
                 label="Ancho Tela (cm)"
                 value={formDataParametrosFisicosTelaUpDate.anchoTela.toString()}
                 onChange={(val) => handleChange("anchoTela", val)}
-                width={450}
+                width="100%"
                 type="number"
               />
               <InputText1
                 label="Descripcion"
                 value={formDataParametrosFisicosTelaUpDate.descripcion}
                 onChange={(val) => handleChange("descripcion", val)}
-                width={450}
+                width="100%"
                 type="text"
               />
               <InputText1
                 label="Notas"
                 value={formDataParametrosFisicosTelaUpDate.notasTela}
                 onChange={(val) => handleChange("notasTela", val)}
-                width={450}
+                width="100%"
                 type="text"
               />
              
-              <Boton1 type="submit" fullWidth size="medium" onClick={() => {}}>
+              <Boton1 type="submit" style={{width:"100%"}} size="medium" onClick={() => {}}>
                 Guardar Proveedor
               </Boton1>
             </form>

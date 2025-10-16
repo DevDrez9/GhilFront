@@ -1,4 +1,4 @@
-import { Outlet } from "react-router";
+import { Outlet, useNavigate } from "react-router";
 import SidebarMenu, { type MenuItem } from "~/componentes/SlideBarMenu";
 import { useAuth } from "~/hooks/useAuth";
 import { useTienda } from "~/hooks/useTienda";
@@ -38,7 +38,8 @@ export default function HomeLayout({
 
       {
         id: "Materia Prima",
-        label: "MateriaPrima",
+        icon: "🧵",
+        label: "Materia Prima",
         children: [
           { id: "Proveedores", label: "Proveedores", path: "/proveedores" },
           {
@@ -48,7 +49,7 @@ export default function HomeLayout({
               { id: "Telas", label: "Tipo de Telas", path: "/telas" },
               {
                 id: "Presentacion",
-                label: "Presentacion Rollo",
+                label: "Presentacion de Rollos",
                 path: "/presentacionTelas",
               },
             ],
@@ -73,7 +74,7 @@ export default function HomeLayout({
           },
           {
             id: "parametros",
-            label: "Parametros Tela",
+            label: "Parametros de las Prendas",
             path: "/parametrosTela",
           },
           {
@@ -101,7 +102,7 @@ export default function HomeLayout({
 
           {
             id: "inventarioTienda",
-            label: "Almacen Central",
+            label: "Almacen de Productos Terminados",
             path: "/inventarioTienda",
           },
           {
@@ -219,7 +220,7 @@ export default function HomeLayout({
 
           {
             id: "inventarioTienda",
-            label: "Almacen Central",
+           label: "Almacen de Productos Terminados",
             path: "/inventarioTienda",
           },
           {
@@ -372,6 +373,7 @@ export default function HomeLayout({
     return <div>No hay usuario logueado</div>;
   }
   let menuItems:MenuItem[]=[]
+   const navigate = useNavigate();
   
     if(user.rol==="ADMIN"){
       menuItems=menuItemsADMIN

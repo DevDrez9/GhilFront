@@ -59,7 +59,7 @@ const ReporteInventarioDetalle: React.FC = () => {
         <div className="contenedorReporteDetalle" style={{ padding: '20px' }}>
             
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-                <h2 style={{fontSize:"30px", fontWeight:"bold"}}>📋 Reporte Alamacem de productos</h2>
+                <h2 style={{fontSize:"30px", fontWeight:"bold"}}>📋 Reporte Almacen de productos</h2>
                 <Boton1 
                     variant="primary" 
                     size="medium" 

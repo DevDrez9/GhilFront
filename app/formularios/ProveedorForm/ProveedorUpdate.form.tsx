@@ -15,7 +15,7 @@ interface ProveedorFormProps {
 const ProveedorUpDatepForm: React.FC<ProveedorFormProps> = ({ visible, onCloseUpDate, proveedor}) => {
 
 
-  const { updateProveedor, isCreating, createError } = useProveedores();
+  const { updateProveedor, isCreating, createError, isUpdating } = useProveedores();
 
  
   const containerClasses = [
@@ -83,9 +83,15 @@ activo: proveedor.activo,
     if (validate()) {
      
       try{
-         updateProveedor( {id:proveedor.id,data: formDataProveedorUpDate});
+        await updateProveedor( {id:proveedor.id,data: formDataProveedorUpDate});
+        if(isUpdating){
+          alert("Proveedor no actualizado correctamente")
+        }else{
+          alert("Proveedor actualizado correctamente")
+           onCloseUpDate();
+        }
         
-        onCloseUpDate();
+       
 
       }catch{
         alert("No se pudo guardar el proveedor")
@@ -136,7 +142,7 @@ activo: proveedor.activo,
                 type="text"
               />
               <InputText1
-                label="Razon Socia"
+                label="Razon Social"
                 value={formDataProveedorUpDate.ruc}
                 onChange={(val) => handleChange("ruc", val)}
                 width={450}

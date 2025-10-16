@@ -126,6 +126,10 @@ const CreateInventarioTiendaForm: React.FC<CreateInventarioTiendaFormProps> = ({
     return (
         <div className={containerClasses}>
             <div className="cuerpoInventarioTiendaForm">
+                    <Boton1 type="button" size="medium" variant="info" onClick={onClose}>
+                    Atrás
+                </Boton1>
+
                 <h2>Nuevo Registro de Inventario</h2>
                 
                 {isLoading && <p>Cargando productos...</p>}

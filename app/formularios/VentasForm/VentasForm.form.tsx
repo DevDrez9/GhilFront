@@ -214,7 +214,12 @@ const CrearVentaForm: React.FC<CrearVentaFormProps> = ({ visible, onClose }) => 
     return (
         <div className={containerClasses}>
             <div className="cuerpoVentaForm">
+
+                <Boton1 type="button" size="medium" variant="info" onClick={onClose}>
+                    Atrás
+                </Boton1>
                 <h2>Registrar Nueva Venta</h2>
+
                 
                 <div className="formVenta">
                     <form onSubmit={handleSubmit}>

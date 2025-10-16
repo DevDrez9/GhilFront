@@ -125,7 +125,12 @@ const Categorias: React.FC = () => { // 👈 TIPADO: Usa React.FC
                 if(isError){
                     alert(error.message)
                 }else{
-  alert("Categoría eliminada correctamente");
+                    if(isDeleting){
+ alert("Categoría eliminada correctamente");
+                    }else{
+                         alert("Categoría no se pudo eliminar");
+                    }
+ 
                 }
               
             } catch (error) {
@@ -203,7 +208,7 @@ const handleReporte = (idProducto: number) => {
                 
  
 
-                
+                {/*}
 
                 <div className="buscador">
                     <InputText1
@@ -214,9 +219,9 @@ const handleReporte = (idProducto: number) => {
                         label="Buscar Categoría"
                         placeholder="Nombre, descripción"
                     />
-                </div>
+                </div>*/}
 
-                <div style={{ display: "grid", gap: "25px" }}>
+                <div style={{ display: "grid", gap: "25px", marginTop: "50px"}}>
                      {Array.isArray(categorias) && categorias.map((categoria) => (
                         <div
                             key={categoria.id}

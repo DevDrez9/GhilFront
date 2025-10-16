@@ -93,7 +93,7 @@ const Costurero = () => {
             + Agregar
           </Boton1>
         </div>
-
+{/*
         <div className="buscador">
           <InputText1
             value={""}
@@ -111,10 +111,10 @@ const Costurero = () => {
           >
             Buscar
           </Boton1>
-        </div>
+        </div>*/}
 
 
-      <div style={{ display: "grid", gap: "15px" }}>
+      <div style={{ display: "grid", gap: "15px", marginTop:"50px" }}>
           {costureros.map((costurero) => (
             <div
               key={costurero.id}

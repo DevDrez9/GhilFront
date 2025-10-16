@@ -2,7 +2,7 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { usuarioService } from '~/services/usuarioService';
-import { UsuarioResponseDto,type UsuarioApiResponse,type UsuarioQueryOptions, CreateUsuarioDto } from '~/models/usuario';
+import { UsuarioResponseDto,type UsuarioApiResponse,type UsuarioQueryOptions, CreateUsuarioDto, UpdateUsuarioDto } from '~/models/usuario';
 
 interface UseUsuariosOptions extends UsuarioQueryOptions {
     enabled?: boolean;
@@ -41,6 +41,29 @@ export const useUsuarios = (options: UseUsuariosOptions = {}) => {
       console.error("Error al crear el usuario:", error.message);
     }
   });
+  const editarUsuarioMutation = useMutation<
+    UsuarioResponseDto, 
+    Error,      
+     { id: number; data: UpdateUsuarioDto } 
+  >({
+    mutationFn:  ({id, data  }) => usuarioService.ediatUsuario(data,id),
+    
+    onSuccess: () => {
+      // Invalida la lista de usuarios para que la tabla se refresque
+      queryClient.invalidateQueries({ queryKey: ['usuarios'] }); 
+    },
+    
+    onError: (error) => {
+      console.error("Error al crear el usuario:", error.message);
+    }
+  });
+  // Mutation para eliminar producto
+    const deleteUsuarioMutation = useMutation<void, Error, number>({
+      mutationFn: (id: number) => usuarioService.eliminarUsuario(id),
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ['usuarios'] });
+      },
+    });
 
     return {
         // Queries
@@ -57,5 +80,16 @@ export const useUsuarios = (options: UseUsuariosOptions = {}) => {
         isCreating: createUsuarioMutation.isPending,
         createError: createUsuarioMutation.error,
         // Añadir mutaciones de update y delete si las implementas
+
+        updateUsuario: editarUsuarioMutation.mutateAsync,
+        isUpdating: editarUsuarioMutation.isPending,
+        updateError: editarUsuarioMutation.error,
+
+        // Mutations
+    deleteUsuario: deleteUsuarioMutation.mutate,
+    deleteUsuarioAsync: deleteUsuarioMutation.mutateAsync,
+    isDeleting: deleteUsuarioMutation.isPending,
+    deleteError: deleteUsuarioMutation.error,
+    
     };
 };

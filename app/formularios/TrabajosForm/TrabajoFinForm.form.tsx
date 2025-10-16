@@ -113,7 +113,15 @@ const FinalizarTrabajoForm: React.FC<FinalizarTrabajoFormProps> = ({ visible, on
                await completeTrabajo({ 
                     id: trabajo.id,
                     data: dataToSend 
-                });
+                },{
+          onSuccess: () => {
+            alert("Trabajo finalizado correctamente");
+          
+        },
+        onError: (error) => {
+            alert(error.message);
+        }
+       });
                 
                 onClose();
             } catch (error) {
@@ -144,7 +152,10 @@ const FinalizarTrabajoForm: React.FC<FinalizarTrabajoFormProps> = ({ visible, on
                     <div className="formFinalizarTrabajo">
 
                         <p>Cantidad Solicitada: <strong>{trabajo.cantidad}</strong></p>
-                     <p>Costo Estimado: <strong>{calcularCostoEstimado(trabajo.cantidad,trabajo.parametrosTela.fotoReferenciaUrl)}</strong></p>
+                     <p>Costo Estimado: <strong>{calcularCostoEstimado(trabajo.cantidad,trabajo.parametrosTela.fotoReferenciaUrl)} Bs.</strong></p>
+                     <p>Fecha Finalizacion Estimado: <strong>{trabajo.fechaFinEstimada 
+            ? new Date(trabajo.fechaFinEstimada).toLocaleDateString()
+            : ""}</strong></p>
                         <form onSubmit={handleSubmit}>
                             
                             <div className="form-row">
@@ -160,7 +171,7 @@ const FinalizarTrabajoForm: React.FC<FinalizarTrabajoFormProps> = ({ visible, on
                                
                                 
                                 <InputText1
-                                    label="Fecha de Finalización *"
+                                    label="Fecha de Finalización Real *"
                                     value={formData.fechaFinalizacion}
                                     onChange={(val) => handleChange("fechaFinalizacion", val)}
                                     errorMessage={errors.fechaFinalizacion}
@@ -184,17 +195,17 @@ const FinalizarTrabajoForm: React.FC<FinalizarTrabajoFormProps> = ({ visible, on
                                     width={220}
                                 />
                                 
-                                <InputText1
+                              {/*  <InputText1
                                     label="Tienda ID (Registro Final)"
                                     value={formData.tiendaId}
                                     onChange={(val) => handleChange("tiendaId", val)}
                                     errorMessage={errors.tiendaId}
                                     type="number"
                                     width={220}
-                                />
+                                />*/}
                             </div>
                             <InputText1
-                                label="Costo"
+                                label="Costo Real (Bs)"
                                 value={formData.costo+""}
                                 onChange={(val) => handleChange("costo", val)}
                                 type="number"

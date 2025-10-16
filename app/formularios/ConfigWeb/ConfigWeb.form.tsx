@@ -338,7 +338,7 @@ const ConfigWebForm: React.FC<ConfigWebFormProps> = ({ visible, onClose }) => {
                                 onChange={(val) => handleChange("nombreSitio", val)}
                                 errorMessage={errors.nombreSitio}
                                 required
-                                width={450}
+                                width="100%"
                             />
                             
                             <div className="form-row">
@@ -349,7 +349,7 @@ const ConfigWebForm: React.FC<ConfigWebFormProps> = ({ visible, onClose }) => {
                                     errorMessage={errors.colorPrimario}
                                     type="color"
                                     required
-                                    width={220}
+                                    width="100%"
                                 />
                                 <InputText1
                                     label="Color Secundario *"
@@ -358,7 +358,7 @@ const ConfigWebForm: React.FC<ConfigWebFormProps> = ({ visible, onClose }) => {
                                     errorMessage={errors.colorSecundario}
                                     type="color"
                                     required
-                                    width={220}
+                                    width="100%"
                                 />
                             </div>
                         </fieldset>
@@ -382,19 +382,19 @@ const ConfigWebForm: React.FC<ConfigWebFormProps> = ({ visible, onClose }) => {
                                         width="450px"
                                     />
                                     {errors[`bannerUrl${index}`] && <p style={{color: 'red', fontSize: '12px'}}>{errors[`bannerUrl${index}`]}</p>}
-
+                                    {/*
                                     <div className="form-row">
                                         <InputText1
                                             label="Título"
                                             value={banner.titulo || ""}
                                             onChange={(val) => handleBannerTextChange(index, "titulo", val)}
-                                            width={220}
+                                            width="100%"
                                         />
                                         <InputText1
                                             label="Subtítulo"
                                             value={banner.subtitulo || ""}
                                             onChange={(val) => handleBannerTextChange(index, "subtitulo", val)}
-                                            width={220}
+                                            width="100%"
                                         />
                                     </div>
                                     <div className="form-row">
@@ -402,16 +402,16 @@ const ConfigWebForm: React.FC<ConfigWebFormProps> = ({ visible, onClose }) => {
                                             label="Enlace"
                                             value={banner.enlace || ""}
                                             onChange={(val) => handleBannerTextChange(index, "enlace", val)}
-                                            width={220}
+                                            width="100%"
                                         />
                                         <InputText1
                                             label="Orden"
                                             value={String(banner.orden || "")}
                                             onChange={(val) => handleBannerTextChange(index, "orden", Number(val))}
                                             type="number"
-                                            width={220}
+                                            width="100%"
                                         />
-                                    </div>
+                                    </div>*/}
                                     
                                     <Boton1 
                                         type="button" 

@@ -5,6 +5,7 @@ import { useParametrosTela } from "~/hooks/useParametrosTela";
 import { useState } from "react";
 import type { ParametrosTelaResponseDto } from "~/models/ParametrosTela";
 import ParametrosTelaForm from "~/formularios/ParametrosTela/ParametrosTela.form";
+import EditarParametrosTelaForm from "~/formularios/ParametrosTela/EditarParametroTela.form";
 // Asegúrate de crear los formularios correspondientes si los necesitas
 // import ParametroTelaForm from "~/formularios/ParametroTelaForm/ParametroTela.form";
 // import ParametroTelaUpdateForm from "~/formularios/ParametroTelaForm/ParametroTelaUpdate.form";
@@ -63,6 +64,7 @@ const ParametrosTela = () => {
   const handleEdit = (parametro: ParametrosTelaResponseDto) => {
     setParametroEdit(parametro);
     setMostrarFormUpDate(true);
+     window.scrollTo(0, 0)
   };
 
   if (isLoading) {
@@ -83,17 +85,18 @@ const ParametrosTela = () => {
 
 
       <div className="cuerpoParametrosTela">
+        <EditarParametrosTelaForm initialData={parametroEdit} onClose={handleCloseEdit} visible={mostrarFormUpDate} />
 
         <ParametrosTelaForm  onClose={handleNuevo} visible={mostrarForm} ></ParametrosTelaForm>
 
         {/* Aquí puedes usar tus componentes de formulario */}
         <div className="titulo">
-          <p>Parámetros de Prenda</p>
+          <p>Parámetros de las Prendas</p>
           <Boton1 variant="info" onClick={() => handleNuevo()}>
             + Agregar
           </Boton1>
         </div>
-
+{/*
         <div className="buscador">
           <InputText1
             value={searchTerm}
@@ -110,8 +113,8 @@ const ParametrosTela = () => {
             Buscar
           </Boton1>
         </div>
-
-        <div style={{ display: "grid", gap: "15px" }}>
+*/}
+        <div style={{ display: "grid", gap: "15px", marginTop:"50px"  }}>
           {parametros.map((parametro) => (
             <div
               key={parametro.id}
@@ -147,9 +150,9 @@ const ParametrosTela = () => {
                     <div>
                       <strong>Consumo por talla:</strong> {convertirJSON(parametro.consumoTelaPorTalla)}
                     </div>
-                    <div>
+                    {/*<div>
                       <strong>Tallas disponibles:</strong> {parametro.tallasDisponibles}
-                    </div>
+                    </div>*/}
                     <div>
                       <strong>Estado de la prenda:</strong> {parametro.estadoPrenda}
                     </div>
@@ -179,7 +182,7 @@ const ParametrosTela = () => {
                   >
                     {isDeleting ? "Eliminando..." : "Eliminar"}
                   </button>
-                {/*  <button
+                 <button
                     onClick={() => handleEdit(parametro)}
                     style={{
                       padding: "8px 12px",
@@ -192,7 +195,7 @@ const ParametrosTela = () => {
                     }}
                   >
                     Editar
-                  </button>*/}
+                  </button>
                 </div>
               </div>
 

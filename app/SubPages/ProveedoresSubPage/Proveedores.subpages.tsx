@@ -110,7 +110,7 @@ const Proveedores = () => {
             + Agregar
           </Boton1>
         </div>
-
+    {/*
         <div className="buscador">
           <InputText1
             value={""}
@@ -128,10 +128,10 @@ const Proveedores = () => {
           >
             Buscar
           </Boton1>
-        </div>
+        </div>*/}
 
         {/* Lista de proveedores */}
-        <div style={{ display: "grid", gap: "15px" }}>
+        <div style={{ display: "grid", gap: "15px", marginTop:"50px"  }}>
           {proveedores.map((proveedor) => (
             <div
               key={proveedor.id}
@@ -206,8 +206,9 @@ const Proveedores = () => {
                     <div>
                       <strong>Nit:</strong> {proveedor.ruc}
                     </div>
+                    
                     <div>
-                      <strong>Celular:</strong> {proveedor.contacto}
+                      <strong>Estado:</strong> {proveedor.activo?"Activo":"Inactivo"}
                     </div>
                   </div>
 

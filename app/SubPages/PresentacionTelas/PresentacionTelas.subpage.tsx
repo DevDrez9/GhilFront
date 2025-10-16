@@ -69,7 +69,12 @@ const PresentacionTelas = () => {
     if (window.confirm(`¿Estás seguro de eliminar el parámetro "${nombre}"?`)) {
       try {
         await deleteParametro(id);
-        alert('Parámetro eliminado correctamente');
+        if(isDeleting){
+          alert("Error al eliminar presentacion");
+        }else{
+ alert('Presentacion eliminada correctamente');
+        }
+       
       } catch (error) {
         alert('Error al eliminar parámetro');
       }
@@ -92,11 +97,11 @@ const PresentacionTelas = () => {
         ></ParametroFisicosTelaUpDateForm>
 
          <div className="titulo">
-          <p>Presentacion Telas</p>
+          <p>Presentacion de Rollos</p>
 
           <Boton1 variant="info" onClick={()=>{handleNuevo()}}>+ Agregar</Boton1>
         </div>
-
+{/*
         <div className="buscador">
           <InputText1
             value={""}
@@ -114,11 +119,11 @@ const PresentacionTelas = () => {
           >
             Buscar
           </Boton1>
-        </div>
+        </div>*/}
 
 
         {/* Lista */}
-      <div style={{ display: 'grid', gap: '15px' }}>
+      <div style={{ display: 'grid', gap: '15px', marginTop:"50px" }}>
         {parametros.map((parametro) => (
           <div key={parametro.id} style={{ 
             padding: '20px', 
@@ -197,7 +202,7 @@ const PresentacionTelas = () => {
 
       {parametros.length === 0 && !isLoading && (
         <div style={{ textAlign: 'center', padding: '40px', color: '#666' }}>
-          No se encontraron parámetros físicos de telas
+          No se encontraron registros
         </div>
       )}
     </div>

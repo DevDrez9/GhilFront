@@ -1,5 +1,5 @@
 export class ParametrosTelaResponseDto {
-    id: number;
+   id: number;
     codigoReferencia: string;
     nombreModelo: string;
     tipoTelaRecomendada: string;

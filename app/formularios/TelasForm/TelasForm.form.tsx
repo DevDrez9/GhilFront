@@ -68,9 +68,14 @@ const TelasForm: React.FC<TelasFormProps> = ({ visible, onClose, }) => {
       try{
         
         let respuesta =await createTela(formDataTelas);
-        
-        onClose();
-
+        if(isCreating){
+          alert("Tela no creada correctamente")
+         ;
+        }else{
+          alert("Tela creada correctamente")
+           onClose();
+        }
+      
       }catch{
         alert("No se pudo guardar el proveedor")
       }
@@ -94,7 +99,7 @@ const TelasForm: React.FC<TelasFormProps> = ({ visible, onClose, }) => {
 
           <div className="formProveedor">
             <form onSubmit={handleSubmit}>
-              <h2>Datos Proveedor</h2>
+              <h2>Datos Tipo de Tela</h2>
               <Switch1
                 label="Habilitado"
                 checked={formDataTelas.estado =="ACTIVA"?true: false}
@@ -109,13 +114,13 @@ const TelasForm: React.FC<TelasFormProps> = ({ visible, onClose, }) => {
                 errorMessage={errors.nombreError}
                 required
                 type="text"
-                width={450}
+               width="100%"
               />
               <InputText1
                 label="Tipo Tela"
                 value={formDataTelas.tipoTela}
                 onChange={(val) => handleChange("tipoTela", val)}
-                width={450}
+               width="100%"
               required
                 type="text"
               />
@@ -123,7 +128,7 @@ const TelasForm: React.FC<TelasFormProps> = ({ visible, onClose, }) => {
                 label="Composicion"
                 value={formDataTelas.composicion}
                 onChange={(val) => handleChange("composicion", val)}
-                width={450}
+               width="100%"
                required
                 type="text"
               />
@@ -131,7 +136,7 @@ const TelasForm: React.FC<TelasFormProps> = ({ visible, onClose, }) => {
                 label="Gramage g/m2"
                 value={formDataTelas.gramaje+""}
                 onChange={(val) => handleChange("gramaje", val)}
-                width={450}
+               width="100%"
                required
                 type="number"
               />
@@ -139,16 +144,17 @@ const TelasForm: React.FC<TelasFormProps> = ({ visible, onClose, }) => {
                 label="Acabado"
                 value={formDataTelas.acabado+""}
                 onChange={(val) => handleChange("acabado", val)}
-                width={450}
-               
-                type="number"
+               width="100%"
+                required
+                type="text"
+                placeholder="Reactivo, Anti Pelling, etc"
               />
               <div style={{ display: "flex", justifyContent: "space-around" }}>
                 <InputText1
-                  label="Rendimiento"
+                  label="Rendimiento (mts/Kg)"
                   value={formDataTelas.rendimiento+""}
                   onChange={(val) => handleChange("rendimiento", val)}
-                  width={220}
+                  width="100%"
                  
                   type="text"
                 />
@@ -156,8 +162,7 @@ const TelasForm: React.FC<TelasFormProps> = ({ visible, onClose, }) => {
                   label="Colores"
                   value={formDataTelas.colores}
                   onChange={(val) => handleChange("colores", val)}
-                  width={220}
-                  
+                 width="100%"
                   type="text"
                 />
               </div>
@@ -168,14 +173,14 @@ const TelasForm: React.FC<TelasFormProps> = ({ visible, onClose, }) => {
                   label="Notas"
                   value={formDataTelas.nota}
                   onChange={(val) => handleChange("nota", val)}
-                  width={220}
+                 width="100%"
                 
-                  type="number"
+                  type="text"
                 />
                
               </div>
 
-              <Boton1 type="submit" fullWidth size="medium" onClick={() => {}}>
+              <Boton1 type="submit" style={{width:"100%"}} size="medium" onClick={() => {}}>
                 Guardar Tela
               </Boton1>
             </form>

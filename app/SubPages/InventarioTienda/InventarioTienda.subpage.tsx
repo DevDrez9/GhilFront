@@ -82,7 +82,7 @@ const InventarioTienda = () => {
             + Registrar
           </Boton1>
         </div>
-
+        {/*
         <div className="buscador">
           <InputText1
             value={searchTerm}
@@ -98,9 +98,9 @@ const InventarioTienda = () => {
           >
             Buscar
           </Boton1>
-        </div>
+        </div>*/}
 
-        <div style={{ display: "grid", gap: "15px" }}>
+        <div style={{ display: "grid", gap: "15px", marginTop:"50px" }}>
           {inventario.map((item) => (
             <div
               key={item.id}

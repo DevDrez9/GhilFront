@@ -137,7 +137,7 @@ const InventarioSucursal = () => {
                         />
                     </div>
                     
-                    {/* Buscador de Texto */}
+                    {/* Buscador de Texto 
                     <div className="buscador" style={{ display: 'flex', alignItems: 'flex-end' }}>
                         <InputText1
                             value={searchTerm}
@@ -155,6 +155,7 @@ const InventarioSucursal = () => {
                             Limpiar
                         </Boton1>
                     </div>
+                    */}
                 </div>
 
                 {/* --- LISTA DE INVENTARIO --- */}

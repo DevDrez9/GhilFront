@@ -1,6 +1,6 @@
 // En ~/services/usuarioService.ts
 
-import {type UsuarioApiResponse,type UsuarioQueryOptions, UsuarioResponseDto, CreateUsuarioDto } from '~/models/usuario'; 
+import {type UsuarioApiResponse,type UsuarioQueryOptions, UsuarioResponseDto, CreateUsuarioDto, UpdateUsuarioDto } from '~/models/usuario'; 
 
 const API_BASE_URL = 'http://localhost:3000'; 
 
@@ -35,6 +35,46 @@ export const usuarioService = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),
     });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      // Muestra un error más específico si la API lo proporciona
+      throw new Error(errorData.message || `Error ${response.status}: No se pudo crear el usuario.`);
+    }
+
+    return response.json(); 
+  },
+
+  ediatUsuario: async (data: UpdateUsuarioDto, idUsuario: number): Promise<UsuarioResponseDto> => {
+
+    console.log(data)
+    
+    const response = await fetch(`${API_BASE_URL}/usuarios/${idUsuario}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    console.log(response)
+
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      // Muestra un error más específico si la API lo proporciona
+      throw new Error(errorData.message || `Error ${response.status}: No se pudo crear el usuario.`);
+    }
+
+    return response.json(); 
+  },
+
+  eliminarUsuario: async (idUsuario: number): Promise<any> => {
+
+    const response = await fetch(`${API_BASE_URL}/usuarios/${idUsuario}`, {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+     
+    });
+    console.log(response)
+
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));

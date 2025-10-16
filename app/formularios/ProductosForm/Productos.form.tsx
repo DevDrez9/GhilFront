@@ -283,6 +283,7 @@ const subcategoriasDisponibles = useMemo(() => {
                                     onChange={(val) => handleChange("sku", val)}
                                     type="text"
                                     width={450}
+                                    placeholder="Añadir tallas separadas por coma (S,L,M)"
                                     
                                     
                                 />
@@ -290,7 +291,7 @@ const subcategoriasDisponibles = useMemo(() => {
 
                             {/* === PRECIOS Y STOCK === */}
                             <fieldset>
-                                <legend>Precios y Stock</legend>
+                                <legend>Precios </legend>
                                 <div className="form-row">
                                     <InputText1
                                         label="Precio *"
@@ -299,14 +300,14 @@ const subcategoriasDisponibles = useMemo(() => {
                                         errorMessage={errors.precioError}
                                         required
                                         type="number"
-                                        width={150}
+                                        width="100%"
                                     />
                                     <InputText1
                                         label="Precio de Oferta"
                                         value={formData.precioOferta + ""}
                                         onChange={(val) => handleChange("precioOferta", val)}
                                         type="number"
-                                        width={150}
+                                        width="100%"
                                     />
                                     <div style={{ width: 150, paddingLeft: 10 }}>
                                         <Switch1
@@ -349,7 +350,7 @@ const subcategoriasDisponibles = useMemo(() => {
                                         required={true}
                                         placeholder={isLoadingCats ? 'Cargando...' : 'Seleccione'}
                                         errorMessage={errors.categoriaIdError}
-                                        width={150} 
+                                        width="100%" 
                                     />
 
                                     {/* ComboBox1: SUBCATEGORÍA (Dependiente/Opcional) */}
@@ -360,7 +361,7 @@ const subcategoriasDisponibles = useMemo(() => {
                                         options={subcategoriaOptions}
                                         disabled={formData.categoriaId === 0 || subcategoriaOptions.length === 0}
                                         placeholder={formData.categoriaId === 0 ? 'Seleccione Categoría' : 'Opcional'}
-                                        width={150}
+                                        width="100%"
                                     />
 
                                     {/* ComboBox1: PROVEEDOR (Opcional) */}
@@ -371,7 +372,7 @@ const subcategoriasDisponibles = useMemo(() => {
                                         options={proveedorOptions}
                                         disabled={isLoadingProv}
                                         placeholder={isLoadingProv ? 'Cargando...' : 'Opcional'}
-                                        width={150}
+                                        width="100%"
                                     />
                                 </div>
                             </fieldset>
@@ -414,7 +415,7 @@ const subcategoriasDisponibles = useMemo(() => {
                                         ))}
                                     </div>
                                 )}
-
+{/*
                                 <InputText1
                                     label="Imagen Principal URL (Opcional/Fallback)"
                                     value={formData.imagenUrl}
@@ -422,7 +423,7 @@ const subcategoriasDisponibles = useMemo(() => {
                                     type="text"
                                     width={450}
                                 />
-                                
+                                */}
                                 <div className="form-row" style={{ marginTop: '15px' }}>
                                     <Switch1
                                         label="Es Nuevo"
@@ -442,6 +443,7 @@ const subcategoriasDisponibles = useMemo(() => {
                                 fullWidth 
                                 size="large" 
                                 disabled={isCreating}
+style={{width:"100%"}}
                             >
                                 {isCreating ? "Guardando..." : "Guardar Producto"}
                             </Boton1>

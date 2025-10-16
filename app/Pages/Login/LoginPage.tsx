@@ -46,13 +46,22 @@ const LoginPage = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (validate()) {
+
       const success = await login(formData);
       
       console.log("Datos recibidos:", isLoggingIn, loginError);
       if(success){
+
+        let datos=login(formData);
+        console.log(datos);
          setLoginSuccess(true);
-        navigate('/home');
-      }else{
+        
+
+       
+
+
+       navigate('/home');
+      }else if(success!=null){ 
         alert("Usuario o contraseña incorrecta")
       }
       
@@ -81,6 +90,7 @@ const LoginPage = () => {
               errorMessage={errors.usertype}
               required
               type="text"
+              width="100%"
             />
             <InputText1
               label="Password"
@@ -89,9 +99,10 @@ const LoginPage = () => {
               errorMessage={errors.passwordtype}
               required
               type="password"
+               width="100%"
             />
           
-          <Boton1  type="submit"  fullWidth size="medium" onClick={() => {}}>
+          <Boton1  type="submit"  fullWidth size="medium" onClick={() => {}}  style={{ "width":"100%"}}>
             Ingresar
           </Boton1>
           </form>

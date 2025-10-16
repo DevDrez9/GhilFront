@@ -139,7 +139,7 @@ const SucursalEditForm: React.FC<SucursalEditFormProps> = ({ visible, onClose, i
                                 errorMessage={errors.nombreError}
                                 required
                                 type="text"
-                                width={450}
+                                width="100%"
                             />
                             <InputText1
                                 label="Dirección *"
@@ -148,7 +148,7 @@ const SucursalEditForm: React.FC<SucursalEditFormProps> = ({ visible, onClose, i
                                 errorMessage={errors.direccionError}
                                 required
                                 type="text"
-                                width={450}
+                                width="100%"
                             />
                            {/* <InputText1
                                 label="ID de Tienda *"
@@ -157,7 +157,7 @@ const SucursalEditForm: React.FC<SucursalEditFormProps> = ({ visible, onClose, i
                                 errorMessage={errors.tiendaIdError}
                                 required
                                 type="number"
-                                width={450}
+                                width="100%"
                             />
 */}
                             <hr />
@@ -169,15 +169,15 @@ const SucursalEditForm: React.FC<SucursalEditFormProps> = ({ visible, onClose, i
                                     label="Teléfono"
                                     value={formData.telefono}
                                     onChange={(val) => handleChange("telefono", val)}
-                                    type="text"
-                                    width={220}
+                                    type="number"
+                                    width="100%"
                                 />
                                 <InputText1
                                     label="Email"
                                     value={formData.email}
                                     onChange={(val) => handleChange("email", val)}
                                     type="email"
-                                    width={220}
+                                    width="100%"
                                 />
                             </div>
 
@@ -186,7 +186,7 @@ const SucursalEditForm: React.FC<SucursalEditFormProps> = ({ visible, onClose, i
                                 value={formData.responsable}
                                 onChange={(val) => handleChange("responsable", val)}
                                 type="text"
-                                width={450}
+                                width="100%"
                             />
                             
                             <div style={{ marginTop: '20px' }}>
@@ -202,6 +202,7 @@ const SucursalEditForm: React.FC<SucursalEditFormProps> = ({ visible, onClose, i
                                 fullWidth
                                 size="medium"
                                 disabled={isUpdating}
+style={{width:"100%"}}
                             >
                                 {isUpdating ? "Actualizando..." : "Actualizar Sucursal"}
                             </Boton1>

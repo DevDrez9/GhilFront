@@ -106,7 +106,7 @@ const SucursalForm: React.FC<SucursalFormProps> = ({ visible, onClose }) => {
                 errorMessage={errors.nombreError}
                 required
                 type="text"
-                width={450}
+                width="100%"
               />
               <InputText1
                 label="Dirección *"
@@ -115,7 +115,7 @@ const SucursalForm: React.FC<SucursalFormProps> = ({ visible, onClose }) => {
                 errorMessage={errors.direccionError}
                 required
                 type="text"
-                width={450}
+                width="100%"
               />
             {/*  <InputText1
                 label="ID de Tienda *"
@@ -124,7 +124,7 @@ const SucursalForm: React.FC<SucursalFormProps> = ({ visible, onClose }) => {
                 errorMessage={errors.tiendaIdError}
                 required
                 type="number"
-                width={450}
+                width="100%"
               />*/}
 
               <hr />
@@ -136,15 +136,16 @@ const SucursalForm: React.FC<SucursalFormProps> = ({ visible, onClose }) => {
                   label="Teléfono"
                   value={formData.telefono}
                   onChange={(val) => handleChange("telefono", val)}
-                  type="text"
-                  width={220}
+                  type="number"
+                  width="100%"
+                  
                 />
                 <InputText1
                   label="Email"
                   value={formData.email}
                   onChange={(val) => handleChange("email", val)}
                   type="email"
-                  width={220}
+                  width="100%"
                 />
               </div>
 
@@ -153,7 +154,7 @@ const SucursalForm: React.FC<SucursalFormProps> = ({ visible, onClose }) => {
                 value={formData.responsable}
                 onChange={(val) => handleChange("responsable", val)}
                 type="text"
-                width={450}
+                width="100%"
               />
               
               <div style={{ marginTop: '20px' }}>
@@ -169,6 +170,7 @@ const SucursalForm: React.FC<SucursalFormProps> = ({ visible, onClose }) => {
                 fullWidth
                 size="medium"
                 disabled={isCreating}
+                style={{width:"100%"}}
               >
                 {isCreating ? "Guardando..." : "Guardar Sucursal"}
               </Boton1>

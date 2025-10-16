@@ -58,7 +58,14 @@ const ParametroFisicosTelaForm: React.FC<ParametroFisicosTelaFormProps> = ({ vis
       try {
          await createParametro(formDataParametrosFisicosTela);
 
-        onClose();
+          if(isCreating){
+            alert("No se pudo crear la presentacion")
+         }else{
+            alert("Presentacion creada correctamente")
+            window.location.reload();
+             onClose();
+         }
+       
       } catch {
         alert("No se pudo guardar el proveedor");
       }

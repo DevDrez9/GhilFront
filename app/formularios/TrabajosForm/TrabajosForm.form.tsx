@@ -25,7 +25,7 @@ interface TrabajoFormProps {
 const TrabajoForm: React.FC<TrabajoFormProps> = ({ visible, onClose }) => {
   const { createTrabajo, isCreating, createError } = useTrabajos();
   const { parametros, error: parametrosError, isLoading } = useParametrosTela();
-  const { costureros } = useCostureros();
+  const { costureros } = useCostureros("ACTIVO");
 
   // Mapeo de opciones para ComboBox1
   const parametroOptions = parametros.map((p) => ({
@@ -194,7 +194,7 @@ const TrabajoForm: React.FC<TrabajoFormProps> = ({ visible, onClose }) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (validate()) {
-      try {
+      
         const dataToSend = {
           ...formData,
           // Convertir los strings a números
@@ -213,12 +213,16 @@ const TrabajoForm: React.FC<TrabajoFormProps> = ({ visible, onClose }) => {
             pesoTotal:Number(formData.pesoTotal.toFixed(2))
         };
 
-        await createTrabajo(dataToSend as any);
-        onClose();
-      } catch (error) {
-        alert("No se pudo guardar el trabajo");
-        console.error("Error al guardar:", error);
-      }
+        createTrabajo(dataToSend, {
+        onSuccess: () => {
+            alert("Trabajo creado correctamente");
+            onClose();
+        },
+        onError: (error) => {
+            alert(error.message);
+        }
+    });
+      
     }
   };
 
@@ -403,7 +407,7 @@ const TrabajoForm: React.FC<TrabajoFormProps> = ({ visible, onClose }) => {
                     fontWeight: "bold",
                   }}
                 >
-                  Cantidad por talla: *
+                  Cantidad de unidades por talla: *
                 </div>
 
                 {/* Tabla/Lista de Consumo por Talla */}
@@ -444,7 +448,7 @@ const TrabajoForm: React.FC<TrabajoFormProps> = ({ visible, onClose }) => {
                     {parametrosError.message}
                   </p>
                 )}
-<p>Gasto de tela total {gastoTotalTela} (KG)</p>
+<p>Consumo de tela total {gastoTotalTela} (KG)</p>
                 <small style={{ marginTop: "5px", color: "#666" }}>
                   * Solo los campos con valor numérico mayor a 0 se guardarán en
                   las notas.
@@ -454,7 +458,7 @@ const TrabajoForm: React.FC<TrabajoFormProps> = ({ visible, onClose }) => {
 
               <div className="form-row">
                 <InputText1
-                  label="Cantidad Total"
+                  label="Cantidad de unidades tota"
                   value={formData.cantidad + ""}
                   onChange={(val) => handleChange("cantidad", val)}
                   errorMessage={errors.cantidadError}
@@ -525,7 +529,7 @@ const TrabajoForm: React.FC<TrabajoFormProps> = ({ visible, onClose }) => {
                 width={450}
               />
               <InputText1
-                label="Costo Estimado"
+                label="Costo Estimado (Bs)"
                 value={costoEstimado + ""}
                 onChange={(value) => {}}
                 readOnly

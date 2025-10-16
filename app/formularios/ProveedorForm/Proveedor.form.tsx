@@ -66,8 +66,15 @@ const ProveedorForm: React.FC<ProveedorFormProps> = ({ visible, onClose, }) => {
      
       try{
         let respuesta =await createProveedor(formDataProveedor);
+        if(isCreating){
+          alert("Proveedor no creado correctamente")
+         ;
+        }else{
+          alert("Proveedor  creado correctamente")
+           onClose();
+        }
         
-        onClose();
+        
 
       }catch{
         alert("No se pudo guardar el proveedor")
@@ -118,7 +125,7 @@ const ProveedorForm: React.FC<ProveedorFormProps> = ({ visible, onClose, }) => {
                 type="text"
               />
               <InputText1
-                label="Razon Socia"
+                label="Razon Social"
                 value={formDataProveedor.ruc}
                 onChange={(val) => handleChange("ruc", val)}
                 width={450}

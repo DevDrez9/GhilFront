@@ -1,0 +1,49 @@
+.contenedorFormParametrosTelaEdit{
+  width: 100%;
+    min-height: 100vh;
+    position: absolute;
+     background-color: white;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    
+
+   
+   
+}
+
+.contenedorFormParametrosTelaEdit.visible{
+    visibility: visible;
+    display: flex;
+}
+.contenedorFormParametrosTelaEdit.noVisible{
+    visibility: hidden;
+    display: none;
+}
+
+.cuerpoParametrosTelaForm{
+    width: 100%;
+
+
+    
+
+}
+.formParametrosTela{
+    width: 500px;
+    min-height: 500px;
+    margin-left: 100px;
+   
+    border-radius: 25px;
+    padding: 20px;
+    border: 1px solid black;
+
+     overflow-y: auto;
+  
+}
+.linea{
+    width: 100%;
+    height: 2px;
+    background-color: rgba(172, 172, 172, 0.651);
+    border-radius: 2px;
+    margin: 20px 0;
+}

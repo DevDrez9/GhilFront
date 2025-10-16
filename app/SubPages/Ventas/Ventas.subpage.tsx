@@ -78,7 +78,7 @@ const Ventas = () => {
           </Boton1>
                     {/* Botón de "Agregar" omitido ya que las ventas se crean en otro flujo (ej. checkout) */}
                 </div>
-
+        {/*
                 <div className="buscador" style={{ display: 'flex', alignItems: 'center', marginBottom: '30px' }}>
                     <InputText1
                         value={searchTerm}
@@ -91,11 +91,11 @@ const Ventas = () => {
                         variant="secondary"
                         size="medium"
                         style={{ height: 40, marginLeft: 10 }}
-                        onClick={() => { /* Lógica de búsqueda manual si es necesario */ }}
+                        onClick={() => { }}
                     >
                         Buscar
                     </Boton1>
-                </div>
+                </div>*/}
 
                 {/* --- Lista de Ventas --- */}
                 <div style={{ display: "grid", gap: "20px" }}>

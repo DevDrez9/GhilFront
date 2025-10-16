@@ -65,7 +65,7 @@ const TrabajosFinalizados = () => {
             + Registrar
           </Boton1>*/}
         </div>
-
+{/*
         <div className="buscador">
           <InputText1
             value={searchTerm}
@@ -81,9 +81,9 @@ const TrabajosFinalizados = () => {
           >
             Buscar
           </Boton1>
-        </div>
+        </div>*/}
 
-        <div style={{ display: "grid", gap: "15px" }}>
+        <div style={{ display: "grid", gap: "15px", marginTop:"50px"  }}>
           {trabajos.map((trabajo) => (
             <div
               key={trabajo.id}

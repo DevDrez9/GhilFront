@@ -41,7 +41,7 @@ const TiendaForm: React.FC<TiendaFormProps> = ({ visible, onClose }) => {
             setFormData({
                 nombre: tienda.nombre || "",
                 descripcion: tienda.descripcion || "",
-                dominio: tienda.dominio || "",
+                dominio: tienda.dominio || tienda.nombre ,
                 activa: tienda.activa ?? true,
                 esPrincipal: tienda.esPrincipal ?? true,
             });
@@ -138,23 +138,23 @@ const TiendaForm: React.FC<TiendaFormProps> = ({ visible, onClose }) => {
                                 onChange={(val) => handleChange("nombre", val)}
                                 errorMessage={errors.nombre}
                                 required
-                                width={450}
+                                width="100%"
                             />
-                            
+                            {/*
                             <InputText1
                                 label="Dominio Principal *"
                                 value={formData.dominio}
                                 onChange={(val) => handleChange("dominio", val)}
                                 errorMessage={errors.dominio}
                                 required
-                                width={450}
+                                width="100%"
                             />
-                            
+                            */}
                             <InputText1
                                 label="Descripción (Opcional)"
                                 value={formData.descripcion}
                                 onChange={(val) => handleChange("descripcion", val)}
-                                width={450}
+                                width="100%"
                             />
                             
                             <div className="form-row" style={{ marginTop: '15px' }}>

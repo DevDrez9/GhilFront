@@ -13,6 +13,7 @@ import { useProveedores } from "~/hooks/useProveedores";
 import type { CreateInventarioTelaDto } from "~/models/inventarioTelas";
 import "./InventarioTela.style.css"
 import { useTelas } from "~/hooks/useTelas";
+import { TelaFilters } from "~/models/telas.model";
 
 interface InventarioTelaFormProps {
   visible: boolean;
@@ -45,6 +46,8 @@ const COLORES_DISPONIBLES= [
     { value: 'azul', label: 'Azul' },
     { value: 'verde', label: 'Verde' },
     { value: 'negro', label: 'Negro' },
+    { value: 'blanco', label: 'Blanco' },
+     { value: 'amarrilo', label: 'Amarillo' },
 ];
 
 
@@ -63,8 +66,10 @@ const InventarioTelaForm: React.FC<InventarioTelaFormProps> = ({ visible, onClos
   
   // Asumimos que useProveedores no necesita un debouncedSearch si trae toda la data.
   const { parametros } = useParametrosFisicosTelas(); 
-  const { proveedores } = useProveedores("");  
-  const { telas } = useTelas();           
+
+  const { proveedores } = useProveedores("activo=true");  
+  const miFiltro = { estado: 'ACTIVA' };
+  const { telas } = useTelas(miFiltro);           
   
   // Mapeo de datos para ComboBox1: { value: string, label: string }[]
   
@@ -247,15 +252,15 @@ const InventarioTelaForm: React.FC<InventarioTelaFormProps> = ({ visible, onClos
               <table style={{ minWidth: '1200px', minHeight:"500px"}}>
                 <thead>
                   <tr>
-                    <th style={{ width: 100 }}>Proveedor *</th>
-                    <th style={{ width: 100 }}>Tela ID *</th>
-                    <th style={{ width: 120 }}>Presentación *</th>
-                    <th style={{ width: 80 }}>Rollos *</th>
-                    {/*<th style={{ width: 100 }}>Tipo Tela *</th>*/}
-                    <th style={{ width: 100 }}>Color *</th>
-                    <th style={{ width: 100 }}>Precio KG *</th>
-                    <th style={{ width: 100 }}>Peso Grupo *</th>
-                    <th style={{ width: 100 }}>Importe</th>
+                    <th style={{ width: 100 }}>Proveedor </th>
+                    <th style={{ width: 100 }}>Tipo de Tela </th>
+                    <th style={{ width: 120 }}>Presentación </th>
+                    <th style={{ width: 80 }}>Cantidad de Rollos </th>
+                    {/*<th style={{ width: 100 }}>Tipo Tela </th>*/}
+                    <th style={{ width: 100 }}>Color </th>
+                    <th style={{ width: 100 }}>Precio KG </th>
+                    <th style={{ width: 100 }}>Peso Grupo </th>
+                    <th style={{ width: 100 }}>Importe (Bs)</th>
                     <th style={{ width: 50 }}>Acción</th>
                   </tr>
                 </thead>

@@ -35,6 +35,28 @@ export class CreateUsuarioDto {
     activo?: boolean;
 }
 
+export class UpdateUsuarioDto {
+    
+    email!: string;
+
+    
+
+    
+    nombre!: string;
+
+    
+   
+    apellido?: string;
+    telefono?: string; 
+
+
+   
+    rol?: Rol;
+
+ 
+    activo?: boolean;
+}
+
 // DTO de Respuesta (Output)
 export class UsuarioResponseDto {
     id: number;

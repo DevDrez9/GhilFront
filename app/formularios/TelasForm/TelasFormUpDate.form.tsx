@@ -16,7 +16,7 @@ interface TelasFormUpDateProps {
 const TelasFormUpDate: React.FC<TelasFormUpDateProps> = ({ visible, onClose, tela}) => {
 
 
-  const { updateTela, isCreating, createError } = useTelas();
+  const { updateTela, isUpdating, createError } = useTelas();
 
  
   const containerClasses = [
@@ -88,9 +88,15 @@ const TelasFormUpDate: React.FC<TelasFormUpDateProps> = ({ visible, onClose, tel
      
       try{
         
-         updateTela({id:tela.id,data: formDataTelasUpDate});
-        
-        onClose();
+        await updateTela({id:tela.id,data: formDataTelasUpDate});
+        if(isUpdating){
+          alert("Tela no actualizada correctamente")
+         
+        }else{
+          alert("Tela actualizada correctamente")
+            onClose();
+        }
+       
 
       }catch{
         alert("No se pudo guardar el proveedor")
@@ -107,7 +113,7 @@ const TelasFormUpDate: React.FC<TelasFormUpDateProps> = ({ visible, onClose, tel
     <>
       <div className={containerClasses}>
         <div className="cuerpoProveedorForm">
-          <h2>Acttualizar Tela</h2>
+          <h2>Acttualizar Datos Tipo de Tela</h2>
         
             <Boton1 type="button" size="medium" variant="info" onClick={() => {
                 onClose()
@@ -130,13 +136,13 @@ const TelasFormUpDate: React.FC<TelasFormUpDateProps> = ({ visible, onClose, tel
                 errorMessage={errors.nombreError}
                 required
                 type="text"
-                width={450}
+                width="100%"
               />
               <InputText1
                 label="Tipo Tela"
                 value={formDataTelasUpDate.tipoTela}
                 onChange={(val) => handleChange("tipoTela", val)}
-                width={450}
+                width="100%"
               required
                 type="text"
               />
@@ -144,7 +150,7 @@ const TelasFormUpDate: React.FC<TelasFormUpDateProps> = ({ visible, onClose, tel
                 label="Composicion"
                 value={formDataTelasUpDate.composicion}
                 onChange={(val) => handleChange("composicion", val)}
-                width={450}
+                width="100%"
                required
                 type="text"
               />
@@ -152,7 +158,7 @@ const TelasFormUpDate: React.FC<TelasFormUpDateProps> = ({ visible, onClose, tel
                 label="Gramage g/m2"
                 value={formDataTelasUpDate.gramaje+""}
                 onChange={(val) => handleChange("gramaje", val)}
-                width={450}
+                width="100%"
                required
                 type="number"
               />
@@ -160,13 +166,14 @@ const TelasFormUpDate: React.FC<TelasFormUpDateProps> = ({ visible, onClose, tel
                 label="Acabado"
                 value={formDataTelasUpDate.acabado+""}
                 onChange={(val) => handleChange("acabado", val)}
-                width={450}
-               
-                type="number"
+                width="100%"
+               type="text"
+                placeholder="Reactivo, Anti Pelling, etc"
+                required
               />
               <div style={{ display: "flex", justifyContent: "space-around" }}>
                 <InputText1
-                  label="Rendimiento"
+                  label="Rendimiento (mts/Kg)"
                   value={formDataTelasUpDate.rendimiento+""}
                   onChange={(val) => handleChange("rendimiento", val)}
                   width={220}
@@ -189,14 +196,14 @@ const TelasFormUpDate: React.FC<TelasFormUpDateProps> = ({ visible, onClose, tel
                   label="Notas"
                   value={formDataTelasUpDate.nota}
                   onChange={(val) => handleChange("nota", val)}
-                  width={220}
+                  width="100%"
                 
-                  type="number"
+                  type="text"
                 />
                
               </div>
 
-              <Boton1 type="submit" fullWidth size="medium" onClick={() => {}}>
+              <Boton1 type="submit"  style={{width:"100%"}} size="medium" onClick={() => {}}>
                 Guardar Tela
               </Boton1>
             </form>

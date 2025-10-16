@@ -20,7 +20,8 @@ const TelasSubPage = () => {
     isError, 
     error,
     deleteTela,
-    isDeleting 
+    isDeleting ,
+    deleteError
   } = useTelas(filters);
 
 
@@ -56,7 +57,13 @@ const TelasSubPage = () => {
     if (window.confirm(`¿Estás seguro de eliminar la tela "${nombre}"?`)) {
       try {
         await deleteTela(id);
-        alert('Tela eliminada correctamente');
+        if(deleteError){
+          alert(deleteError.message)
+         
+        }else{
+ alert('Tela eliminada correctamente');
+        }
+       
       } catch (error) {
         alert('Error al eliminar tela');
       }
@@ -99,13 +106,13 @@ const TelasSubPage = () => {
           tela={telasEdit}
         ></TelasFormUpDate>
         <div className="titulo">
-          <p>Telas</p>
+          <p>Tipo de Telas</p>
 
           <Boton1 variant="info" onClick={() =>{handleNuevo()} }>
             + Agregar
           </Boton1>
         </div>
-
+{/*
         <div className="buscador">
           <InputText1
             value={""}
@@ -124,11 +131,11 @@ const TelasSubPage = () => {
             Buscar
           </Boton1>
         </div>
-    
+    */}
         
     {/* Lista de telas */}
 
-      <div style={{ display: 'grid', gap: '15px' }}>
+      <div style={{ display: 'grid', gap: '15px', marginTop:"50px"  }}>
         {telas.map((tela) => (
           <div key={tela.id} style={{ 
             padding: '20px', 
@@ -155,7 +162,7 @@ const TelasSubPage = () => {
                   <div><strong>Colores:</strong> {tela.colores}</div>
                   
                   {tela.rendimiento && (
-                    <div><strong>Rendimiento:</strong> {tela.rendimiento}%</div>
+                    <div><strong>Rendimiento:</strong> {tela.rendimiento} mts/Kg</div>
                   )}
                   
                   {tela.proveedor && (
@@ -207,7 +214,7 @@ const TelasSubPage = () => {
                 >
                   Editar
                 </button>
-
+{/*
                 <button 
                   onClick={() => window.location.href = `/telas/${tela.id}/inventario`}
                   style={{ 
@@ -220,7 +227,7 @@ const TelasSubPage = () => {
                   }}
                 >
                   Inventario
-                </button>
+                </button>*/}
               </div>
             </div>
 

@@ -11,7 +11,7 @@ export const costureroService = {
     let url = `${API_BASE_URL}/costureros`;
 
     if (search) {
-      url += `?search=${encodeURIComponent(search)}`;
+      url += `?estado=${encodeURIComponent(search)}`;
     }
 
     const response = await fetch(url, {

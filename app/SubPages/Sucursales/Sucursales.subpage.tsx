@@ -125,7 +125,7 @@ const handleReporte = (idProducto: number) => {
           </Boton1>
         </div>
 
-        <div className="buscador">
+       {/* <div className="buscador">
           <InputText1
             value={searchTerm}
             onChange={()=>handleSearch}
@@ -140,9 +140,9 @@ const handleReporte = (idProducto: number) => {
           >
             Buscar
           </Boton1>
-        </div>
+        </div>*/}
 
-        <div style={{ display: "grid", gap: "15px" }}>
+        <div style={{ display: "grid", gap: "15px", marginTop:"50px" }}>
           {sucursales.map((sucursal) => (
             <div
               key={sucursal.id}

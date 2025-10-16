@@ -72,7 +72,7 @@ export const parametrosTelaService = {
       body: JSON.stringify(data),
     });
 
-    console.log(response)
+    
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));

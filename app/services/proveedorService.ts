@@ -8,10 +8,10 @@ const API_BASE_URL = 'http://localhost:3000';
 export const proveedorService = {
   // Obtener todos los proveedores
   getProveedores: async (search?: string): Promise<ProveedorResponseDto[]> => {
-    let url = `${API_BASE_URL}/proveedores/Minimo`;
+    let url = `${API_BASE_URL}/proveedores`;
     
     if (search) {
-      url += `?search=${encodeURIComponent(search)}`;
+      url += `?${encodeURIComponent(search)}`;
     }
     
     const response = await fetch(url, {

@@ -10,6 +10,7 @@ import type { UsuarioResponseDto } from "~/models/usuario";
 // ✅ Importa el archivo CSS que contiene los estilos de lista (cuerpo, titulo, buscador)
 import "./Usuarios.style.css"
 import CrearUsuarioForm from "~/formularios/UsuariosForm/UsuariosForm.form";
+import EditarUsuarioForm from "~/formularios/UsuariosForm/EditarUsuario.form";
 // Asegúrate de que esta ruta sea correcta para tu proyecto (puede ser "./Usuarios.style.css" si lo tienes)
 
 
@@ -18,6 +19,8 @@ const Usuarios = () => {
     const [page, setPage] = useState(1);
     const [debouncedSearch, setDebouncedSearch] = useState("");
     const [mostrarForm, setMostrarForm] = useState(false);
+    const [mostrarFormEdit, setMostrarFormEdit] = useState(false);
+    const [usuario, setUsuario] = useState<UsuarioResponseDto | null>(null);
     
     // Opciones del hook que reflejan la paginación y búsqueda
     const options = useMemo(() => ({
@@ -32,7 +35,14 @@ const Usuarios = () => {
         isLoading,
         isError,
         error,
+        deleteUsuario,
+        deleteError,
+        deleteUsuarioAsync,
+        
     } = useUsuarios(options);
+
+
+     
 
     const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
@@ -52,20 +62,35 @@ const Usuarios = () => {
         switch (rol) {
             case Rol.ADMIN: return { ...base, backgroundColor: '#dc3545', color: 'white' };
             case Rol.MANAGER: return { ...base, backgroundColor: '#ffc107', color: '#333' };
-            case Rol.COSTURERO: return { ...base, backgroundColor: '#17a2b8', color: 'white' };
+            case Rol.USER: return { ...base, backgroundColor: '#17a2b8', color: 'white' };
             default: return { ...base, backgroundColor: '#f0f0f0', color: '#666' };
         }
     };
 
     const handleEdit = (usuario: UsuarioResponseDto) => {
+        setMostrarFormEdit(!mostrarFormEdit);
+        setUsuario(usuario);
+
         console.log("Editar usuario:", usuario.id);
     };
-
-    const handleDelete = (id: number) => {
-        if (window.confirm("¿Estás seguro de eliminar este usuario?")) {
-            console.log("Eliminar usuario:", id);
-        }
+    const handleCloseEdit = () => {
+        setMostrarFormEdit(false);
+        setUsuario(null);
     };
+
+
+    const handleDelete = async (id: number) => {
+    if (window.confirm("¿Estás seguro de eliminar este producto?")) {
+      try {
+        await deleteUsuario(id);
+         
+        alert("Producto eliminado correctamente");
+        window.location.reload();
+      } catch (error) {
+        alert("Error al eliminar el producto");
+      }
+    }
+  };
 
 
     if (isLoading) {
@@ -81,6 +106,7 @@ const Usuarios = () => {
         <div className="cuerpoUsuario"> 
 
             {/* <UsuarioForm onClose={handleNuevo} visible={mostrarForm}></UsuarioForm> */}
+            <EditarUsuarioForm initialData={usuario} onClose={handleCloseEdit} visible={mostrarFormEdit}/>
             <CrearUsuarioForm onClose={handleNuevo} visible={mostrarForm} />
 
             {/* ✅ APLICAR ESTILO DEL TÍTULO */}
@@ -91,7 +117,7 @@ const Usuarios = () => {
                 </Boton1>
             </div>
 
-            {/* ✅ APLICAR ESTILO DEL BUSCADOR */}
+            {/* ✅ APLICAR ESTILO DEL BUSCADOR 
             <div className="buscador"> 
                 <InputText1
                     value={searchTerm}
@@ -101,9 +127,9 @@ const Usuarios = () => {
                     placeholder="Nombre, apellido o email"
                 />
             </div>
-            
+            */}
             {/* Contenedor de la Lista (manteniendo el estilo de grid/gap) */}
-            <div style={{ display: "grid", gap: "15px" }}>
+            <div style={{ display: "grid", gap: "15px", marginTop:"50px" }}>
                 {usuarios.map((usuario) => (
                     <div
                         key={usuario.id}

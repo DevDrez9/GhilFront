@@ -82,6 +82,7 @@ export const useParametrosTela = (search?: string) => {
     updateParametroTela: updateParametroTelaMutation.mutate,
     updateParametroTelaAsync: updateParametroTelaMutation.mutateAsync,
     isUpdating: updateParametroTelaMutation.isPending,
+    updateError: updateParametroTelaMutation.error,
     
     // Estados y datos
     parametros: parametrosTelaQuery.data?.parametros || [],

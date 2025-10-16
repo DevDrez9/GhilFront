@@ -74,7 +74,7 @@ export default function InventarioTelasList() {
             + Agregar
           </Boton1>
         </div>
-
+{/*
         <div className="buscador">
           <InputText1
             value={""}
@@ -92,9 +92,9 @@ export default function InventarioTelasList() {
           >
             Buscar
           </Boton1>
-        </div>
+        </div>*/}
       {/* Lista de inventario */}
-      <div style={{ display: 'grid', gap: '15px' }}>
+      <div style={{ display: 'grid', gap: '15px', marginTop:"50px"  }}>
         {inventario.map((item) => (
           <div key={item.id} style={{ 
             padding: '20px', 
@@ -129,7 +129,7 @@ export default function InventarioTelasList() {
                     <strong>Presentación:</strong> {item.presentacion}
                   </div>
                   <div>
-                    <strong>Tipo:</strong> {item.tipoTela}
+                    <strong>Tipo:</strong> {item.tela.nombreComercial}
                   </div>
                   <div>
                     <strong>Color:</strong> 

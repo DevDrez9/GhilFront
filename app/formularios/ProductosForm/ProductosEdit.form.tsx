@@ -309,23 +309,23 @@ const ProductoEditForm: React.FC<ProductoEditFormProps> = ({ visible, onClose, i
                             <legend>Información Básica</legend>
                             <InputText1 label="Nombre *" value={formData.nombre} onChange={(val) => handleChange("nombre", val)} errorMessage={errors.nombreError} required type="text" width={450} />
                             <InputText1 label="Descripción" value={formData.descripcion} onChange={(val) => handleChange("descripcion", val)} type="text" width={450} />
-                            <InputText1 label="Tallas" value={formData.sku} onChange={(val) => handleChange("sku", val)} type="text" width={450} />
+                            <InputText1 label="Tallas" value={formData.sku } placeholder="Añadir tallas separadas por coma (S,L,M)"onChange={(val) => handleChange("sku", val)} type="text" width={450} />
                         </fieldset>
 
                         <fieldset disabled={isDisabled}>
-                            <legend>Precios y Stock</legend>
+                            <legend>Precios </legend>
                             <div className="form-row">
                                 {/* Asegúrate de que los valores numéricos se muestren como strings */}
-                                <InputText1 label="Precio *" value={formData.precio + ""} onChange={(val) => handleChange("precio", val)} errorMessage={errors.precioError} required type="number" width={150} />
-                                <InputText1 label="Precio de Oferta" value={formData.precioOferta+ ""} onChange={(val) => handleChange("precioOferta", val)} type="number" width={150} />
+                                <InputText1 label="Precio *" value={formData.precio + ""} onChange={(val) => handleChange("precio", val)} errorMessage={errors.precioError} required type="number" width="100%" />
+                                <InputText1 label="Precio de Oferta" value={formData.precioOferta+ ""} onChange={(val) => handleChange("precioOferta", val)} type="number" width="100%" />
                                 <div style={{ width: 150, paddingLeft: 10 }}>
                                     <Switch1 label="En Oferta" checked={formData.enOferta} onChange={(val) => handleSwitchChange("enOferta", val)} />
                                 </div>
-                            </div>
+                            </div>{/*
                             <div className="form-row">
                                 <InputText1 label="Stock" value={formData.stock+ ""} onChange={(val) => handleChange("stock", val)} type="number" width={220} />
                                 <InputText1 label="Stock Mínimo" value={formData.stockMinimo+ ""} onChange={(val) => handleChange("stockMinimo", val)} type="number" width={220} />
-                            </div>
+                            </div>*/}
                         </fieldset>
 
                         {/* === CLASIFICACIÓN Y PROVEEDOR (COMBOBOXES) === */}
@@ -343,7 +343,7 @@ const ProductoEditForm: React.FC<ProductoEditFormProps> = ({ visible, onClose, i
                                     required={true}
                                     placeholder={isLoadingCats ? 'Cargando...' : 'Seleccione'}
                                     errorMessage={errors.categoriaIdError}
-                                    width={150} 
+                                    width="100%"
                                 />
 
                                 {/* ComboBox1: SUBCATEGORÍA */}
@@ -354,7 +354,7 @@ const ProductoEditForm: React.FC<ProductoEditFormProps> = ({ visible, onClose, i
                                     options={subcategoriaOptions}
                                     disabled={formData.categoriaId === 0 || subcategoriaOptions.length === 0}
                                     placeholder={formData.categoriaId === 0 ? 'Seleccione Categoría' : 'Opcional'}
-                                    width={150}
+                                    width="100%"
                                 />
 
                                 {/* ComboBox1: PROVEEDOR */}
@@ -365,13 +365,13 @@ const ProductoEditForm: React.FC<ProductoEditFormProps> = ({ visible, onClose, i
                                     options={proveedorOptions}
                                     disabled={isLoadingProv}
                                     placeholder={isLoadingProv ? 'Cargando...' : 'Opcional'}
-                                    width={150}
+                                    width="100%"
                                 />
                             </div>
                                 
-                                {/* Si no usas ComboBox para tiendaId, déjalo como InputText1 */}
+                                {/* Si no usas ComboBox para tiendaId, déjalo como InputText1 
                             <InputText1 label="ID de Tienda *" value={formData.tiendaId.toString()} onChange={(val) => handleChange("tiendaId", val)} errorMessage={errors.tiendaIdError} required type="number" width={450} />
-                        </fieldset>
+                       */} </fieldset>
 
                         {/* === IMÁGENES === */}
                         {/* ... (El resto del formulario de imágenes y botones se mantiene igual) ... */}
@@ -414,9 +414,9 @@ const ProductoEditForm: React.FC<ProductoEditFormProps> = ({ visible, onClose, i
                                     ))}
                                 </div>
                             )}
-
+{/*
                             <InputText1 label="Imagen Principal URL (Opcional/Fallback)" value={formData.imagenUrl} onChange={(val) => handleChange("imagenUrl", val)} type="text" width={450} />
-                            
+                            */}
                             <div className="form-row" style={{ marginTop: '15px' }}>
                                 <Switch1 label="Es Nuevo" checked={formData.esNuevo} onChange={(val) => handleSwitchChange("esNuevo", val)} />
                                 <Switch1 label="Es Destacado" checked={formData.esDestacado} onChange={(val) => handleSwitchChange("esDestacado", val)} />
@@ -428,7 +428,8 @@ const ProductoEditForm: React.FC<ProductoEditFormProps> = ({ visible, onClose, i
                             fullWidth 
                             size="large" 
                             disabled={isDisabled}
-                            style={{ marginTop: '20px' }}
+                            style={{ marginTop: '20px',width:"100%" }}
+
                         >
                             {buttonText}
                         </Boton1>

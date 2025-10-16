@@ -271,7 +271,7 @@ const handleReporte = (idProducto: number, productoRepor:ProductoResponseDto) =>
                       gap: "8px",
                       minWidth: "100px",
                     }}
-                  >
+                  >{/*
                     <button
                       onClick={() => handleDelete(producto.id)}
                       disabled={isDeleting}
@@ -286,7 +286,7 @@ const handleReporte = (idProducto: number, productoRepor:ProductoResponseDto) =>
                       }}
                     >
                       {isDeleting ? "Eliminando..." : "Eliminar"}
-                    </button>
+                    </button>*/}
                     <button
                       onClick={() => handleEdit(producto)}
                       style={{
