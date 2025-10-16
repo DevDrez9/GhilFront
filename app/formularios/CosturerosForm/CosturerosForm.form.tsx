@@ -15,7 +15,7 @@ interface CostureroFormProps {
 }
 
 const CostureroForm: React.FC<CostureroFormProps> = ({ visible, onClose }) => {
-  const { createCosturero, isCreating, createError } = useCostureros();
+  const { createCostureroAsync, isCreating, createError } = useCostureros();
 
   const containerClasses = [
     "contenedorFormCosturero",
@@ -103,33 +103,40 @@ const CostureroForm: React.FC<CostureroFormProps> = ({ visible, onClose }) => {
     }
 
     if (validate()) {
-      try {
-        await createCosturero(
-           dataToSend 
-         
-        );
-        if(isCreating){
-           setFormData({
-         nombre: "",
-    apellido: "",
-    telefono: "",
-    email: "",
-    direccion: "",
-    estado: EstadoCosturero.ACTIVO,
-    fechaInicio: new Date().toISOString(), // Fecha actual
-    nota: "",
-    tiendaId: 1,
-       })
-  onClose();
-        }else{
-           createError.message
-        }
+     try {
+        // 1. Ejecutar la mutación. Si es exitosa, continuamos.
+        await createCostureroAsync(dataToSend);
 
-      
-      } catch (error) {
-        alert("No se pudo guardar el costurero");
-        console.error("Error al guardar:", error);
-      }
+        // 2. ÉXITO: Si la línea anterior no lanzó un error, fue exitoso.
+        
+        // Limpiar el formulario
+        setFormData({
+            nombre: "",
+            apellido: "",
+            telefono: "",
+            email: "",
+            direccion: "",
+            estado: EstadoCosturero.ACTIVO,
+            fechaInicio: new Date().toISOString(),
+            nota: "",
+            tiendaId: 1,
+        });
+        
+        // Cerrar el modal o notificar éxito
+        alert("Costurero creado correctamente.");
+        onClose();
+
+    } catch (error) {
+        // 3. ERROR: Si la promesa se rechaza (por error de la API o de red), 
+        // el control salta a este bloque.
+        
+        // Acceder al mensaje de error
+        const errorMessage = (error as Error)?.message || "Ocurrió un error desconocido al crear el costurero.";
+        
+        // Mostrar el error
+        alert(`❌ Error al crear: ${errorMessage}`);
+        console.error("Fallo en la creación del costurero:", error);
+    }
     } else {
       console.log("Formulario no válido");
     }
