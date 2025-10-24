@@ -160,112 +160,111 @@ const InventarioSucursal = () => {
 
                 {/* --- LISTA DE INVENTARIO --- */}
                 <div style={{ display: "grid", gap: "15px" }}>
-                    {inventario.map((item) => (
-                        <div
-                            key={item.id}
-                            style={{
-                                padding: "20px",
-                                border: "1px solid #e0e0e0",
-                                borderRadius: "8px",
-                                backgroundColor: "#ffffff",
-                                boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
-                            }}
-                        >
-                            <div
-                                style={{
-                                    display: "flex",
-                                    justifyContent: "space-between",
-                                    alignItems: "flex-start",
-                                }}
-                            >
-                                <div style={{ flex: 1 }}>
-                                    <h3 style={{ margin: "0 0 12px 0", color: "#333" }}>
-                                        {item.producto?.nombre}
-                                        <span style={{ marginLeft: "10px", fontSize: "14px", fontWeight: "normal", color: "#666" }}>
-                                            ({item.producto?.sku || 'N/A'})
-                                        </span>
-                                    </h3>
-                                    <div
-                                        style={{
-                                            display: "grid",
-                                            gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
-                                            gap: "8px",
-                                        }}
-                                    >
-                                        <div>
-                                            <strong>Sucursal:</strong> {item.sucursal?.nombre || 'N/A'}
-                                        </div>
-                                        <div>
-                                            <strong>Stock Actual:</strong> {item.stock}
-                                        </div>
-                                        <div>
-                                            <strong>Stock Mínimo:</strong> {item.stockMinimo}
-                                        </div>
-                                    </div>
-                                </div>
-                                 {/*               
-                                <div
-                                    style={{
-                                        display: "flex",
-                                        flexDirection: "column",
-                                        gap: "8px",
-                                        minWidth: "100px",
-                                    }}
-                                >
-                                    <button
-                                        onClick={() => handleDelete(item.id)}
-                                        disabled={isDeleting}
-                                        style={{
-                                            padding: "8px 12px",
-                                            backgroundColor: "#dc3545",
-                                            color: "white",
-                                            border: "none",
-                                            borderRadius: "4px",
-                                            cursor: isDeleting ? "not-allowed" : "pointer",
-                                            fontSize: "14px",
-                                        }}
-                                    >
-                                        {isDeleting ? "Eliminando..." : "Eliminar"}
-                                    </button>
-                                    <button
-                                        onClick={() => handleEdit(item)}
-                                        style={{
-                                            padding: "8px 12px",
-                                            backgroundColor: "#007bff",
-                                            color: "white",
-                                            border: "none",
-                                            borderRadius: "4px",
-                                            cursor: "pointer",
-                                            fontSize: "14px",
-                                        }}
-                                    >
-                                        Editar
-                                    </button>
-                                </div>*/}
-                            </div>
+                   {inventario.map((item) => {
+    // --- NUEVO: Obtenemos la URL de la imagen de forma segura ---
+    const imagePath = item.producto?.imagenes?.[0]?.url;
+    const imageUrl = imagePath 
+      ? `http://localhost:3000/uploads/productos/${imagePath}` 
+      : null; // Si no hay ruta, imageUrl será null
 
+    return (
+        <div
+            key={item.id}
+            style={{
+                padding: "20px",
+                border: "1px solid #e0e0e0",
+                borderRadius: "8px",
+                backgroundColor: "#ffffff",
+                boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+            }}
+        >
+            {/* --- MODIFICADO: Contenedor principal ahora es flex --- */}
+            <div
+                style={{
+                    display: "flex",
+                    alignItems: "flex-start",
+                    gap: "20px", // Espacio entre la imagen y el contenido
+                }}
+            >
+                {/* --- NUEVO: Contenedor de la imagen (solo se muestra si existe) --- */}
+                {imageUrl && (
+                    <div style={{ flexShrink: 0 }}>
+                        <img
+                            src={imageUrl}
+                            alt={`Imagen de ${item.producto?.nombre}`}
+                            style={{
+                                width: "100px",
+                                height: "100px",
+                                borderRadius: "8px",
+                                objectFit: "cover", // Asegura que la imagen se vea bien
+                                border: "1px solid #eee",
+                            }}
+                        />
+                    </div>
+                )}
+
+                {/* Contenedor para toda la información (detalles y fechas) */}
+                <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+                    <div
+                        style={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "flex-start",
+                        }}
+                    >
+                        <div style={{ flex: 1 }}>
+                            <h3 style={{ margin: "0 0 12px 0", color: "#333" }}>
+                                {item.producto?.nombre}
+                                <span style={{ marginLeft: "10px", fontSize: "14px", fontWeight: "normal", color: "#666" }}>
+                                    ({item.producto?.sku || 'N/A'})
+                                </span>
+                            </h3>
                             <div
                                 style={{
-                                    marginTop: "12px",
-                                    paddingTop: "12px",
-                                    borderTop: "1px solid #eee",
-                                    fontSize: "12px",
-                                    color: "#666",
-                                    display: "flex",
-                                    gap: "15px",
+                                    display: "grid",
+                                    gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
+                                    gap: "8px",
                                 }}
                             >
-                                <span>
-                                    <strong>Creado:</strong>{" "}
-                                    {new Date(item.createdAt).toLocaleDateString()}
-                                </span>
-                                <span>
-                                    <strong>Actualizado:</strong>{" "}
-                                    {new Date(item.updatedAt).toLocaleDateString()}
-                                </span>
+                                <div>
+                                    <strong>Sucursal:</strong> {item.sucursal?.nombre || 'N/A'}
+                                </div>
+                                <div>
+                                    <strong>Stock Actual:</strong> {item.stock}
+                                </div>
+                                <div>
+                                    <strong>Stock Mínimo:</strong> {item.stockMinimo}
+                                </div>
                             </div>
                         </div>
-                    ))}
+                        {/* Aquí puedes volver a colocar la sección de botones si la necesitas */}
+                    </div>
+
+                    <div
+                        style={{
+                            marginTop: "12px",
+                            paddingTop: "12px",
+                            borderTop: "1px solid #eee",
+                            fontSize: "12px",
+                            color: "#666",
+                            display: "flex",
+                            gap: "15px",
+                        }}
+                    >
+                        <span>
+                            <strong>Creado:</strong>{" "}
+                            {new Date(item.createdAt).toLocaleDateString()}
+                        </span>
+                        <span>
+                            <strong>Actualizado:</strong>{" "}
+                            {new Date(item.updatedAt).toLocaleDateString()}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+})}
                 </div>
 
                 {/* --- MENSAJES DE ESTADO --- */}

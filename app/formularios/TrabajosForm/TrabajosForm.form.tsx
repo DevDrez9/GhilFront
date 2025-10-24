@@ -23,7 +23,7 @@ interface TrabajoFormProps {
   onClose: () => void;
 }
 const TrabajoForm: React.FC<TrabajoFormProps> = ({ visible, onClose }) => {
-  const { createTrabajo, isCreating, createError } = useTrabajos();
+  const { createTrabajo, isCreating, isError, error } = useTrabajos();
   const { parametros, error: parametrosError, isLoading } = useParametrosTela();
   const { costureros } = useCostureros("ACTIVO");
 
@@ -49,7 +49,7 @@ const TrabajoForm: React.FC<TrabajoFormProps> = ({ visible, onClose }) => {
     codigoTrabajo: "",
     parametrosTelaId: "" as string,
     costureroId: "" as string | undefined,
-    estado: EstadoTrabajo.EN_PROCESO,
+    estado: EstadoTrabajo.PENDIENTE,
     cantidad: 0,
     tiendaId: 0,
     fechaInicio: new Date().toISOString().substring(0, 10),
@@ -555,8 +555,8 @@ const TrabajoForm: React.FC<TrabajoFormProps> = ({ visible, onClose }) => {
                 {isCreating ? "Guardando..." : "Guardar Trabajo"}
               </Boton1>
 
-              {createError && (
-                <div className="error-alert">Error: {createError.message}</div>
+              {isError && (
+                <div className="error-alert">Error: {isError && error.message}</div>
               )}
             </form>
           </div>

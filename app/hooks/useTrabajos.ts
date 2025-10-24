@@ -11,27 +11,64 @@ type CompleteTrabajoVariables = {
     data: CompletarTrabajoDto; 
 }
 
-export const useTrabajos = (search?: string) => {
+type GetTrabajosFilters = {
+  estado?: string;
+  search?: string;
+};
+
+type UpdateTrabajoVariables = { id: number; data: Partial<CreateTrabajoDto> };
+export const useTrabajos = (filters: GetTrabajosFilters = {}) => {
   const queryClient = useQueryClient();
 
   // Query para obtener todos los trabajos
   const trabajosQuery = useQuery<TrabajoApiResponse, Error>({
-    queryKey: ['trabajos', search],
-    queryFn: () => trabajoService.getTrabajos(search),
+    // 3. ¡MUY IMPORTANTE! Añade 'filters' a la queryKey.
+    //    Así, React Query sabe que si 'filters' cambia, debe recargar los datos.
+    queryKey: ['trabajos', filters],
+    // 4. Pasa los filtros a la función del servicio.
+    queryFn: () => trabajoService.getTrabajos(filters),
     staleTime: 5 * 60 * 1000,
     gcTime: 30 * 60 * 1000,
   });
+  // Mutation para crear trabajo
+  const createTrabajoMutation = useMutation<TrabajoResponseDto, Error, CreateTrabajoDto>({
+    mutationFn: trabajoService.createTrabajo,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['trabajos'] });
+    },
+  });
 
-  // Query para obtener un trabajo por ID
-  const useTrabajo = (id: number) => {
-    return useQuery<TrabajoResponseDto, Error>({
-      queryKey: ['trabajo', id],
-      queryFn: () => trabajoService.getTrabajoById(id),
-      enabled: !!id,
-      staleTime: 5 * 60 * 1000,
-      gcTime: 30 * 60 * 1000,
-    });
-  };
+  // Mutation para actualizar trabajo
+  const updateTrabajoMutation = useMutation<TrabajoResponseDto, Error, UpdateTrabajoVariables>({
+    mutationFn: ({ id, data }) => trabajoService.updateTrabajo(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['trabajos'] });
+    },
+  });
+
+  // === NUEVA MUTACIÓN PARA INICIAR TRABAJO ===
+  const iniciarTrabajoMutation = useMutation<TrabajoResponseDto, Error, number>({
+    mutationFn: (id) => trabajoService.iniciarTrabajo(id),
+    onSuccess: (updatedTrabajo) => {
+        queryClient.invalidateQueries({ queryKey: ['trabajos'] });
+        queryClient.setQueryData(['trabajo', updatedTrabajo.id], updatedTrabajo);
+    },
+    onError: (error) => {
+        console.error("Error al iniciar el trabajo:", error.message);
+    }
+  });
+
+  // Mutation para completar trabajo
+  const completeTrabajoMutation = useMutation<TrabajoResponseDto, Error, CompleteTrabajoVariables>({
+    mutationFn: ({ id, data }) => trabajoService.completeTrabajo(id, data),
+    onSuccess: (updatedTrabajo) => {
+      queryClient.invalidateQueries({ queryKey: ['trabajos'] });
+      queryClient.setQueryData(['trabajo', updatedTrabajo.id], updatedTrabajo);
+    },
+    onError: (error) => {
+      console.error("Error al finalizar el trabajo:", error.message);
+    }
+  });
 
   // Mutation para eliminar trabajo
   const deleteTrabajoMutation = useMutation<void, Error, number>({
@@ -41,71 +78,7 @@ export const useTrabajos = (search?: string) => {
     },
   });
 
-  // Mutation para crear trabajo
-  const createTrabajoMutation = useMutation<
-    TrabajoResponseDto,
-    Error,
-    CreateTrabajoDto
-  >({
-    mutationFn: trabajoService.createTrabajo,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['trabajos'] });
-    },
-  });
-
-  // Mutation para actualizar trabajo
-  const updateTrabajoMutation = useMutation<
-    TrabajoResponseDto,
-    Error,
-    { id: number; data: Partial<CreateTrabajoDto> }
-  >({
-    mutationFn: ({ id, data }) => trabajoService.updateTrabajo(id, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['trabajos'] });
-    },
-  });
-
-  const completeTrabajoMutation = useMutation<
-    TrabajoResponseDto,       // Devuelve el trabajo actualizado
-    Error,                    // Tipo de error
-    CompleteTrabajoVariables  // Espera el ID y el DTO
-  >({
-    mutationFn: ({ id, data }) => trabajoService.completeTrabajo(id, data),
-    
-    onSuccess: (updatedTrabajo) => {
-      // Invalida la lista de trabajos
-      queryClient.invalidateQueries({ queryKey: ['trabajos'] });
-      // Opcionalmente, actualiza el trabajo individual en caché
-      queryClient.setQueryData(['trabajos', updatedTrabajo.id], updatedTrabajo); 
-    },
-    
-    onError: (error) => {
-      console.error("Error al finalizar el trabajo:", error.message);
-    }
-  });
-  
-
   return {
-    // Queries
-    trabajosQuery,
-    useTrabajo,
-    
-    // Mutations
-    deleteTrabajo: deleteTrabajoMutation.mutate,
-    deleteTrabajoAsync: deleteTrabajoMutation.mutateAsync,
-    isDeleting: deleteTrabajoMutation.isPending,
-    deleteError: deleteTrabajoMutation.error,
-    
-    createTrabajo: createTrabajoMutation.mutate,
-    createTrabajoAsync: createTrabajoMutation.mutateAsync,
-    isCreating: createTrabajoMutation.isPending,
-    createError: createTrabajoMutation.error,
-    
-    updateTrabajo: updateTrabajoMutation.mutate,
-    updateTrabajoAsync: updateTrabajoMutation.mutateAsync,
-    isUpdating: updateTrabajoMutation.isPending,
-    
-    // Estados y datos
     trabajos: trabajosQuery.data?.trabajos || [],
     total: trabajosQuery.data?.total || 0,
     isLoading: trabajosQuery.isLoading,
@@ -113,9 +86,20 @@ export const useTrabajos = (search?: string) => {
     error: trabajosQuery.error,
     refetch: trabajosQuery.refetch,
 
-    // NUEVAS EXPOSICIONES: Completar Trabajo
-     completeTrabajo: completeTrabajoMutation.mutateAsync, 
+    createTrabajo: createTrabajoMutation.mutateAsync,
+    isCreating: createTrabajoMutation.isPending,
+
+    updateTrabajo: updateTrabajoMutation.mutateAsync,
+    isUpdating: updateTrabajoMutation.isPending,
+
+    // === EXPOSICIÓN DE LA NUEVA MUTACIÓN ===
+    iniciarTrabajo: iniciarTrabajoMutation.mutateAsync,
+    isStarting: iniciarTrabajoMutation.isPending,
+
+    completeTrabajo: completeTrabajoMutation.mutateAsync,
     isCompleting: completeTrabajoMutation.isPending,
-    completeError: completeTrabajoMutation.error,
+
+    deleteTrabajo: deleteTrabajoMutation.mutateAsync,
+    isDeleting: deleteTrabajoMutation.isPending,
   };
 };

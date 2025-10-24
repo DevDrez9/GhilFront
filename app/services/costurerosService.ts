@@ -5,6 +5,21 @@ import { CostureroResponseDto, EstadoCosturero, type CostureroFilters, type Crea
 
 const API_BASE_URL = 'http://localhost:3000';
 
+
+export type EstadisticasCosturero = {
+  totalTrabajos: number;
+  trabajosPendientes: number;
+  trabajosEnProceso: number;
+  trabajosCompletados: number;
+  trabajosEsteMes: number;
+  promedioCalidad: number;
+};
+
+export type CostureroConEstadisticasResponse = {
+  costurero: CostureroResponseDto;
+  estadisticas: EstadisticasCosturero;
+};
+
 export const costureroService = {
   // Obtener todos los costureros
     getCostureros: async (search?: string): Promise<CostureroResponseDto[]> => {
@@ -101,5 +116,21 @@ export const costureroService = {
     }
 
     return response.json();
-  }
+  },
+
+  getCostureroConEstadisticas: async (id: number): Promise<CostureroConEstadisticasResponse> => {
+    // Asegúrate de que la URL coincida con tu endpoint del backend.
+    const response = await fetch(`${API_BASE_URL}/costureros/${id}/estadisticas`, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || `Error ${response.status}: ${response.statusText}`);
+    }
+
+    return response.json();
+  },
 };

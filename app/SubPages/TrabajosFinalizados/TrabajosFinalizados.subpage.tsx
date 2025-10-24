@@ -83,108 +83,146 @@ const TrabajosFinalizados = () => {
           </Boton1>
         </div>*/}
 
-        <div style={{ display: "grid", gap: "15px", marginTop:"50px"  }}>
-          {trabajos.map((trabajo) => (
+        <div style={{ display: "grid", gap: "15px", marginTop: "50px" }}>
+  {trabajos.map((trabajo) => {
+    // --- NUEVO: Construimos la URL de la imagen de forma segura ---
+    // Usamos encadenamiento opcional para evitar errores si alguna propiedad no existe.
+    const imagenPath = trabajo.trabajoEnProceso?.parametrosTela?.producto?.imagenes?.[0]?.url;
+    const imageUrl = imagenPath 
+      ? `http://localhost:3000/uploads/productos/${imagenPath}` 
+      : null; // Si no hay path, imageUrl será null.
+
+    return (
+      <div
+        key={trabajo.id}
+        style={{
+          padding: "20px",
+          border: "1px solid #e0e0e0",
+          borderRadius: "8px",
+          backgroundColor: "#ffffff",
+          boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+        }}
+      >
+        {/* --- MODIFICADO: Contenedor principal ahora es flex para alinear la imagen y los detalles --- */}
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "flex-start",
+            gap: "20px", // Espacio entre la imagen y el contenido
+          }}
+        >
+          {/* --- NUEVO: Contenedor de la imagen (solo se renderiza si imageUrl existe) --- */}
+          {imageUrl && (
+            <div style={{ flexShrink: 0 }}>
+              <img
+                src={imageUrl}
+                alt={`Imagen de ${trabajo.trabajoEnProceso?.parametrosTela?.nombreModelo}`}
+                style={{
+                  width: "100px",
+                  height: "100px",
+                  borderRadius: "8px",
+                  objectFit: "cover", // Clave para que la imagen se vea bien sin deformarse
+                  border: "1px solid #eee",
+                }}
+              />
+            </div>
+          )}
+
+          {/* Contenedor para toda la información (detalles, botones y fechas) */}
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
             <div
-              key={trabajo.id}
               style={{
-                padding: "20px",
-                border: "1px solid #e0e0e0",
-                borderRadius: "8px",
-                backgroundColor: "#ffffff",
-                boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "flex-start",
               }}
             >
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "flex-start",
-                }}
-              >
-                <div style={{ flex: 1 }}>
-                  <h3 style={{ margin: "0 0 12px 0", color: "#333" }}>
-                    {trabajo.trabajoEnProceso?.codigoTrabajo}
-                  </h3>
-                  <div
-                    style={{
-                      display: "grid",
-                      gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
-                      gap: "8px",
-                    }}
-                  >
-                    <div>
-                      <strong>Modelo:</strong> {trabajo.trabajoEnProceso?.parametrosTela?.nombreModelo}
-                    </div>
-                    <div>
-                      <strong>Cantidad Producida:</strong> {trabajo.cantidadProducida}
-                    </div>
-                    <div>
-                      <strong>Calidad:</strong> {trabajo.calidad}
-                    </div>
-                    <div>
-                      <strong>Costurero:</strong> {trabajo.trabajoEnProceso?.costurero ? `${trabajo.trabajoEnProceso.costurero.nombre} ${trabajo.trabajoEnProceso.costurero.apellido}` : 'Sin asignar'}
-                    </div>
-                    <div>
-                      <strong>Costo Total:</strong> {trabajo.costo ? `${trabajo.costo}` : 'Sin datos'}
-                    </div>
-                  </div>
-                </div>
-
+              <div style={{ flex: 1 }}>
+                <h3 style={{ margin: "0 0 12px 0", color: "#333" }}>
+                  {trabajo.trabajoEnProceso?.codigoTrabajo}
+                </h3>
                 <div
                   style={{
-                    display: "flex",
-                    flexDirection: "column",
+                    display: "grid",
+                    gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
                     gap: "8px",
-                    minWidth: "100px",
                   }}
                 >
-                  <button
-                    onClick={() => handleDelete(trabajo.id)}
-                    disabled={isDeleting}
-                    style={{
-                      padding: "8px 12px",
-                      backgroundColor: "#dc3545",
-                      color: "white",
-                      border: "none",
-                      borderRadius: "4px",
-                      cursor: isDeleting ? "not-allowed" : "pointer",
-                      fontSize: "14px",
-                    }}
-                  >
-                    {isDeleting ? "Eliminando..." : "Eliminar"}
-                  </button>
-                  {/* Puedes agregar un botón de editar si es necesario */}
+                  <div>
+                    <strong>Modelo:</strong> {trabajo.trabajoEnProceso?.parametrosTela?.nombreModelo}
+                  </div>
+                  <div>
+                    <strong>Cantidad Producida:</strong> {trabajo.cantidadProducida}
+                  </div>
+                  <div>
+                    <strong>Calidad:</strong> {trabajo.calidad}
+                  </div>
+                  <div>
+                    <strong>Costurero:</strong> {trabajo.trabajoEnProceso?.costurero ? `${trabajo.trabajoEnProceso.costurero.nombre} ${trabajo.trabajoEnProceso.costurero.apellido}` : 'Sin asignar'}
+                  </div>
+                  <div>
+                    <strong>Costo Total:</strong> {trabajo.costo ? `${trabajo.costo}` : 'Sin datos'}
+                  </div>
                 </div>
               </div>
 
               <div
                 style={{
-                  marginTop: "12px",
-                  paddingTop: "12px",
-                  borderTop: "1px solid #eee",
-                  fontSize: "12px",
-                  color: "#666",
                   display: "flex",
-                  gap: "15px",
+                  flexDirection: "column",
+                  gap: "8px",
+                  minWidth: "100px",
                 }}
               >
-                <span>
-                  <strong>Fecha de Finalización:</strong>{" "}
-                  {new Date(trabajo.fechaFinalizacion).toLocaleDateString()}
-                </span>
-                <span>
-                  <strong>Creado:</strong>{" "}
-                  {new Date(trabajo.createdAt).toLocaleDateString()}
-                </span>
-                <span>
-                  <strong>Actualizado:</strong>{" "}
-                  {new Date(trabajo.updatedAt).toLocaleDateString()}
-                </span>
+                <button
+                  onClick={() => handleDelete(trabajo.id)}
+                  disabled={isDeleting}
+                  style={{
+                    padding: "8px 12px",
+                    backgroundColor: "#dc3545",
+                    color: "white",
+                    border: "none",
+                    borderRadius: "4px",
+                    cursor: isDeleting ? "not-allowed" : "pointer",
+                    fontSize: "14px",
+                  }}
+                >
+                  {isDeleting ? "Eliminando..." : "Eliminar"}
+                </button>
               </div>
             </div>
-          ))}
+
+            <div
+              style={{
+                marginTop: "12px",
+                paddingTop: "12px",
+                borderTop: "1px solid #eee",
+                fontSize: "12px",
+                color: "#666",
+                display: "flex",
+                gap: "15px",
+              }}
+            >
+              <span>
+                <strong>Fecha de Finalización:</strong>{" "}
+                {new Date(trabajo.fechaFinalizacion).toLocaleDateString()}
+              </span>
+              <span>
+                <strong>Creado:</strong>{" "}
+                {new Date(trabajo.createdAt).toLocaleDateString()}
+              </span>
+              <span>
+                <strong>Actualizado:</strong>{" "}
+                {new Date(trabajo.updatedAt).toLocaleDateString()}
+              </span>
+            </div>
+          </div>
         </div>
+      </div>
+    );
+  })}
+</div>
 
         {trabajos.length === 0 && (
           <div
