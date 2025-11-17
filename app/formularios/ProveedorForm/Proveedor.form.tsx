@@ -4,6 +4,7 @@ import Switch1 from "~/componentes/switch1";
 import InputText1 from "~/componentes/InputText1";
 import Boton1 from "~/componentes/Boton1";
 import { useProveedores } from "~/hooks/useProveedores";
+import { useAlert } from "~/componentes/alerts/AlertContext";
 
 interface ProveedorFormProps {
   visible: boolean;
@@ -59,31 +60,35 @@ const ProveedorForm: React.FC<ProveedorFormProps> = ({ visible, onClose, }) => {
 
     return Object.keys(newErrors).length === 0;
   };
+const { showAlert } = useAlert();
+  
 
-  const handleSubmit = async (e: React.FormEvent) => {
+ const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // 1. Validación del formulario
     if (validate()) {
-     
-      try{
-        let respuesta =await createProveedor(formDataProveedor);
-        if(isCreating){
-          alert("Proveedor no creado correctamente")
-         ;
-        }else{
-          alert("Proveedor  creado correctamente")
-           onClose();
-        }
-        
-        
+      try {
+        // 2. Intentar crear el proveedor
+        await createProveedor(formDataProveedor);
 
-      }catch{
-        alert("No se pudo guardar el proveedor")
+        // 3. ÉXITO: Si llegamos aquí, la creación fue correcta
+        await showAlert("Proveedor creado correctamente.", "success");
+        
+        // Cerrar el modal/formulario
+        onClose();
+
+      } catch (error: any) {
+        console.error("Error al crear proveedor:", error);
+        
+        // 4. ERROR
+        const errorMsg = error?.message || "No se pudo guardar el proveedor.";
+        showAlert(errorMsg, "error");
       }
-       
 
-      //
     } else {
-      console.log("no valido ");
+      // 5. Validación fallida
+      showAlert("El formulario no es válido. Por favor, revisa los campos obligatorios.", "warning");
     }
   };
 

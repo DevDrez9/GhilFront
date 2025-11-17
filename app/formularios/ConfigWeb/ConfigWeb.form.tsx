@@ -1,18 +1,28 @@
-import React, { useState, useEffect, useCallback, useMemo } from "react";
+import React, { useState, useEffect } from "react";
 import InputText1 from "~/componentes/InputText1";
 import Boton1 from "~/componentes/Boton1";
 import { useConfigWeb } from "~/hooks/useConfigWeb";
-import { CreateBannerDto,type UpdateConfigWebBase64Dto } from "~/models/configWeb";
-import "./ConfigWeb.style.css"
+import { CreateBannerDto, type UpdateConfigWebBase64Dto } from "~/models/configWeb";
+import "./ConfigWeb.style.css";
+import { useAlert } from "~/componentes/alerts/AlertContext";
 
-// --- Tipos de Estado Interno ---
+// ----------------------------------------------------
+// TIPOS DE ESTADO INTERNO
+// ----------------------------------------------------
 interface ConfigFormState {
     nombreSitio: string;
     colorPrimario: string;
     colorSecundario: string;
+    
+    // LOGO
     currentLogoUrl: string;
     logoBase64: string | null;
-    // Banners con un campo extra para Base64 si se sube una nueva imagen
+    
+    // CÓDIGO QR (NUEVO)
+    currentImagenQrUrl: string;
+    imagenQrBase64: string | null;
+
+    // BANNERS
     banners: (CreateBannerDto & { base64Data?: string | null })[]; 
 }
 
@@ -22,10 +32,8 @@ interface ConfigWebFormProps {
 }
 
 // ----------------------------------------------------
-// LÓGICA CONSOLIDADA DE MANEJO DE IMAGEN Y BASE64
+// UTILIDADES DE IMAGEN (File -> Base64)
 // ----------------------------------------------------
-
-// Función utilitaria para convertir File a Base64
 const fileToBase64 = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -35,7 +43,9 @@ const fileToBase64 = (file: File): Promise<string> => {
     });
 };
 
-// Componente Unificado para Subida de Imágenes (Logo y Banners)
+// ----------------------------------------------------
+// COMPONENTE REUTILIZABLE: ImageBase64Uploader
+// ----------------------------------------------------
 interface ImageUploaderProps {
     label: string;
     currentUrl: string; // URL que llega del backend
@@ -47,31 +57,22 @@ interface ImageUploaderProps {
 }
 
 const ImageBase64Uploader: React.FC<ImageUploaderProps> = ({ 
-    label, 
-    currentUrl, 
-    base64Data, 
-    onBase64Ready, 
-    onUrlReset, 
-    disabled, 
-    width = '450px' 
+    label, currentUrl, base64Data, onBase64Ready, onUrlReset, disabled, width = '100%' 
 }) => {
-    
     // La previsualización usa Base64 si está presente, si no, usa la URL existente.
-    const previewSource = base64Data ||  "http://localhost:3000"+currentUrl;
+    const previewSource = base64Data || (currentUrl ? "http://localhost:3000" + currentUrl : null);
 
     const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files ? e.target.files[0] : null;
-        
         if (file) {
             try {
                 const base64 = await fileToBase64(file);
-                onBase64Ready(base64); // Notifica al padre el Base64 listo
+                onBase64Ready(base64);
             } catch (error) {
                 console.error("Error al convertir a Base64:", error);
                 onBase64Ready(null);
             }
         } else {
-            // Si el usuario cancela, resetea el Base64, manteniendo la URL si existe.
             onBase64Ready(null);
         }
     };
@@ -83,20 +84,27 @@ const ImageBase64Uploader: React.FC<ImageUploaderProps> = ({
 
     return (
         <div style={{ width: width, marginBottom: '15px' }}>
-            <label style={{ display: 'block', fontWeight: 'bold' }}>{label}</label>
+            <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '5px', color: '#333' }}>{label}</label>
+            
+            {/* Input de Archivo */}
             <input 
                 type="file" 
                 accept="image/*" 
                 onChange={handleFileChange} 
                 disabled={disabled}
-                style={{ marginBottom: '10px' }}
+                style={{ marginBottom: '10px', display: 'block', width: '100%' }}
             />
             
-            {previewSource && (
-                <div style={{ border: '1px solid #ddd', padding: '10px', borderRadius: '4px' }}>
-                    <img src={previewSource} alt="Vista Previa" style={{ maxWidth: '100%', maxHeight: '150px', display: 'block', objectFit: 'contain' }} />
-                    <small style={{ marginTop: '5px', display: 'block', color: '#666' }}>
-                        {base64Data ? "Archivo local (Base64 listo)" : "URL existente en servidor"}
+            {/* Previsualización */}
+            {previewSource ? (
+                <div style={{ border: '1px solid #ddd', padding: '10px', borderRadius: '4px', backgroundColor: '#f9f9f9', textAlign: 'center' }}>
+                    <img 
+                        src={previewSource} 
+                        alt="Vista Previa" 
+                        style={{ maxWidth: '100%', maxHeight: '150px', objectFit: 'contain', borderRadius: '4px', border: '1px solid #eee' }} 
+                    />
+                    <small style={{ marginTop: '8px', display: 'block', color: '#666' }}>
+                        {base64Data ? "Archivo listo para subir" : "Imagen actual en servidor"}
                     </small>
                     <Boton1 
                         type="button" 
@@ -104,20 +112,24 @@ const ImageBase64Uploader: React.FC<ImageUploaderProps> = ({
                         variant="danger" 
                         size="small"
                         disabled={disabled}
-                        style={{ marginTop: '5px' }}
+                        style={{ marginTop: '8px' }}
                     >
-                        Remover Imagen
+                        Quitar Imagen
                     </Boton1>
+                </div>
+            ) : (
+                <div style={{ padding: '20px', border: '1px dashed #ccc', borderRadius: '4px', textAlign: 'center', color: '#999', fontSize: '0.9em' }}>
+                    Sin imagen seleccionada
                 </div>
             )}
         </div>
     );
 };
-// ----------------------------------------------------
-// FIN LÓGICA CONSOLIDADA DEL UPLOADER
-// ----------------------------------------------------
 
 
+// ----------------------------------------------------
+// COMPONENTE PRINCIPAL: ConfigWebForm
+// ----------------------------------------------------
 const ConfigWebForm: React.FC<ConfigWebFormProps> = ({ visible, onClose }) => {
     const { config, configId, isLoading, isInitialLoading, createConfig, updateConfig, isMutating, mutationError } = useConfigWeb();
     
@@ -125,8 +137,15 @@ const ConfigWebForm: React.FC<ConfigWebFormProps> = ({ visible, onClose }) => {
         nombreSitio: "",
         colorPrimario: "#FFFFFF",
         colorSecundario: "#000000",
+        
+        // Logo
         currentLogoUrl: "",
         logoBase64: null,
+
+        // QR
+        currentImagenQrUrl: "",
+        imagenQrBase64: null,
+
         banners: [],
     });
     
@@ -139,65 +158,45 @@ const ConfigWebForm: React.FC<ConfigWebFormProps> = ({ visible, onClose }) => {
                 nombreSitio: config.nombreSitio || "",
                 colorPrimario: config.colorPrimario || "#FFFFFF",
                 colorSecundario: config.colorSecundario || "#000000",
+                
                 currentLogoUrl: config.logoUrl || "",
                 logoBase64: null,
+
+                currentImagenQrUrl: config.imagenQr || "",
+                imagenQrBase64: null,
+
                 banners: (config.banners || []).map(b => ({
                     ...b, 
                     url: b.url || "",
-                    base64Data: null, // Campo temporal para la subida
+                    base64Data: null, 
                 })),
             });
         }
     }, [config]);
 
-
-    const containerClasses = [
-        "contenedorFormConfigWeb",
-        visible ? "visible" : "noVisible",
-    ].filter(Boolean).join(" ");
+    const containerClasses = ["contenedorFormConfigWeb", visible ? "visible" : "noVisible"].filter(Boolean).join(" ");
 
     // ----------------------------------------------------
-    // MANEJADORES DE ESTADO
+    // MANEJADORES
     // ----------------------------------------------------
 
-    const handleChange = (field: keyof Omit<ConfigFormState, 'banners' | 'logoBase64'>, value: string | boolean) => {
-        setFormData((prev) => ({ ...prev, [field]: value as string }));
+    const handleChange = (field: keyof Omit<ConfigFormState, 'banners' | 'logoBase64' | 'imagenQrBase64'>, value: string) => {
+        setFormData((prev) => ({ ...prev, [field]: value }));
     };
 
-    const handleBannerTextChange = (index: number, field: keyof CreateBannerDto, value: string | number) => {
-        setFormData(prev => {
-            const newBanners = [...prev.banners];
-            newBanners[index] = {
-                ...newBanners[index],
-                [field]: value,
-            };
-            return { ...prev, banners: newBanners };
-        });
-    };
-    
-    // 🎯 MANEJADOR DE IMAGEN DEL BANNER
+    // --- Banners ---
     const handleBannerImageChange = (index: number, base64: string | null) => {
         setFormData(prev => {
             const newBanners = [...prev.banners];
-            newBanners[index] = {
-                ...newBanners[index],
-                base64Data: base64, // Guardamos el Base64 para enviar
-                // Si hay Base64 nuevo, reseteamos la URL existente temporalmente (o no hacemos nada, depende de la lógica del backend)
-                // Aquí solo gestionamos el Base64
-            };
+            newBanners[index] = { ...newBanners[index], base64Data: base64 };
             return { ...prev, banners: newBanners };
         });
     };
     
-    // 🎯 MANEJADOR DE RESESTEO DE URL DE BANNER
     const handleBannerUrlReset = (index: number) => {
         setFormData(prev => {
             const newBanners = [...prev.banners];
-            newBanners[index] = {
-                ...newBanners[index],
-                url: "", // Limpiamos la URL existente
-                base64Data: null, // Aseguramos que Base64 esté limpio
-            };
+            newBanners[index] = { ...newBanners[index], url: "", base64Data: null };
             return { ...prev, banners: newBanners };
         });
     };
@@ -216,16 +215,14 @@ const ConfigWebForm: React.FC<ConfigWebFormProps> = ({ visible, onClose }) => {
         }));
     };
     
-    // 🎯 Manejo del Logo (Desde el componente LogoUploader)
-    const handleLogoBase64Ready = (base64: string | null) => {
-        setFormData(prev => ({ ...prev, logoBase64: base64 }));
-    };
-    
-    // 🎯 Manejo de reseteo de URL de Logo
-    const handleLogoUrlReset = () => {
-        setFormData(prev => ({ ...prev, currentLogoUrl: "" }));
-    };
-    
+    // --- Logo ---
+    const handleLogoBase64Ready = (base64: string | null) => setFormData(prev => ({ ...prev, logoBase64: base64 }));
+    const handleLogoUrlReset = () => setFormData(prev => ({ ...prev, currentLogoUrl: "" }));
+
+    // --- QR ---
+    const handleQrBase64Ready = (base64: string | null) => setFormData(prev => ({ ...prev, imagenQrBase64: base64 }));
+    const handleQrUrlReset = () => setFormData(prev => ({ ...prev, currentImagenQrUrl: "" }));
+
     // ----------------------------------------------------
     // VALIDACIÓN Y SUBMIT
     // ----------------------------------------------------
@@ -235,35 +232,27 @@ const ConfigWebForm: React.FC<ConfigWebFormProps> = ({ visible, onClose }) => {
         const hexColorRegex = /^#[0-9A-Fa-f]{6}$/i; 
 
         if (!formData.nombreSitio.trim()) newErrors.nombreSitio = "El nombre del sitio es obligatorio.";
-        if (!formData.colorPrimario.match(hexColorRegex)) newErrors.colorPrimario = "Color Primario inválido (debe ser #RRGGBB).";
-        if (!formData.colorSecundario.match(hexColorRegex)) newErrors.colorSecundario = "Color Secundario inválido (debe ser #RRGGBB).";
+        if (!formData.colorPrimario.match(hexColorRegex)) newErrors.colorPrimario = "Color inválido.";
+        if (!formData.colorSecundario.match(hexColorRegex)) newErrors.colorSecundario = "Color inválido.";
         
-        // Validación de banners: Al menos una URL existente O un archivo nuevo (Base64) es necesario.
         formData.banners.forEach((b, index) => {
             if (!b.url.trim() && !b.base64Data) {
-                newErrors[`bannerUrl${index}`] = `Debe seleccionar una imagen o proporcionar una URL para el Banner ${index + 1}.`;
+                newErrors[`bannerUrl${index}`] = `Imagen requerida para Banner ${index + 1}.`;
             }
         });
 
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
-
+    const { showAlert } = useAlert();
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (validate()) {
             try {
-                // Mapeo de banners antes de enviar
-                const mappedBanners: CreateBannerDto[] = formData.banners.map(b => ({
-                    // El backend DEBE entender que si base64Data está presente, debe ignorar b.url
-                    // y usar base64Data para crear la URL final.
-                    url: b.base64Data ? b.base64Data : b.url, // Usamos Base64 si existe, sino la URL existente
-                    orden: b.orden || undefined,
-                    titulo: b.titulo || undefined,
-                    subtitulo: b.subtitulo || undefined,
-                    enlace: b.enlace || undefined,
-                    // Si el backend es más estricto, necesitarías un DTO diferente que envíe base64 por separado.
-                    // Para simplificar, asumimos que el backend maneja el campo 'url' si es Base64.
+                const mappedBanners = formData.banners.map(b => ({
+                    url: b.base64Data ? b.base64Data : b.url,
+                    orden: b.orden,
+                    // ... otros campos si tuvieras título, enlace, etc.
                 }));
                 
                 const dataToSend: UpdateConfigWebBase64Dto = {
@@ -271,66 +260,77 @@ const ConfigWebForm: React.FC<ConfigWebFormProps> = ({ visible, onClose }) => {
                     colorPrimario: formData.colorPrimario,
                     colorSecundario: formData.colorSecundario,
                     banners: mappedBanners,
+                    
+                    // LOGO
+                    logoUrl: formData.logoBase64 ? formData.logoBase64 : (formData.currentLogoUrl || ""),
+
+                    // QR
+                    imagenQr: formData.imagenQrBase64 ? formData.imagenQrBase64 : (formData.currentImagenQrUrl || ""),
                 };
 
-                // Lógica para Logo
-                if (formData.logoBase64) {
-                    dataToSend.logoUrl = formData.logoBase64;
-                   // dataToSend.logoUrl = undefined; 
-                } else {
-                    dataToSend.logoUrl = formData.currentLogoUrl || undefined; 
-                }
-                
-                // --- Ejecución de Mutación ---
                 if (configId) {
                     await updateConfig({ id: configId, data: dataToSend });
-                    alert("✅ Configuración web actualizada con éxito.");
+                    // ✅ CAMBIO: Alerta de éxito
+                    await showAlert("Configuración actualizada correctamente.", "success");
                 } else {
                     await createConfig(dataToSend);
-                    alert("✅ Configuración web creada con éxito.");
+                    // ✅ CAMBIO: Alerta de éxito
+                    await showAlert("Configuración creada correctamente.", "success");
                 }
                 
                 onClose();
-            } catch (error) {
-                alert(`❌ Error al ${configId ? 'editar' : 'crear'} la configuración.`);
-                console.error("Error en submit:", error);
+            } catch (error: any) {
+                console.error(error);
+                // ✅ CAMBIO: Mostrar el mensaje real del error
+                const mensajeError = error?.message || "Ocurrió un error inesperado.";
+                showAlert(`Error al guardar configuración: ${mensajeError}`, "error");
             }
         }
     };
 
-    // ----------------------------------------------------
-    // RENDERIZADO
-    // ----------------------------------------------------
-    
     const isReady = !isInitialLoading && !isLoading;
     const isDisabled = isMutating || !isReady;
-    const submitText = configId ? "Guardar Cambios" : "Crear Configuración";
 
-    if (isInitialLoading) {
-        return <div className={containerClasses}><p>Cargando configuración...</p></div>;
-    }
+    if (isInitialLoading) return <div className={containerClasses}><p>Cargando...</p></div>;
 
     return (
         <div className={containerClasses}>
             <div className="cuerpoConfigWebForm">
-                <h2>{configId ? "Editar Configuración Web" : "Crear Configuración Web"}</h2>
+                <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'20px'}}>
+                    <h2>{configId ? "Editar Configuración Web" : "Crear Configuración Web"}</h2>
+                    <Boton1 type="button" variant="info" onClick={onClose} size="small">Cerrar</Boton1>
+                </div>
                 
                 <div className="formConfigWeb">
                     <form onSubmit={handleSubmit}>
                         
-                        {/* --- SECCIÓN DATOS PRINCIPALES --- */}
-                        <fieldset className="seccionPrincipal" disabled={isDisabled}>
-                            <legend>Datos Generales</legend>
+                        {/* --- IDENTIDAD VISUAL --- */}
+                        <fieldset className="seccionPrincipal" disabled={isDisabled} style={{ marginBottom: '20px', padding: '15px', border: '1px solid #ddd', borderRadius: '5px' }}>
+                            <legend style={{ fontWeight: 'bold', color: '#007bff' }}>Identidad Visual</legend>
                             
-                            {/* 🎯 LOGO UPLOADER */}
-                            <ImageBase64Uploader
-                                label="Logo del Sitio"
-                                currentUrl= {formData.currentLogoUrl}
-                                base64Data={formData.logoBase64}
-                                onBase64Ready={handleLogoBase64Ready}
-                                onUrlReset={handleLogoUrlReset}
-                                disabled={isDisabled}
-                            />
+                            <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap', marginBottom: '20px' }}>
+                                {/* LOGO */}
+                                <ImageBase64Uploader
+                                    label="Logo del Sitio"
+                                    currentUrl={formData.currentLogoUrl}
+                                    base64Data={formData.logoBase64}
+                                    onBase64Ready={handleLogoBase64Ready}
+                                    onUrlReset={handleLogoUrlReset}
+                                    disabled={isDisabled}
+                                    width="48%"
+                                />
+                                
+                                {/* QR */}
+                                <ImageBase64Uploader
+                                    label="Código QR (Pagos/Info)"
+                                    currentUrl={formData.currentImagenQrUrl}
+                                    base64Data={formData.imagenQrBase64}
+                                    onBase64Ready={handleQrBase64Ready}
+                                    onUrlReset={handleQrUrlReset}
+                                    disabled={isDisabled}
+                                    width="48%"
+                                />
+                            </div>
 
                             <InputText1
                                 label="Nombre del Sitio *"
@@ -341,108 +341,64 @@ const ConfigWebForm: React.FC<ConfigWebFormProps> = ({ visible, onClose }) => {
                                 width="100%"
                             />
                             
-                            <div className="form-row">
-                                <InputText1
-                                    label="Color Primario *"
-                                    value={formData.colorPrimario}
-                                    onChange={(val) => handleChange("colorPrimario", val)}
-                                    errorMessage={errors.colorPrimario}
-                                    type="color"
-                                    required
-                                    width="100%"
-                                />
-                                <InputText1
-                                    label="Color Secundario *"
-                                    value={formData.colorSecundario}
-                                    onChange={(val) => handleChange("colorSecundario", val)}
-                                    errorMessage={errors.colorSecundario}
-                                    type="color"
-                                    required
-                                    width="100%"
-                                />
+                            <div className="form-row" style={{ display: 'flex', gap: '20px', marginTop: '15px' }}>
+                                <div style={{ flex: 1 }}>
+                                    <InputText1
+                                        label="Color Primario *"
+                                        value={formData.colorPrimario}
+                                        onChange={(val) => handleChange("colorPrimario", val)}
+                                        type="color"
+                                        required
+                                        width="100%"
+                                    />
+                                </div>
+                                <div style={{ flex: 1 }}>
+                                    <InputText1
+                                        label="Color Secundario *"
+                                        value={formData.colorSecundario}
+                                        onChange={(val) => handleChange("colorSecundario", val)}
+                                        type="color"
+                                        required
+                                        width="100%"
+                                    />
+                                </div>
                             </div>
                         </fieldset>
 
-                        {/* --- SECCIÓN BANNERS --- */}
-                        <fieldset className="seccionBanners" disabled={isDisabled}>
-                            <legend>Banners de la Web ({formData.banners.length})</legend>
+                        {/* --- BANNERS --- */}
+                        <fieldset className="seccionBanners" disabled={isDisabled} style={{ marginBottom: '20px', padding: '15px', border: '1px solid #ddd', borderRadius: '5px' }}>
+                            <legend style={{ fontWeight: 'bold', color: '#007bff' }}>Banners ({formData.banners.length})</legend>
                             
                             {formData.banners.map((banner, index) => (
-                                <div key={index} className="banner-item" style={{ border: '1px dashed #ccc', padding: '10px', marginBottom: '10px' }}>
-                                    <h4>Banner #{index + 1}</h4>
+                                <div key={index} className="banner-item" style={{ border: '1px dashed #ccc', padding: '15px', marginBottom: '15px', borderRadius: '5px', backgroundColor: '#fafafa' }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
+                                        <h4 style={{ margin: 0 }}>Banner #{index + 1}</h4>
+                                        <Boton1 type="button" onClick={() => handleRemoveBanner(index)} variant="danger" size="small">Eliminar</Boton1>
+                                    </div>
                                     
-                                    {/* 🎯 BANNER IMAGE UPLOADER */}
                                     <ImageBase64Uploader
-                                        label={`Imagen de Banner ${index + 1}`}
+                                        label={`Imagen del Banner`}
                                         currentUrl={banner.url}
                                         base64Data={banner.base64Data || null}
                                         onBase64Ready={(base64) => handleBannerImageChange(index, base64)}
                                         onUrlReset={() => handleBannerUrlReset(index)}
                                         disabled={isDisabled}
-                                        width="450px"
+                                        width="100%"
                                     />
-                                    {errors[`bannerUrl${index}`] && <p style={{color: 'red', fontSize: '12px'}}>{errors[`bannerUrl${index}`]}</p>}
-                                    {/*
-                                    <div className="form-row">
-                                        <InputText1
-                                            label="Título"
-                                            value={banner.titulo || ""}
-                                            onChange={(val) => handleBannerTextChange(index, "titulo", val)}
-                                            width="100%"
-                                        />
-                                        <InputText1
-                                            label="Subtítulo"
-                                            value={banner.subtitulo || ""}
-                                            onChange={(val) => handleBannerTextChange(index, "subtitulo", val)}
-                                            width="100%"
-                                        />
-                                    </div>
-                                    <div className="form-row">
-                                        <InputText1
-                                            label="Enlace"
-                                            value={banner.enlace || ""}
-                                            onChange={(val) => handleBannerTextChange(index, "enlace", val)}
-                                            width="100%"
-                                        />
-                                        <InputText1
-                                            label="Orden"
-                                            value={String(banner.orden || "")}
-                                            onChange={(val) => handleBannerTextChange(index, "orden", Number(val))}
-                                            type="number"
-                                            width="100%"
-                                        />
-                                    </div>*/}
-                                    
-                                    <Boton1 
-                                        type="button" 
-                                        onClick={() => handleRemoveBanner(index)} 
-                                        variant="danger" 
-                                        size="small"
-                                        style={{ marginTop: '10px' }}
-                                    >
-                                        Eliminar Banner
-                                    </Boton1>
+                                    {errors[`bannerUrl${index}`] && <p style={{color: 'red', fontSize: '12px', marginTop: '-10px'}}>{errors[`bannerUrl${index}`]}</p>}
                                 </div>
                             ))}
                             
-                            <Boton1 type="button" onClick={handleAddBanner} disabled={isDisabled} style={{ marginTop: '10px' }}>
+                            <Boton1 type="button" onClick={handleAddBanner} disabled={isDisabled} style={{ width: '100%' }} variant="secondary">
                                 + Agregar Nuevo Banner
                             </Boton1>
                         </fieldset>
 
-                        <Boton1
-                            type="submit"
-                            fullWidth
-                            size="large"
-                            disabled={isDisabled}
-                            style={{ marginTop: '20px' }}
-                        >
-                            {isMutating ? "Guardando..." : submitText}
+                        <Boton1 type="submit" fullWidth size="large" disabled={isDisabled} style={{ marginTop: '10px' }}>
+                            {isMutating ? "Guardando..." : (configId ? "Guardar Cambios" : "Crear Configuración")}
                         </Boton1>
 
-                        {mutationError && (
-                            <div className="error-alert">Error: {mutationError.message}</div>
-                        )}
+                        {mutationError && <div className="error-alert" style={{ marginTop: '15px', color: 'red' }}>Error: {mutationError.message}</div>}
                     </form>
                 </div>
             </div>

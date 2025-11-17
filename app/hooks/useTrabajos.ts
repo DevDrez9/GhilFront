@@ -98,6 +98,8 @@ export const useTrabajos = (filters: GetTrabajosFilters = {}) => {
 
     completeTrabajo: completeTrabajoMutation.mutateAsync,
     isCompleting: completeTrabajoMutation.isPending,
+    completeError: completeTrabajoMutation.error,
+
 
     deleteTrabajo: deleteTrabajoMutation.mutateAsync,
     isDeleting: deleteTrabajoMutation.isPending,

@@ -6,6 +6,7 @@ import Boton1 from '~/componentes/Boton1';
 import InputText1 from '~/componentes/InputText1';
 import InventarioTelaForm from '~/formularios/InventarioTelaForm/InventarioTelaForm.form';
 import { EstadoCosturero } from '~/models/costureros';
+import { useAlert } from '~/componentes/alerts/AlertContext';
 
 export default function InventarioTelasList() {
   const [filters, setFilters] = useState({
@@ -35,13 +36,31 @@ export default function InventarioTelasList() {
     setFilters(prev => ({ ...prev, [field]: value }));
   };
 
+ // 1. Asegúrate de tener el hook
+  const { showAlert } = useAlert();
+
+  // ...
+
   const handleDelete = async (id: number, descripcion: string) => {
+    // Nota: Usamos confirm nativo para la decisión SÍ/NO
     if (window.confirm(`¿Estás seguro de eliminar el item "${descripcion}" del inventario?`)) {
       try {
+        // 1. Ejecutar la eliminación
         await deleteInventario(id);
-        alert('Item eliminado correctamente del inventario');
-      } catch (error) {
-        alert('Error al eliminar item del inventario');
+
+        
+
+        // 2. ÉXITO
+        await showAlert('Item eliminado correctamente del inventario.', 'success');
+        
+        // Aquí podrías recargar la lista si no es automático (ej: refetch())
+
+      } catch (error: any) {
+        console.error("Error al eliminar:", error);
+        
+        // 3. ERROR
+        const msg = error?.message || 'Error al eliminar item del inventario.';
+        showAlert(msg, 'error');
       }
     }
   };

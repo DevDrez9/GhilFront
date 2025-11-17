@@ -6,6 +6,7 @@ import { useTienda } from "~/hooks/useTienda";
 import { TiendaDto } from "~/models/tienda";
 import "./TiendaForm.style.css"
 import Switch1 from "~/componentes/switch1";
+import { useAlert } from "~/componentes/alerts/AlertContext";
 
 
 // --- Tipos de Estado Interno ---
@@ -79,36 +80,59 @@ const TiendaForm: React.FC<TiendaFormProps> = ({ visible, onClose }) => {
         return Object.keys(newErrors).length === 0;
     };
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (validate()) {
-            try {
-                const dataToSend: TiendaDto = {
-                    nombre: formData.nombre.trim(),
-                    descripcion: formData.descripcion.trim() || undefined,
-                    dominio: formData.dominio.trim(),
-                    activa: formData.activa,
-                    esPrincipal: formData.esPrincipal,
-                };
+   // 1. Asegúrate de importar el hook al principio del componente
+  const { showAlert } = useAlert();
 
-                if (tiendaId) {
-                    // MODO EDICIÓN
-                    await updateTienda({ id: tiendaId, data: dataToSend });
-                    alert("✅ Tienda actualizada con éxito.");
-                } else {
-                    // MODO CREACIÓN
-                    await createTienda(dataToSend);
-                    alert("✅ Tienda registrada con éxito.");
-                }
-                
-                onClose();
-            } catch (error) {
-                alert(`❌ Error al ${tiendaId ? 'actualizar' : 'registrar'} la tienda.`);
-                console.error("Error en submit:", error);
-            }
+  // ...
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    // 1. Validación con feedback visual
+    if (validate()) {
+      try {
+        // 2. Preparar DTO
+        const dataToSend: TiendaDto = {
+          nombre: formData.nombre.trim(),
+          descripcion: formData.descripcion.trim() || undefined,
+          dominio: formData.dominio.trim(),
+          activa: formData.activa,
+          esPrincipal: formData.esPrincipal,
+        };
+
+        // 3. Ejecutar lógica según el modo
+        if (tiendaId) {
+          // --- MODO EDICIÓN ---
+          await updateTienda({ id: tiendaId, data: dataToSend });
+          
+          // Éxito actualización
+          await showAlert("Tienda actualizada con éxito.", "success");
+        } else {
+          // --- MODO CREACIÓN ---
+          await createTienda(dataToSend);
+          
+          // Éxito creación
+          
+          await showAlert("Tienda registrada con éxito.", "success");
         }
-    };
+        
+        // 4. Cerrar modal
+        onClose();
 
+      } catch (error: any) {
+        console.error("Error en submit:", error);
+        
+        // 5. Manejo de errores
+        const action = tiendaId ? 'actualizar' : 'registrar';
+        const errorMsg = error?.message || `Error al ${action} la tienda.`;
+        
+        showAlert(errorMsg, "error");
+      }
+    } else {
+      // 6. Validación fallida
+      showAlert("El formulario no es válido. Por favor revisa los campos obligatorios.", "warning");
+    }
+  };
     // ----------------------------------------------------
     // RENDERIZADO
     // ----------------------------------------------------

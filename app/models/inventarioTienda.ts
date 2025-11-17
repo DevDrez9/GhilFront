@@ -2,7 +2,7 @@ export class InventarioTiendaResponseDto {
   id: number;
   productoId: number;
   tiendaId: number;
-  stock: number;
+  stock:Record<string, number>; 
   stockMinimo: number;
   createdAt: Date;
   updatedAt: Date;

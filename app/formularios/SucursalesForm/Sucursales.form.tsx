@@ -4,6 +4,7 @@ import Boton1 from "~/componentes/Boton1";
 import Switch1 from "~/componentes/switch1"; 
 import { useSucursales } from "~/hooks/useSucursales"; // Importa el hook
 import "./SucursalesForm.style.css"
+import { useAlert } from "~/componentes/alerts/AlertContext";
 
 interface SucursalFormProps {
   visible: boolean;
@@ -58,24 +59,44 @@ const SucursalForm: React.FC<SucursalFormProps> = ({ visible, onClose }) => {
     return Object.keys(newErrors).length === 0;
   };
 
+ // 1. Importar el hook
+  const { showAlert } = useAlert();
+
+  // ...
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // 1. Validación
     if (validate()) {
       try {
+        // 2. Preparar datos
         const dataToSend = {
           ...formData,
-          // Convertir tiendaId a número
           tiendaId: Number(formData.tiendaId),
         };
         
+        // 3. Ejecutar creación
         await createSucursal(dataToSend);
+        
+        
+
+        // 4. ÉXITO
+        await showAlert("Sucursal creada correctamente.", "success");
+        
         onClose();
-      } catch (error) {
-        alert("No se pudo guardar la sucursal");
+
+      } catch (error: any) {
         console.error("Error al guardar:", error);
+        
+        // 5. ERROR
+        const msg = error?.message || "No se pudo guardar la sucursal.";
+        showAlert(msg, "error");
       }
+
     } else {
-      console.log("Formulario no válido");
+      // 6. Validación fallida
+      showAlert("El formulario no es válido. Por favor revisa los campos.", "warning");
     }
   };
 

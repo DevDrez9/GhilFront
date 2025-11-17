@@ -8,6 +8,7 @@ import { useParametrosTela } from "~/hooks/useParametrosTela";
 import { EstadoPrenda, ParametrosTelaResponseDto } from "~/models/ParametrosTela";
 import { useProductos } from "~/hooks/useProductos";
 import { useInventarioTelas } from "~/hooks/useInventarioTelas";
+import { useAlert } from "~/componentes/alerts/AlertContext";
 
 // ----------------------------------------------------
 // TIPOS REQUERIDOS
@@ -266,55 +267,59 @@ const EditarParametrosTelaForm: React.FC<EditarParametrosTelaFormProps> = ({
     // SUBMIT (ACTUALIZAR)
     // ----------------------------------------------------
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!initialData) return; // No se puede actualizar sin el ID
+   // 1. Importar el hook al inicio del componente
+  const { showAlert } = useAlert();
 
-        if (validate()) {
-            try {
-                // Obtener nombreModelo
-                let nombreModelo = "";
-                productos.forEach((item) => {
-                    if (item.id === formData.productoId) {
-                        nombreModelo = item.nombre;
-                    }
-                });
+  // ...
 
-                // 🚨 Creamos el DTO de actualización
-                const dataToSend = {
-                    ...formData,
-                    nombreModelo: nombreModelo,
-                    cantidadEstandarPorLote: Number(formData.cantidadEstandarPorLote),
-                    consumoTelaPorLote: Number(formData.consumoTelaPorLote),
-                    tiempoFabricacionPorUnidad: Number(
-                        formData.tiempoFabricacionPorUnidad
-                    ),
-                    tiempoTotalPorLote: Number(formData.tiempoTotalPorLote),
-                    productoId: formData.productoId,
-                    telaId: formData.telaId,
-                    // Aseguramos que el consumoTelaPorTalla sea el JSON string final
-                    consumoTelaPorTalla: formData.consumoTelaPorTalla, 
-                };
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!initialData) return; // Validación de seguridad
 
-                // 🚨 Llamamos a la función de actualización pasando el ID
-                await updateParametroTela({id:initialData.id,data: dataToSend as any}); 
+    if (validate()) {
+      try {
+        // 1. Obtener nombreModelo de forma eficiente
+        const productoSeleccionado = productos.find(p => p.id === formData.productoId);
+        const nombreModelo = productoSeleccionado ? productoSeleccionado.nombre : "";
 
-                if (!isUpdating) {
-                    alert(`✅ Parámetros de la tela (${initialData.codigoReferencia}) actualizados.`);
-                    onClose();
-                } else {
-                    // Si el hook tiene un error más granular, usar updateError.message
-                    alert(updateError?.message || "Ocurrió un error al actualizar."); 
-                }
-            } catch (error) {
-                alert(`❌ Error al actualizar el parámetro: ${updateError?.message || "Error desconocido"}`);
-                console.error("Error al actualizar:", error);
-            }
-        } else {
-            console.log("Formulario no válido para edición");
-        }
-    };
+        // 2. Creamos el DTO de actualización
+        const dataToSend = {
+          ...formData,
+          nombreModelo: nombreModelo,
+          cantidadEstandarPorLote: Number(formData.cantidadEstandarPorLote),
+          consumoTelaPorLote: Number(formData.consumoTelaPorLote),
+          tiempoFabricacionPorUnidad: Number(formData.tiempoFabricacionPorUnidad),
+          tiempoTotalPorLote: Number(formData.tiempoTotalPorLote),
+          productoId: formData.productoId,
+          telaId: formData.telaId,
+          // El JSON string se envía tal cual
+          consumoTelaPorTalla: formData.consumoTelaPorTalla, 
+        };
 
+        // 3. Ejecutar la actualización
+        await updateParametroTela({ 
+            id: initialData.id, 
+            data: dataToSend as any // Cast si el tipo estricto del hook difiere ligeramente
+        });
+
+        // 
+        // 4. ÉXITO: Si llegamos aquí, la promesa se resolvió bien
+        await showAlert(`Parámetros (${initialData.codigoReferencia}) actualizados correctamente.`, "success");
+        
+        onClose();
+
+      } catch (error: any) {
+        console.error("Error al actualizar:", error);
+        
+        // Intentamos obtener el mensaje del error capturado o del estado del hook
+        const msg = error?.message || updateError?.message || "Ocurrió un error desconocido al actualizar.";
+        
+        showAlert(`Error al actualizar: ${msg}`, "error");
+      }
+    } else {
+      showAlert("El formulario contiene errores. Por favor revísalos.", "warning");
+    }
+  };
     // ----------------------------------------------------
     // RENDERIZADO
     // ----------------------------------------------------

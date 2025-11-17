@@ -127,6 +127,8 @@ export const trabajoService = {
       },
       body: JSON.stringify(data),
     });
+
+    console.log(data)
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
       throw new Error(errorData.message || `Error ${response.status}: ${response.statusText}`);

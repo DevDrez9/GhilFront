@@ -9,6 +9,7 @@ import { useCostureroEstadisticas } from "~/hooks/useCostureroEstadisticas"; // 
 import CostureroForm from "~/formularios/CosturerosForm/CosturerosForm.form";
 import CostureroFormEdit from "~/formularios/CosturerosForm/ConstureroEditForm.form";
 import type { CostureroConEstadisticasResponse } from "~/services/costurerosService";
+import { useAlert } from "~/componentes/alerts/AlertContext";
 
 
 // --- NUEVO: Componente para el Modal de Estadísticas ---
@@ -75,36 +76,33 @@ const Costurero = () => {
 
   // ... (tus funciones handleSearch, clearSearch, etc. no cambian)
 
-   const handleDelete = async (id: number) => {
+ // 1. Asegúrate de tener el hook
+  const { showAlert } = useAlert();
 
+  // ...
+
+  const handleDelete = async (id: number) => {
+    // Mantenemos window.confirm para la decisión (o puedes crear un modal de confirmación propio)
     if (window.confirm("¿Estás seguro de eliminar este costurero?")) {
-
       try {
-
+        // 1. Ejecutar eliminación
         await deleteCosturero(id);
 
-        if(deleteError){
+        
 
-         alert( deleteError.message)
+        // 2. ÉXITO: Si la línea anterior no falló, se eliminó bien
+        await showAlert("Costurero eliminado correctamente.", "success");
 
-
-
-        }else {
-
-            alert("Costurero eliminado correctamente");
-
-        }
-
-     
-
-      } catch (error) {
-
-        alert("Error al eliminar costurero");
-
+      } catch (error: any) {
+        console.error("Error al eliminar:", error);
+        
+        // 3. ERROR
+        // Intentamos leer el mensaje del error capturado o del estado del hook
+        const msg = error?.message || deleteError?.message || "Error al eliminar costurero.";
+        
+        showAlert(msg, "error");
       }
-
     }
-
   };
 
   const handleNuevo = () => setMostrarForm(!mostrarForm);

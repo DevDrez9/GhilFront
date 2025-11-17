@@ -29,6 +29,7 @@ export class CreateProductoDto {
   subcategoriaId?: number; // Opcional
   tiendaId!: number;
   proveedorId?: number; // Opcional
+  tallas?:string;
   
   // Array de objetos anidados
   imagenes?: CreateImagenProductoDto[]; // Opcional

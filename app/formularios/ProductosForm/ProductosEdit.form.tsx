@@ -12,6 +12,7 @@ import { useProveedores } from "~/hooks/useProveedores"; // ⬅️ AGREGADO
 
 import {type ProductoResponseDto, type UpdateProductoDto } from "~/models/producto.model"; // DTOs
 import "./ProductoEditForm.style.css"
+import { useAlert } from "~/componentes/alerts/AlertContext";
 // --- Tipos ---
 type LocalImage = { 
     localId: number; 
@@ -38,6 +39,7 @@ const mapProductToFormState = (product: ProductoResponseDto) => ({
     stock: product.stock,
     stockMinimo: product.stockMinimo,
     sku: product.sku || "",
+tallas: product.tallas || "",
     imagenUrl: product.imagenUrl || "",
     categoriaId: product.categoriaId || 0,
     subcategoriaId: product.subcategoriaId,
@@ -253,37 +255,58 @@ const ProductoEditForm: React.FC<ProductoEditFormProps> = ({ visible, onClose, i
     // SUBMIT
     // ----------------------------------------------------
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!validate()) return console.log("Formulario no válido");
+    // 1. Asegúrate de tener el hook al inicio del componente
+  const { showAlert } = useAlert();
 
-        try {
-            const dataToSend: UpdateProductoDto = {
-                ...formData,
-                precio: Number(formData.precio),
-                precioOferta: formData.precioOferta ? Number(formData.precioOferta) : undefined,
-                stock: formData.stock ? Number(formData.stock) : undefined,
-                stockMinimo: formData.stockMinimo ? Number(formData.stockMinimo) : undefined,
-                categoriaId: Number(formData.categoriaId),
-                subcategoriaId: formData.subcategoriaId ? Number(formData.subcategoriaId) : undefined,
-                tiendaId: Number(formData.tiendaId),
-                proveedorId: formData.proveedorId ? Number(formData.proveedorId) : undefined,
-                
-                // Imágenes a enviar (Base64 nuevos + IDs de existentes)
-                imagenes: mapImagesToDto(),
-            };
-            
-            // Usamos el ID del producto que vino en la prop inicial
-            await updateProducto({ id: initialProductData.id, data: dataToSend });
-            
-            alert("✅ Producto actualizado con éxito.");
-            onClose();
-            
-        } catch (error) {
-            alert(`❌ No se pudo actualizar el producto.`);
-            console.error("Error en submit:", error);
-        }
-    };
+  // ...
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    // 1. Validación con feedback al usuario
+    if (!validate()) {
+      showAlert("El formulario contiene errores. Por favor, revisa los campos.", "warning");
+      return;
+    }
+
+    try {
+      // 2. Preparar DTO
+      const dataToSend: UpdateProductoDto = {
+        ...formData,
+        // Conversiones numéricas necesarias
+        precio: Number(formData.precio),
+        precioOferta: formData.precioOferta ? Number(formData.precioOferta) : undefined,
+        stock: formData.stock ? Number(formData.stock) : undefined,
+        stockMinimo: formData.stockMinimo ? Number(formData.stockMinimo) : undefined,
+        categoriaId: Number(formData.categoriaId),
+        subcategoriaId: formData.subcategoriaId ? Number(formData.subcategoriaId) : undefined,
+        tiendaId: Number(formData.tiendaId),
+        proveedorId: formData.proveedorId ? Number(formData.proveedorId) : undefined,
+        
+        // Mapeo de imágenes (existentes + nuevas)
+        imagenes: mapImagesToDto(),
+      };
+      
+      // 3. Ejecutar actualización
+      await updateProducto({ 
+          id: initialProductData.id, 
+          data: dataToSend 
+      });
+      
+      
+
+      // 4. Éxito
+      await showAlert("Producto actualizado con éxito.", "success");
+      onClose();
+      
+    } catch (error: any) {
+      console.error("Error en submit:", error);
+      
+      // 5. Manejo de errores robusto
+      const errorMsg = error?.message || "No se pudo actualizar el producto. Intente nuevamente.";
+      showAlert(`Error: ${errorMsg}`, "error");
+    }
+  };
 
     // ----------------------------------------------------
     // RENDERIZADO
@@ -309,8 +332,10 @@ const ProductoEditForm: React.FC<ProductoEditFormProps> = ({ visible, onClose, i
                             <legend>Información Básica</legend>
                             <InputText1 label="Nombre *" value={formData.nombre} onChange={(val) => handleChange("nombre", val)} errorMessage={errors.nombreError} required type="text" width={450} />
                             <InputText1 label="Descripción" value={formData.descripcion} onChange={(val) => handleChange("descripcion", val)} type="text" width={450} />
-                            <InputText1 label="Tallas" value={formData.sku } placeholder="Añadir tallas separadas por coma (S,L,M)"onChange={(val) => handleChange("sku", val)} type="text" width={450} />
-                        </fieldset>
+                            <InputText1 label="Sku" value={formData.sku } placeholder=""onChange={(val) => handleChange("sku", val)} type="text" width={450} />
+                            <InputText1 label="Tallas" value={formData.tallas } placeholder="Añadir tallas separadas por coma (S,L,M)"onChange={(val) => handleChange("tallas", val)} type="text" width={450} />
+                        
+</fieldset>
 
                         <fieldset disabled={isDisabled}>
                             <legend>Precios </legend>

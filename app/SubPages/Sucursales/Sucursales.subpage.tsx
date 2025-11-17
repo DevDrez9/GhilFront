@@ -7,6 +7,7 @@ import type { SucursalResponseDto } from "~/models/sucursal";
 import SucursalForm from "~/formularios/SucursalesForm/Sucursales.form";
 import SucursalEditForm from "~/formularios/SucursalesForm/SucursalEdit.form";
 import ReporteSucursal from "~/reportes/ReportSucursal/ReporteSucursal.reporte";
+import { useAlert } from "~/componentes/alerts/AlertContext";
 
 const Sucursales = () => {
   const [debouncedSearch, setDebouncedSearch] = useState("");
@@ -40,17 +41,32 @@ const Sucursales = () => {
   const [sucursalRerport, setSucursalReporte] = useState(0);
     const [mostrarFormReporte, setMostrarFormReporte] = useState(false);
 
+  // 1. Asegúrate de tener el hook al inicio del componente
+  const { showAlert } = useAlert();
+
+  // ...
+
   const handleDelete = async (id: number) => {
+    // Mantenemos la confirmación nativa
     if (window.confirm("¿Estás seguro de eliminar esta sucursal?")) {
       try {
+        // 1. Ejecutar la eliminación
         await deleteSucursal(id);
-        alert("Sucursal eliminada correctamente");
-      } catch (error) {
-        alert("Error al eliminar la sucursal");
+
+        
+
+        // 2. ÉXITO
+        await showAlert("Sucursal eliminada correctamente.", "success");
+
+      } catch (error: any) {
+        console.error("Error al eliminar:", error);
+        
+        // 3. ERROR
+        const msg = error?.message || "Error al eliminar la sucursal.";
+        showAlert(msg, "error");
       }
     }
   };
-  
     const defaultSucursal: SucursalResponseDto = {
       id: 0,
       nombre: "",  

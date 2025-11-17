@@ -7,6 +7,7 @@ import { usePedidos } from '~/hooks/usePedidos';
 import { CarritoResponseDto, CarritoEstado } from '~/models/carrito';
 import { formatCurrency } from '~/reportes/ReporteVentas/reporteVentas.reporte';
 import CrearVentaCarritoForm from '~/formularios/VentaCarrito/VentaCarrito.form';
+import { useAlert } from '~/componentes/alerts/AlertContext';
 
 // 🛑 Constantes para el ComboBox
 const ESTADO_OPTIONS = [
@@ -44,27 +45,47 @@ const CarritoSubPage = () => {
         setEstadoSeleccionado(valueString);
     };
 
-    const handleCompletePedido = async (id) => {
-        if (window.confirm(`¿Está seguro de finalizar el Pedido #${id}?`)) {
-            try {
-                await completePedidoAsync(id);
-                // La alerta se maneja con una notificación real en una app grande
-            } catch (e) {
-                alert(`Error al finalizar el Pedido #${id}.`);
-            }
-        }
-    };
+   // 1. Asegúrate de tener el hook al inicio
+  const { showAlert } = useAlert();
 
-     const handleCancelarPedido = async (id) => {
-        if (window.confirm(`¿Está seguro de finalizar el Pedido #${id}?`)) {
-            try {
-                await cancelarPedidoAsync(id);
-                // La alerta se maneja con una notificación real en una app grande
-            } catch (e) {
-                alert(`Error al finalizar el Pedido #${id}.`);
-            }
-        }
-    };
+  // ...
+
+  const handleCompletePedido = async (id: number) => {
+    // Nota: window.confirm sigue siendo nativo. 
+    // Para personalizar esto, necesitarías ampliar tu AlertContext para soportar confirmaciones.
+    if (window.confirm(`¿Está seguro de finalizar el Pedido #${id}?`)) {
+      try {
+        await completePedidoAsync(id);
+        
+        // 
+        // ✅ Feedback visual de éxito
+        await showAlert(`Pedido #${id} finalizado correctamente.`, "success");
+        
+      } catch (e: any) {
+        console.error("Error al finalizar:", e);
+        const msg = e?.message || `Error al finalizar el Pedido #${id}.`;
+        showAlert(msg, "error");
+      }
+    }
+  };
+
+  const handleCancelarPedido = async (id: number) => {
+    // 📝 Corregido: El mensaje ahora dice "cancelar" en lugar de "finalizar"
+    if (window.confirm(`¿Está seguro de CANCELAR el Pedido #${id}? Esta acción no se puede deshacer.`)) {
+      try {
+        await cancelarPedidoAsync(id);
+        
+        // 
+        // ✅ Feedback visual de éxito
+        await showAlert(`Pedido #${id} cancelado.`, "success");
+        
+      } catch (e: any) {
+        console.error("Error al cancelar:", e);
+        const msg = e?.message || `Error al cancelar el Pedido #${id}.`;
+        showAlert(msg, "error");
+      }
+    }
+  };
     const [carritoPas, setCarritoPas]=useState<CarritoResponseDto>(null);
      const [mostrarForm, setMostrarForm] = useState(false);
     const handleNuevo = (carrito: CarritoResponseDto) => {
@@ -160,7 +181,7 @@ const PedidoCard: React.FC<PedidoCardProps> = ({
     return (
         <div style={{ padding: '15px', border: `1px solid ${style.bg}`, borderRadius: '8px', backgroundColor: '#ffffff', boxShadow: '0 2px 5px rgba(0,0,0,0.05)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <h4 style={{ margin: 0 }}>Pedido #{pedido.id}</h4>
+                <h4 style={{ margin: 0 }}>Pedido #{pedido.id}  {pedido.notas && "("+pedido?.notas+")"}</h4>
                 <span style={{ padding: '4px 8px', borderRadius: '4px', fontSize: '12px', fontWeight: 'bold', color: style.color, backgroundColor: style.bg, border: `1px solid ${style.color}` }}>
                     {style.label.toUpperCase()}
                 </span>

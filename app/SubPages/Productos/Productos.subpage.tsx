@@ -10,6 +10,7 @@ import { CategoriaResponseDto } from "~/models/categoria";
 import { categoriaService } from "~/services/categoriaService";
 import { useCategorias } from "~/hooks/useCategorias";
 import ProductoPerformanceCard from "~/reportes/ReportProducto/reporteProductos.reporte";
+import { useAlert } from "~/componentes/alerts/AlertContext";
 
 
 const Productos = () => {
@@ -57,13 +58,29 @@ const Productos = () => {
     setDebouncedSearch("");
   };
 
+// 1. Asegúrate de tener el hook al inicio del componente
+  const { showAlert } = useAlert();
+
+  // ...
+
   const handleDelete = async (id: number) => {
+    // Mantenemos la confirmación nativa
     if (window.confirm("¿Estás seguro de eliminar este producto?")) {
       try {
+        // 1. Ejecutar la eliminación
         await deleteProducto(id);
-        alert("Producto eliminado correctamente");
-      } catch (error) {
-        alert("Error al eliminar el producto");
+
+        
+
+        // 2. ÉXITO
+        await showAlert("Producto eliminado correctamente.", "success");
+
+      } catch (error: any) {
+        console.error("Error al eliminar:", error);
+        
+        // 3. ERROR
+        const msg = error?.message || "Error al eliminar el producto.";
+        showAlert(msg, "error");
       }
     }
   };
@@ -243,7 +260,7 @@ const handleReporte = (idProducto: number, productoRepor:ProductoResponseDto) =>
                         <strong>Precio:</strong> Bs{producto.precio}
                       </div>
                      <div>
-                        <strong>Tallas:</strong> {producto.sku}
+                        <strong>Tallas:</strong> {producto.tallas}
                       </div>
                       <div>
                         <strong>Categoría:</strong> {asiganarCate(producto.categoriaId+"")}

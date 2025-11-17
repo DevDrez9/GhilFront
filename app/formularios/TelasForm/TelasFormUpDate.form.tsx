@@ -6,6 +6,7 @@ import Boton1 from "~/componentes/Boton1";
 import { useProveedores } from "~/hooks/useProveedores";
 import { useTelas } from "~/hooks/useTelas";
 import type { TelaResponseDto } from "~/models/telas.model";
+import { useAlert } from "~/componentes/alerts/AlertContext";
 
 interface TelasFormUpDateProps {
   visible: boolean;
@@ -82,30 +83,42 @@ const TelasFormUpDate: React.FC<TelasFormUpDateProps> = ({ visible, onClose, tel
     return Object.keys(newErrors).length === 0;
   };
 
+ // 1. Importar el hook
+  const { showAlert } = useAlert();
+
+  // ...
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // 1. Validación
     if (validate()) {
-     
-      try{
+      try {
+        // 2. Ejecutar la actualización
+        await updateTela({ 
+            id: tela.id, 
+            data: formDataTelasUpDate 
+        });
+
+        // 3. ÉXITO
+        // Si el código llega aquí, la actualización fue correcta
         
-        await updateTela({id:tela.id,data: formDataTelasUpDate});
-        if(isUpdating){
-          alert("Tela no actualizada correctamente")
-         
-        }else{
-          alert("Tela actualizada correctamente")
-            onClose();
-        }
-       
+        await showAlert("Tela actualizada correctamente.", "success");
+        
+        onClose(); // O onCloseUpDate() si ese es el nombre de tu prop
 
-      }catch{
-        alert("No se pudo guardar el proveedor")
+      } catch (error: any) {
+        console.error("Error al actualizar tela:", error);
+        
+        // 4. ERROR
+        // Corregido: Decía "proveedor", ahora dice "tela"
+        const msg = error?.message || "No se pudo actualizar la tela.";
+        showAlert(msg, "error");
       }
-       
 
-      //
     } else {
-      console.log("no valido ");
+      // 5. Validación fallida
+      showAlert("El formulario no es válido. Revisa los campos.", "warning");
     }
   };
 

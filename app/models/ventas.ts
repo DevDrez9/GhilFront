@@ -1,5 +1,8 @@
 // ~/models/venta.ts
 
+import type { ProductoResponseDto } from "./producto.model";
+import type { SucursalResponseDto } from "./sucursal";
+
 
 // --- ENUMS ---
 export enum EstadoVenta {
@@ -31,6 +34,7 @@ export class CreateVentaItemDto {
     productoId!: number;
     cantidad!: number;
     precio!: number; 
+    talla!:string;
 }
 
 // --- DTO PRINCIPAL de Creación (Input) ---
@@ -61,6 +65,13 @@ export class VentaResponseDto {
     estado: EstadoVenta;
     fechaVenta: Date; // ✅ Cambiado a Date
     items: VentaItemResponseDto[]; // ✅ Usará instancias de la Clase
+    telefono: string;
+    direccion: string;
+    createdAt:string;
+    sucursalId?: number;
+    sucursal?:SucursalResponseDto;
+    
+    
 
     // ... otros campos (telefono, direccion, subtotal, etc.)
 
@@ -71,6 +82,12 @@ export class VentaResponseDto {
         this.tiendaId = venta.tiendaId;
         this.metodoPago = venta.metodoPago;
         this.estado = venta.estado;
+        this.telefono = venta.telefono;
+        this.direccion = venta.direccion;
+        this.createdAt=venta.createdAt;
+        this.sucursalId=venta.sucursalId;
+        this.sucursal=venta.sucursal;
+        
         
         // ✅ Conversión de la fecha
         this.fechaVenta =  new Date(venta.createdAt || venta.fechaVenta); 
@@ -91,6 +108,8 @@ export class VentaItemResponseDto {
     productoNombre: string; 
     cantidad: number;
     precio: number;
+    talla:string;
+    producto:ProductoResponseDto
     // Si el backend devuelve fechas para el ítem, añádelas aquí:
     // createdAt: Date; 
     
@@ -101,6 +120,8 @@ export class VentaItemResponseDto {
         this.productoNombre = item.productoNombre;
         this.cantidad = item.cantidad;
         this.precio = item.precio;
+        this.talla=item.talla;
+        this.producto=item.producto;
         // Si hay fechas en el item, haz la conversión:
         // this.createdAt = new Date(item.createdAt);
     }

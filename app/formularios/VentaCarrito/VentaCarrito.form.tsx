@@ -9,28 +9,23 @@ import { useSucursales } from "~/hooks/useSucursales";
 import "./VentaCarrito.style.css"
 import { usePedidos } from "~/hooks/usePedidos";
 import { CarritoEstado } from "~/models/carrito";
-// ----------------------------------------------------
-// DTOs y Tipos Requeridos (ASUMIDOS)
-// Debes asegurarte de que estas clases/interfaces existan en tus archivos de modelos
-// ----------------------------------------------------
+import { useAlert } from "~/componentes/alerts/AlertContext";
 
-// Nota: Estos DTOs se asumen definidos en otro archivo (como '~/models/carrito')
-// Solo se incluyen las interfaces necesarias para el tipado.
-
+// --- INTERFACES (Mantenemos las tuyas) ---
 interface CarritoItemResponseDto {
     id: number;
     cantidad: number;
     productoId: number;
     precio: number;
     productoNombre?: string; 
-    talla?: string;
+    talla?: string; // ✅ Aseguramos que talla existe
 }
 
 interface CarritoResponseDto {
     id: number;
     clienteId: number;
     tiendaId: number;
-    estado: any; // Usar CarritoEstado si está definido
+    estado: any; 
     cliente?: string;
     telefono?: string;
     direccion?: string;
@@ -38,7 +33,7 @@ interface CarritoResponseDto {
     precio: number;
     createdAt: Date;
     items: CarritoItemResponseDto[];
-    usuario: any; // Usar UsuarioRes si está definido
+    usuario: any; 
 }
 
 interface SucursalResponseDto { 
@@ -47,9 +42,10 @@ interface SucursalResponseDto {
     direccion: string;
 }
 
-// --- Tipos Locales ---
 interface NewItemState {
-    selectedProductId: string; // ID del registro de inventario (no productoId)
+    selectedInventarioId: string; // ID del inventario
+    selectedProductoId: string;
+    talla: string;
     cantidad: string;
     precioUnitario: string;
 }
@@ -65,97 +61,83 @@ interface VentaFormState {
 interface CrearVentaFormProps {
     visible: boolean;
     onClose: () => void;
-    // 🎯 Propiedad para recibir el carrito
     initialData: CarritoResponseDto | null; 
 }
 
-
-// Constantes y Opciones
-const IMPUESTO_RATE = 0.13; 
+const IMPUESTO_RATE = 0; 
 const metodoPagoOptions = Object.values(MetodoPago).map(m => ({ value: m, label: m.replace('_', ' ') }));
 
-// ----------------------------------------------------
-// COMPONENTE PRINCIPAL
-// ----------------------------------------------------
 const CrearVentaCarritoForm: React.FC<CrearVentaFormProps> = ({ visible, onClose, initialData }) => {
     const { createVenta, isCreating, createError } = useVentas();
-
-   const [estadoSeleccionado, setEstadoSeleccionado] = useState<CarritoEstado>(CarritoEstado.TODOS);
+    const [estadoSeleccionado] = useState<CarritoEstado>(CarritoEstado.TODOS);
        
-       const queryOptions = useMemo(() => ({
-           tiendaId: 1,
-           estadoFiltro: estadoSeleccionado,
-       }), [estadoSeleccionado]);
+    const queryOptions = useMemo(() => ({
+       tiendaId: 1,
+       estadoFiltro: estadoSeleccionado,
+    }), [estadoSeleccionado]);
     
-    const { 
-            
-            completePedidoAsync, 
-            
-        } = usePedidos(queryOptions);
+    const { completePedidoAsync } = usePedidos(queryOptions);
     
-    const handleCompletePedido = async (id) => {
-        if (window.confirm(`¿Está seguro de finalizar el Pedido #${id}?`)) {
-            try {
-                await completePedidoAsync(id);
-                // La alerta se maneja con una notificación real en una app grande
-            } catch (e) {
-                alert(`Error al finalizar el Pedido #${id}.`);
-            }
-        }
-    };
-
-    
-    // --- ESTADOS PRINCIPALES ---
+    // --- ESTADOS ---
     const [formData, setFormData] = useState<VentaFormState>({
-        // Inicializa con datos del carrito o valores por defecto
-        cliente: initialData?.cliente || "",
-        telefono: initialData?.telefono || "",
-        direccion: initialData?.direccion || "",
+        cliente: "",
+        telefono: "",
+        direccion: "",
         metodoPago: MetodoPago.EFECTIVO,
         sucursalId: "", 
     });
     
-    // El estado de los items ahora se inicializará en el useEffect
     const [ventaItems, setVentaItems] = useState<CreateVentaItemDto[]>([]);
+    
+    // Estado para nuevo ítem (si permites agregar más cosas al pedido)
     const [newItem, setNewItem] = useState<NewItemState>({
-        selectedProductId: "",
+        selectedInventarioId: "",
+        selectedProductoId: "",
+        talla: "",
         cantidad: "1",
         precioUnitario: "",
     });
+
+    // Estado para tallas del producto seleccionado (para agregar nuevos items)
+    const [tallasDisponibles, setTallasDisponibles] = useState<Record<string, number>>({});
+
     const [errors, setErrors] = useState<Record<string, string>>({});
     
     // --- HOOKS DE DATOS ---
     const { sucursales = [], isLoading: isLoadingSucursales } = useSucursales(""); 
 
-    const sucursalIdStr = formData.sucursalId;
-    const sucursalIdNum = Number(sucursalIdStr);
-
+    const sucursalIdNum = Number(formData.sucursalId);
     const options = useMemo(() => ({ sucursalId: sucursalIdNum }), [sucursalIdNum]);
-    // El inventario depende de la sucursal seleccionada
     const { inventario = [], isLoading } = useInventarioSucursal(options); 
 
-    // --- MANEJO DE OPCIONES Y SELECCIÓN ---
-
-    const sucursalOptions = useMemo(() => {
-        return (sucursales as SucursalResponseDto[]).map(s => ({
+    // --- OPCIONES ---
+    const sucursalOptions = useMemo(() => 
+        (sucursales as SucursalResponseDto[]).map(s => ({
             value: String(s.id),
             label: `${s.nombre} (ID: ${s.id})`,
-        }));
-    }, [sucursales]);
+        }))
+    , [sucursales]);
 
-    const productoOptions = useMemo(() => {
-        return inventario.map(i => ({
+    const productoOptions = useMemo(() => 
+        inventario.map(i => ({
             value: String(i.id), 
-            label: `${i.producto.nombre} (Stock: ${i.stock}, Bs.${i.producto.precio})`,
-        }));
-    }, [inventario]);
+            label: `${i.producto.nombre} - Bs.${i.producto.precio}`,
+        }))
+    , [inventario]);
     
     const selectedInventarioItem = useMemo(() => {
-        const id = Number(newItem.selectedProductId);
+        const id = Number(newItem.selectedInventarioId);
         return inventario.find(i => i.id === id);
-    }, [inventario, newItem.selectedProductId]);
+    }, [inventario, newItem.selectedInventarioId]);
 
-    // --- CÁLCULOS DE LA VENTA ---
+    // Opciones de talla para el nuevo item
+    const tallaOptions = useMemo(() => 
+        Object.entries(tallasDisponibles)
+            .filter(([_, qty]) => qty > 0)
+            .map(([talla, qty]) => ({ value: talla, label: `${talla} (Disp: ${qty})` }))
+    , [tallasDisponibles]);
+
+    // --- CÁLCULOS ---
     const { subtotal, impuestos, total } = useMemo(() => {
         const sub = ventaItems.reduce((acc, item) => acc + (item.cantidad * item.precio), 0);
         const tax = sub * IMPUESTO_RATE;
@@ -164,57 +146,65 @@ const CrearVentaCarritoForm: React.FC<CrearVentaFormProps> = ({ visible, onClose
     }, [ventaItems]);
 
     // ----------------------------------------------------
-    // EFECTOS DE INICIALIZACIÓN Y CONTROL
+    // EFECTOS
     // ----------------------------------------------------
 
-    // 🎯 1. EFECTO PARA INICIALIZAR DESDE EL CARRITO
+    // 1. Inicializar desde Carrito
     useEffect(() => {
         if (initialData) {
-            // Mapear campos de cliente/contacto
-            setFormData(prev => ({
-                ...prev,
-                cliente: initialData.cliente || prev.cliente,
-                telefono: initialData.telefono || prev.telefono,
-                direccion: initialData.direccion || prev.direccion,
-            }));
+            // Llenar formulario y BLOQUEAR SU EDICIÓN (vía renderizado)
+            setFormData({
+                cliente: initialData.cliente || initialData.usuario?.nombre || "",
+                telefono: initialData.telefono || "",
+                direccion: initialData.direccion || "",
+                metodoPago: MetodoPago.EFECTIVO, // Default
+                // 🚨 ASUMIMOS: El carrito tiene un 'tiendaId' que mapea a una sucursal, 
+                // o necesitas lógica extra si el carrito es de "Tienda" pero se despacha de "Sucursal".
+                // Aquí uso tiendaId como sucursalId por simplicidad, ajústalo a tu lógica de negocio.
+                sucursalId: String(initialData.tiendaId), 
+            });
 
-            // Mapear CarritoItems a VentaItems
-            const initialVentaItems: CreateVentaItemDto[] = initialData.items.map(item => ({
+            // Mapear items asegurando la talla
+            const initialItems: CreateVentaItemDto[] = initialData.items.map(item => ({
                 productoId: item.productoId, 
                 cantidad: item.cantidad,
-                precio: item.precio,
-                // Si CreateVentaItemDto tiene campo para talla, usarlo:
-                // talla: item.talla,
+                precio: Number(item.precio), // Asegurar número
+                talla: item.talla || "UNICA", // ✅ IMPORTANTE: Rescatar la talla
             }));
             
-            setVentaItems(initialVentaItems);
-            
-            setNewItem({ selectedProductId: "", cantidad: "1", precioUnitario: "" });
-            
+            setVentaItems(initialItems);
         } else {
-             // Si no hay initialData, asegurar que los items estén vacíos para una venta normal
+            // Reset si es venta nueva
             setVentaItems([]);
+            setFormData(prev => ({...prev, cliente: "", sucursalId: ""}));
         }
     }, [initialData]); 
 
-    // 2. Resetea items y selección si la sucursal cambia (solo para ventas sin carrito inicial)
-    useEffect(() => {
-        if (!initialData) {
-            setVentaItems([]);
-            setNewItem({ selectedProductId: "", cantidad: "1", precioUnitario: "" });
-        }
-    }, [formData.sucursalId, initialData]); 
-
-    // 3. Actualiza el precio unitario cuando se selecciona un producto
+    // 2. Cargar Tallas al seleccionar producto (Para agregar extras)
     useEffect(() => {
         if (selectedInventarioItem) {
-            setNewItem(prev => ({ ...prev, precioUnitario: String(selectedInventarioItem.producto.precio) }));
+            try {
+                const stockObj = typeof selectedInventarioItem.stock === 'string' 
+                    ? JSON.parse(selectedInventarioItem.stock) 
+                    : selectedInventarioItem.stock;
+                setTallasDisponibles(stockObj || {});
+                setNewItem(prev => ({ 
+                    ...prev, 
+                    selectedProductoId: String(selectedInventarioItem.productoId),
+                    precioUnitario: String(selectedInventarioItem.producto.precio),
+                    talla: ""
+                }));
+            } catch (e) { setTallasDisponibles({}); }
         } else {
+            setTallasDisponibles({});
             setNewItem(prev => ({ ...prev, precioUnitario: "" }));
         }
     }, [selectedInventarioItem]);
 
-    // --- MANEJADORES ---
+    // ----------------------------------------------------
+    // MANEJADORES
+    // ----------------------------------------------------
+
     const handleFormChange = (field: keyof VentaFormState, value: string | MetodoPago) => {
         setFormData(prev => ({ ...prev, [field]: String(value) }));
     };
@@ -223,123 +213,150 @@ const CrearVentaCarritoForm: React.FC<CrearVentaFormProps> = ({ visible, onClose
         setNewItem(prev => ({ ...prev, [field]: value }));
     };
 
-    // --- LÓGICA DE ÍTEMS ---
-    const handleAddItem = () => {
-        const item = selectedInventarioItem;
-        const cantidad = Number(newItem.cantidad);
-        const precio = Number(newItem.precioUnitario);
+   // Asegúrate de que `const { showAlert } = useAlert();` esté al inicio del componente
 
-        if (!item || isNaN(cantidad) || cantidad <= 0 || isNaN(precio) || precio <= 0) {
-            alert("Seleccione un producto y complete la cantidad/precio válidos.");
-            return;
-        }
+  const handleAddItem = () => {
+    const cantidad = Number(newItem.cantidad);
+    const precio = Number(newItem.precioUnitario);
 
-        if (cantidad > item.stock) {
-            alert(`Stock insuficiente. Máximo disponible: ${item.stock}.`);
-            return;
-        }
+    // 1. Validación de campos
+    if (!newItem.selectedProductoId || !newItem.talla || isNaN(cantidad) || cantidad <= 0) {
+      showAlert("Por favor, selecciona un producto, una talla y una cantidad válida.", "warning");
+      return;
+    }
 
-        // 🚨 Verificar si el item ya está en la lista y actualizarlo o agregarlo
-        const existingIndex = ventaItems.findIndex(i => i.productoId === item.productoId);
-        
-        const newItemDto: CreateVentaItemDto = {
-            productoId: item.productoId,
-            cantidad: cantidad,
-            precio: precio,
-        };
-        
-        if (existingIndex > -1) {
-            // Si existe, actualizar la cantidad
-            setVentaItems(prev => prev.map((i, idx) => 
-                idx === existingIndex ? { ...i, cantidad: i.cantidad + cantidad } : i
-            ));
-        } else {
-            // Si no existe, agregar uno nuevo
-            setVentaItems(prev => [...prev, newItemDto]);
-        }
-        
-        // Resetear la selección
-        setNewItem({ selectedProductId: "", cantidad: "1", precioUnitario: "" });
+    // 2. Validación de Stock
+    const stockDisp = tallasDisponibles[newItem.talla] || 0;
+    
+    if (cantidad > stockDisp) {
+      
+      showAlert(`Stock insuficiente para la talla ${newItem.talla}. Solo hay ${stockDisp} unidades disponibles.`, "error");
+      return;
+    }
+
+    // 3. Crear el DTO
+    const newItemDto: CreateVentaItemDto = {
+        productoId: Number(newItem.selectedProductoId),
+        cantidad, 
+        precio, 
+        talla: newItem.talla
     };
 
+    // 4. Actualizar estado
+    // Nota: Aquí podrías agregar lógica para sumar cantidad si el ítem ya existe en la lista
+    setVentaItems(prev => [...prev, newItemDto]);
+    
+    // 5. Resetear campos (dejamos el producto seleccionado, limpiamos talla y cantidad)
+    setNewItem(prev => ({ ...prev, cantidad: "1", talla: "" }));
+  };
     const handleRemoveItem = (index: number) => {
+        if(initialData) return; // No permitir borrar items del pedido original si es estricto
         setVentaItems(prev => prev.filter((_, i) => i !== index));
     };
 
-    // --- VALIDACIÓN Y SUBMIT ---
+    // --- SUBMIT ---
     const validate = (): boolean => {
         const newErrors: Record<string, string> = {};
-        
-        if (!formData.cliente.trim()) newErrors.cliente = "El nombre del cliente es obligatorio.";
-        if (sucursalIdNum <= 0 || isNaN(sucursalIdNum)) newErrors.sucursalId = "Debe seleccionar una Sucursal.";
-        // Si viene de un carrito, permitimos que pase aunque no agregue más items
-        if (!initialData && ventaItems.length === 0) newErrors.items = "Debe agregar al menos un ítem a la venta.";
-
+        if (!formData.cliente.trim()) newErrors.cliente = "Cliente obligatorio.";
+        if (!formData.sucursalId) newErrors.sucursalId = "Sucursal obligatoria.";
+        if (ventaItems.length === 0) newErrors.items = "Sin ítems.";
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (validate()) {
-            try {
-                const dataToSend: CreateVentaDto = {
-                    cliente: formData.cliente.trim(),
-                    telefono: formData.telefono.trim() || undefined,
-                    direccion: formData.direccion.trim() || undefined,
-                    estado: ventaItems.length > 0 ? EstadoVenta.CONFIRMADA : EstadoVenta.PENDIENTE,
-                    metodoPago: formData.metodoPago,
-                    tiendaId: 1, 
-                    sucursalId: sucursalIdNum,
-                    subtotal: subtotal,
-                    impuestos: impuestos,
-                    total: total,
-                    items: ventaItems,
-                    
-                };
-                
-                await createVenta(dataToSend);
-                
-                alert(`✅ Venta registrada en Sucursal ${sucursalIdNum} por Bs.${total.toFixed(2)}.`);
-                handleCompletePedido(initialData.id);
-                
-                onClose();
-            } catch (error) {
-                alert("❌ Error al crear la venta.");
-                console.error("Error en submit:", error);
-            }
+   // 1. Asegúrate de tener el hook al inicio del componente
+  const { showAlert } = useAlert();
+
+  // ...
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    // 1. Validación del formulario
+    if (validate()) {
+      // 2. (Opcional pero recomendado) Validar stock global nuevamente aquí
+      
+
+      try {
+        const dataToSend: CreateVentaDto = {
+          cliente: formData.cliente.trim(),
+          telefono: formData.telefono.trim() || undefined,
+          direccion: formData.direccion.trim() || undefined,
+          estado: EstadoVenta.CONFIRMADA, 
+          metodoPago: formData.metodoPago,
+          tiendaId: 1, 
+          sucursalId: sucursalIdNum,
+          subtotal, 
+          impuestos, 
+          total,
+          items: ventaItems,
+        };
+        
+        // 3. Crear la Venta
+        await createVenta(dataToSend);
+        
+        // 4. Si viene de un carrito web, finalizar el pedido
+        if (initialData) {
+            await handleCompletePedido(initialData.id);
         }
-    };
+        
+        
+
+        // 5. ÉXITO
+        await showAlert(`Venta registrada con éxito desde Sucursal ${sucursalIdNum}.`, "success");
+        
+        onClose();
+
+      } catch (error: any) {
+        console.error("Error en submit:", error);
+        const msg = error?.message || "No se pudo registrar la venta.";
+        showAlert(msg, "error");
+      }
+    } else {
+      // 6. Validación fallida
+      showAlert("El formulario está incompleto. Por favor revisa los campos obligatorios.", "warning");
+    }
+  };
+
+  const handleCompletePedido = async (id: number) => {
+    try {
+       await completePedidoAsync(id);
+    } catch (e) {
+       console.error("Error finalizando pedido:", e);
+       // ⚠️ Advertencia: La venta se hizo, pero el estado web falló
+       await showAlert("La venta se creó, pero hubo un error actualizando el estado del pedido web.", "warning");
+    }
+  };
 
     // ----------------------------------------------------
-    // RENDERIZADO
+    // RENDER
     // ----------------------------------------------------
     const containerClasses = ["contenedorFormVenta", visible ? "visible" : "noVisible"].filter(Boolean).join(" ");
-    const isDisabled = isCreating || isLoadingSucursales || isLoading ;
-    const isClientDataDisabled = !!initialData || isDisabled; // Para bloquear campos de cliente si viene de carrito
+    const isDisabled = isCreating || isLoadingSucursales;
+    const isReadOnly = !!initialData; // Bloquear edición de datos base si viene de pedido
 
     return (
         <div className={containerClasses}>
             <div className="cuerpoVentaForm">
-                <h2>{initialData ? `Convertir Carrito #${initialData.id} a Venta` : "Registrar Nueva Venta"}</h2>
+                <Boton1 type="button" size="medium" variant="info" onClick={onClose}> Atrás </Boton1>
+
+                
+
+                <h2>{initialData ? `Finalizar Pedido #${initialData.id}` : "Nueva Venta"}</h2>
                 
                 <div className="formVenta">
                     <form onSubmit={handleSubmit}>
-                        
-                        {/* --- SECCIÓN SUCURSAL, CLIENTE Y DETALLES --- */}
+                        {/* DATOS CLIENTE */}
                         <fieldset className="seccionCliente">
-                            <legend>Datos del Cliente y Sucursal</legend>
+                            <legend>Datos del Cliente</legend>
                             <div className="form-row">
-                                {/* 🎯 COMBOBOX DE SUCURSALES */}
                                 <ComboBox1
-                                    label="Sucursal de Venta *"
+                                    label="Sucursal *"
                                     value={formData.sucursalId}
                                     onChange={(val) => handleFormChange("sucursalId", val)}
                                     options={sucursalOptions}
-                                    placeholder={isLoadingSucursales ? "Cargando sucursales..." : "Seleccione Sucursal"}
-                                    errorMessage={errors.sucursalId}
                                     required
-                                    disabled={isLoadingSucursales || isCreating}
+                                    disabled={isDisabled || isReadOnly} // 🔒 Bloqueado si es pedido
                                     width={220}
                                 />
                                 <ComboBox1
@@ -347,152 +364,98 @@ const CrearVentaCarritoForm: React.FC<CrearVentaFormProps> = ({ visible, onClose
                                     value={formData.metodoPago}
                                     onChange={(val) => handleFormChange("metodoPago", val as MetodoPago)}
                                     options={metodoPagoOptions}
-                                    placeholder="Seleccione Método"
                                     required
                                     width={220}
                                 />
                             </div>
-
-                            {/* 🚨 CAMPOS DE CLIENTE DESHABILITADOS SI VIENEN DEL CARRITO */}
-                            <InputText1 
-                                label="Cliente *" 
-                                value={formData.cliente} 
-                                onChange={(val) => handleFormChange("cliente", val)} 
-                                errorMessage={errors.cliente} 
-                                required 
-                                width={450} 
-                                disabled={isClientDataDisabled} 
-                            />
+                            <InputText1 label="Cliente *" value={formData.cliente} onChange={(val) => handleFormChange("cliente", val)} disabled={isReadOnly} required width={450} />
                             <div className="form-row">
-                                <InputText1 
-                                    label="Teléfono" 
-                                    value={formData.telefono} 
-                                    onChange={(val) => handleFormChange("telefono", val)} 
-                                    type="tel" 
-                                    width={220} 
-                                    disabled={isClientDataDisabled} 
-                                />
-                                <InputText1 
-                                    label="Dirección" 
-                                    value={formData.direccion} 
-                                    onChange={(val) => handleFormChange("direccion", val)} 
-                                    width={220} 
-                                    disabled={isClientDataDisabled} 
-                                />
+                                <InputText1 label="Teléfono" value={formData.telefono} onChange={(val) => handleFormChange("telefono", val)} disabled={isReadOnly} width={220} />
+                                <InputText1 label="Dirección" value={formData.direccion} onChange={(val) => handleFormChange("direccion", val)} disabled={isReadOnly} width={220} />
                             </div>
                         </fieldset>
 
-                        {/* --- SECCIÓN AGREGAR ÍTEMS (solo si no viene de carrito, o si se permite modificar) --- */}
-                        <fieldset className="seccionItems" disabled={!formData.sucursalId}>
-                            <legend>Agregar/Revisar Ítems (Desde Sucursal {formData.sucursalId || '...'})</legend>
+                       {initialData?.notas && (initialData.notas=="pagado"?
+                        <div style={{backgroundColor:"#a9ff9eff"}}>{initialData.notas.toUpperCase()}</div>:
+                        <div style={{backgroundColor:"#ffbebeff"}}>{initialData.notas.toUpperCase()}</div>
+                       )}
+
+                        {/* ITEMS DEL PEDIDO (Solo lectura si es pedido, o permitir agregar si lo deseas) */}
+                        <fieldset className="seccionItems">
+                            <legend>Detalle del Pedido</legend>
                             
-                            {/* Los ítems del carrito ya están cargados. Este bloque es para AGREGAR NUEVOS ITEMS */}
+                            {/* Si NO es pedido inicial, mostramos controles para agregar */}
                             {!initialData && (
-                                <div className="form-row-items">
+                                <div className="form-row-items" style={{alignItems:'flex-end', gap:'10px'}}>
                                     <ComboBox1
-                                        label="Producto *"
-                                        value={newItem.selectedProductId}
-                                        onChange={(val) => handleNewItemChange("selectedProductId", val)}
+                                        label="Producto"
+                                        value={newItem.selectedInventarioId}
+                                        onChange={(val) => handleNewItemChange("selectedInventarioId", val)}
                                         options={productoOptions}
-                                        placeholder={isLoading ? "Cargando inventario..." : "Seleccione Producto"}
-                                        required
-                                        disabled={isDisabled || !formData.sucursalId}
+                                        placeholder={isLoading ? "Cargando..." : "Buscar"}
                                         width={200}
                                     />
-                                    <InputText1
-                                        label="Cantidad *"
-                                        value={newItem.cantidad}
-                                        onChange={(val) => handleNewItemChange("cantidad", val)}
-                                        type="number" min={1} required
-                                        disabled={!selectedInventarioItem || isDisabled}
-                                        width={100}
-                                    />
-                                    <InputText1
-                                        label="Precio Unitario *"
-                                        value={newItem.precioUnitario}
-                                        onChange={(val) => handleNewItemChange("precioUnitario", val)}
-                                        type="number" min={0.01} step="0.01" required
-                                        disabled={true} // Se obtiene del producto
+                                    <ComboBox1
+                                        label="Talla"
+                                        value={newItem.talla}
+                                        onChange={(val) => handleNewItemChange("talla", val)}
+                                        options={tallaOptions}
+                                        placeholder="Talla"
+                                        disabled={!newItem.selectedInventarioId}
                                         width={120}
                                     />
-                                    <Boton1 onClick={handleAddItem} type="button" disabled={isDisabled || !selectedInventarioItem} style={{ alignSelf: 'flex-end' }}>
-                                        + Agregar
-                                    </Boton1>
+                                    <InputText1 label="Cant." value={newItem.cantidad} onChange={(val) => handleNewItemChange("cantidad", val)} type="number" width={80} />
+                                    <Boton1 type="button" onClick={handleAddItem} disabled={!newItem.talla}>+</Boton1>
                                 </div>
                             )}
 
-                            {/* --- TABLA DE ÍTEMS AGREGADOS --- */}
-                            {ventaItems.length > 0 ? (
-                                <div className="tablaItemsVenta-container"> 
-                                    <table className="tablaItemsVenta">
-                                        <thead>
-                                            <tr>
-                                                <th style={{ textAlign: 'left' }}>Producto</th>
-                                                <th style={{ width: '80px', textAlign: 'center' }}>Cantidad</th>
-                                                <th style={{ width: '120px', textAlign: 'right' }}>Precio Unit.</th>
-                                                <th style={{ width: '120px', textAlign: 'right' }}>Total</th>
-                                                <th style={{ width: '100px', textAlign: 'center' }}></th> 
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {ventaItems.map((item, index) => {
-                                                // Intentar obtener el nombre del producto del inventario cargado
-                                                const itemInventario = inventario.find(i => i.productoId === item.productoId);
-                                                const itemInfo = itemInventario?.producto.nombre || `ID ${item.productoId}`;
-                                                const totalItem = item.cantidad * item.precio;
-                                                
-                                                return (
-                                                    <tr key={index}>
-                                                        <td className="tablaItemsVenta-producto">
-                                                            <strong>{itemInfo}</strong>
+                            {/* TABLA DE ÍTEMS */}
+                            <div className="tablaItemsVenta-container" style={{marginTop:'15px'}}>
+                                <table className="tablaItemsVenta">
+                                    <thead>
+                                        <tr>
+                                            <th style={{textAlign:'left'}}>Producto</th>
+                                            <th style={{textAlign:'center'}}>Talla</th>
+                                            <th style={{textAlign:'center'}}>Cant.</th>
+                                            <th style={{textAlign:'right'}}>Subtotal</th>
+                                            {!initialData && <th></th>}
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {ventaItems.map((item, index) => {
+                                            // Buscamos nombre en inventario o usamos el del pedido original si no se cargó inventario aún
+                                            const nombre = inventario.find(i => i.productoId === item.productoId)?.producto.nombre 
+                                                           || initialData?.items.find(i => i.productoId === item.productoId)?.productoNombre 
+                                                           || `ID ${item.productoId}`;
+                                            return (
+                                                <tr key={index}>
+                                                    <td>{nombre}</td>
+                                                    <td style={{textAlign:'center'}}><span className="badge-talla">{item.talla}</span></td>
+                                                    <td style={{textAlign:'center'}}>{item.cantidad}</td>
+                                                    <td style={{textAlign:'right'}}>Bs.{(item.cantidad * item.precio).toFixed(2)}</td>
+                                                    {!initialData && (
+                                                        <td style={{textAlign:'center'}}>
+                                                            <button type="button" onClick={() => handleRemoveItem(index)} style={{color:'red'}}>X</button>
                                                         </td>
-                                                        <td style={{ textAlign: 'center' }}>{item.cantidad}</td>
-                                                        <td style={{ textAlign: 'right' }}>Bs.{item.precio.toFixed(2)}</td>
-                                                        <td style={{ textAlign: 'right' }}>
-                                                            <strong>Bs.{totalItem.toFixed(2)}</strong>
-                                                        </td>
-                                                        <td style={{ textAlign: 'center' }}>
-                                                            <Boton1 size="small" onClick={() => handleRemoveItem(index)} type="button" variant="danger">
-                                                                Remover
-                                                            </Boton1>
-                                                        </td>
-                                                    </tr>
-                                                );
-                                            })}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            ) : (
-                                <p className="alerta-items">
-                                    <span style={{ fontWeight: 'bold' }}>🛒 ¡Lista vacía!</span> Seleccione una Sucursal y agregue ítems. 
-                                    {errors.items && <span style={{color: 'red', marginLeft: '10px'}}>({errors.items})</span>}
-                                </p>
-                            )}
-                        </fieldset>
-
-                        {/* --- SECCIÓN TOTALES Y ENVÍO --- */}
-                        <fieldset className="seccionTotales">
-                            <legend>Resumen Final</legend>
-                            <div className="resumenTotales">
-                                <div>Subtotal: **Bs.{subtotal.toFixed(2)}**</div>
-                                <div>Impuestos ({IMPUESTO_RATE * 100}%): **Bs.{impuestos.toFixed(2)}**</div>
-                                <div>Total a Pagar: **Bs.{total.toFixed(2)}**</div>
+                                                    )}
+                                                </tr>
+                                            );
+                                        })}
+                                    </tbody>
+                                </table>
                             </div>
                         </fieldset>
-                        
-                        <Boton1
-                            type="submit"
-                            fullWidth
-                            size="large"
-                            disabled={isDisabled || ventaItems.length === 0}
-                            style={{ marginTop: '20px' }}
-                        >
-                            {isCreating ? "Registrando Venta..." : `Registrar Venta por Bs.${total.toFixed(2)}`}
+
+                        {/* TOTALES */}
+                        <div className="resumenTotales">
+                            <div>Total a Pagar: <strong style={{fontSize:'1.3em', color:'#007bff'}}>Bs.{total.toFixed(2)}</strong></div>
+                        </div>
+
+                        <Boton1 type="submit" fullWidth size="large" disabled={isDisabled} style={{ marginTop: '20px' }}>
+                            {isCreating ? "Procesando..." : "Confirmar Venta y Entregar"}
                         </Boton1>
 
-                        {createError && (
-                            <div className="error-alert">Error al registrar: {createError.message}</div>
-                        )}
+                        {createError && <div className="error-alert">{createError.message}</div>}
                     </form>
                 </div>
             </div>

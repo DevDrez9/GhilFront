@@ -7,6 +7,7 @@ import Boton1 from "~/componentes/Boton1";
 import TrabajoForm from "~/formularios/TrabajosForm/TrabajosForm.form";
 import FinalizarTrabajoForm from "~/formularios/TrabajosForm/TrabajoFinForm.form";
 import "./Trabajo.style.css";
+import { useAlert } from "~/componentes/alerts/AlertContext";
 
 // Define los tipos de estado para un mejor control y autocompletado.
 type EstadoTrabajo = "PENDIENTE" | "EN_PROCESO" | "COMPLETADO" | "CANCELADO";
@@ -25,21 +26,35 @@ const ProgressBar = ({ estado }: { estado: EstadoTrabajo }) => {
   };
 
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '15px' }}>
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: "8px",
+        marginTop: "15px",
+      }}
+    >
       {estados.map((step, index) => (
-        <div key={step} style={{ flex: 1, textAlign: 'center' }}>
-          <div style={{
-            height: '8px',
-            backgroundColor: getStatusColor(index),
-            borderRadius: '4px',
-            transition: 'background-color 0.3s'
-          }}></div>
-          <small style={{
-            marginTop: '4px',
-            color: index <= estadoActualIndex && estado !== "CANCELADO" ? '#333' : '#999',
-            fontWeight: index === estadoActualIndex ? 'bold' : 'normal'
-          }}>
-            {step.replace('_', ' ')}
+        <div key={step} style={{ flex: 1, textAlign: "center" }}>
+          <div
+            style={{
+              height: "8px",
+              backgroundColor: getStatusColor(index),
+              borderRadius: "4px",
+              transition: "background-color 0.3s",
+            }}
+          ></div>
+          <small
+            style={{
+              marginTop: "4px",
+              color:
+                index <= estadoActualIndex && estado !== "CANCELADO"
+                  ? "#333"
+                  : "#999",
+              fontWeight: index === estadoActualIndex ? "bold" : "normal",
+            }}
+          >
+            {step.replace("_", " ")}
           </small>
         </div>
       ))}
@@ -52,7 +67,9 @@ const ProgressBar = ({ estado }: { estado: EstadoTrabajo }) => {
  */
 const Trabajos = () => {
   // Estado para el filtro seleccionado en el dropdown.
-  const [filtroEstado, setFiltroEstado] = useState<EstadoTrabajo | "TODOS">("TODOS");
+  const [filtroEstado, setFiltroEstado] = useState<EstadoTrabajo | "TODOS">(
+    "TODOS"
+  );
 
   // Llama al hook `useTrabajos` pasándole el filtro de estado.
   // Si el filtro es "TODOS", se pasa `undefined` para que la API devuelva todos los trabajos.
@@ -67,22 +84,37 @@ const Trabajos = () => {
     iniciarTrabajo,
     isStarting,
   } = useTrabajos({
-    estado: filtroEstado === 'TODOS' ? undefined : filtroEstado,
+    estado: filtroEstado === "TODOS" ? undefined : filtroEstado,
   });
 
   // Estados para controlar la visibilidad de los modales (formularios).
   const [mostrarFormNuevo, setMostrarFormNuevo] = useState(false);
-  const [trabajoParaFinalizar, setTrabajoParaFinalizar] = useState<TrabajoResponseDto | null>(null);
+  const [trabajoParaFinalizar, setTrabajoParaFinalizar] =
+    useState<TrabajoResponseDto | null>(null);
 
   // --- MANEJADORES DE ACCIONES ---
 
+ // 1. Asegúrate de tener el hook
+  const { showAlert } = useAlert();
+
+  // ...
+
   const handleIniciar = async (id: number) => {
+    // Mantenemos la confirmación nativa
     if (window.confirm("¿Estás seguro de iniciar este trabajo?")) {
       try {
+        // 1. Ejecutar inicio
         await iniciarTrabajo(id);
-        alert("Trabajo iniciado correctamente.");
+
+        
+
+        // 2. ÉXITO
+        await showAlert("Trabajo iniciado correctamente.", "success");
+
       } catch (err: any) {
-        alert(`Error al iniciar el trabajo: ${err.message}`);
+        console.error("Error al iniciar:", err);
+        const msg = err?.message || "Error al iniciar el trabajo.";
+        showAlert(msg, "error");
       }
     }
   };
@@ -90,14 +122,21 @@ const Trabajos = () => {
   const handleDelete = async (id: number) => {
     if (window.confirm("¿Estás seguro de cancelar (eliminar) este trabajo?")) {
       try {
+        // 1. Ejecutar eliminación
         await deleteTrabajo(id);
-        alert("Trabajo eliminado correctamente.");
+
+        
+
+        // 2. ÉXITO
+        await showAlert("Trabajo eliminado correctamente.", "success");
+
       } catch (err: any) {
-        alert(`Error al eliminar: ${err.message}`);
+        console.error("Error al eliminar:", err);
+        const msg = err?.message || "Error al eliminar el trabajo.";
+        showAlert(msg, "error");
       }
     }
   };
-
   // --- RENDERIZADO DEL COMPONENTE ---
 
   if (isLoading) return <p>Cargando trabajos...</p>;
@@ -106,18 +145,18 @@ const Trabajos = () => {
   return (
     <>
       <div className="cuerpoTrabajos">
-        
         {/* Renderizado condicional de los formularios modales */}
         <TrabajoForm
           visible={mostrarFormNuevo}
           onClose={() => setMostrarFormNuevo(false)}
         />
         {trabajoParaFinalizar && (
-        <FinalizarTrabajoForm
-          visible={!!trabajoParaFinalizar}
-          trabajo={trabajoParaFinalizar}
-          onClose={() => setTrabajoParaFinalizar(null)}
-        />)}
+          <FinalizarTrabajoForm
+            visible={!!trabajoParaFinalizar}
+            trabajo={trabajoParaFinalizar}
+            onClose={() => setTrabajoParaFinalizar(null)}
+          />
+        )}
 
         <div className="titulo">
           <p>Trabajos</p>
@@ -128,25 +167,42 @@ const Trabajos = () => {
 
         {/* Selector para filtrar por estado */}
         <div style={{ margin: "20px 0", maxWidth: "300px" }}>
-          <label htmlFor="estado-select" style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>Filtrar por estado:</label>
+          <label
+            htmlFor="estado-select"
+            style={{
+              display: "block",
+              marginBottom: "8px",
+              fontWeight: "bold",
+            }}
+          >
+            Filtrar por estado:
+          </label>
           <select
             id="estado-select"
             value={filtroEstado}
-            onChange={(e) => setFiltroEstado(e.target.value as EstadoTrabajo | "TODOS")}
-            style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #ccc' }}
+            onChange={(e) =>
+              setFiltroEstado(e.target.value as EstadoTrabajo | "TODOS")
+            }
+            style={{
+              width: "100%",
+              padding: "10px",
+              borderRadius: "4px",
+              border: "1px solid #ccc",
+            }}
           >
             <option value="TODOS">Todos</option>
             <option value="PENDIENTE">Pendiente</option>
             <option value="EN_PROCESO">En Proceso</option>
             <option value="COMPLETADO">Completado</option>
-            
           </select>
         </div>
 
         <div style={{ display: "grid", gap: "20px", marginTop: "20px" }}>
           {trabajos.map((trabajo) => {
             // --- NUEVO: Obtenemos la URL de la imagen de forma segura ---
-            const imageUrl ="http://localhost:3000/uploads/productos/" +trabajo.parametrosTela?.producto?.imagenes?.[0]?.url;
+            const imageUrl =
+              "http://localhost:3000/uploads/productos/" +
+              trabajo.parametrosTela?.producto?.imagenes?.[0]?.url;
 
             return (
               <div
@@ -160,8 +216,13 @@ const Trabajos = () => {
                 }}
               >
                 {/* --- MODIFICADO: Contenedor principal ahora incluye la imagen --- */}
-                <div style={{ display: "flex", alignItems: "flex-start", gap: "20px" }}>
-                  
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "flex-start",
+                    gap: "20px",
+                  }}
+                >
                   {/* --- NUEVO: Contenedor de la imagen (se muestra solo si imageUrl existe) --- */}
                   {imageUrl && (
                     <div style={{ flexShrink: 0 }}>
@@ -173,47 +234,128 @@ const Trabajos = () => {
                           height: "100px",
                           borderRadius: "8px",
                           objectFit: "cover", // Asegura que la imagen cubra el espacio sin deformarse
-                          border: "1px solid #eee"
+                          border: "1px solid #eee",
                         }}
                       />
                     </div>
                   )}
 
                   {/* Contenedor para los detalles y los botones (ocupa el espacio restante) */}
-                  <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "15px" }}>
+                  <div
+                    style={{
+                      flex: 1,
+                      display: "flex",
+                      flexDirection: "column",
+                    }}
+                  >
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "flex-start",
+                        gap: "15px",
+                      }}
+                    >
                       <div style={{ flex: 1 }}>
                         <h3 style={{ margin: "0 0 12px 0", color: "#333" }}>
                           {trabajo.codigoTrabajo}
                         </h3>
-                        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "10px", fontSize: "14px" }}>
-                          <div><strong>Modelo:</strong> {trabajo.parametrosTela?.nombreModelo}</div>
-                          <div><strong>Costurero:</strong> {trabajo.costurero ? `${trabajo.costurero.nombre} ${trabajo.costurero.apellido}` : 'Sin asignar'}</div>
-                          <div><strong>Cantidad Solicitada:</strong> {trabajo.cantidad}</div>
-                          <div><strong>Peso Total Tela:</strong> {trabajo.pesoTotal} kg</div>
+                        <div
+                          style={{
+                            display: "grid",
+                            gridTemplateColumns:
+                              "repeat(auto-fit, minmax(200px, 1fr))",
+                            gap: "10px",
+                            fontSize: "14px",
+                          }}
+                        >
+                          <div>
+                            <strong>Modelo:</strong>{" "}
+                            {trabajo.parametrosTela?.nombreModelo}
+                          </div>
+                          <div>
+                            <strong>Costurero:</strong>{" "}
+                            {trabajo.costurero
+                              ? `${trabajo.costurero.nombre} ${trabajo.costurero.apellido}`
+                              : "Sin asignar"}
+                          </div>
+                          <div>
+                            <strong>Cantidad Solicitada:</strong>{" "}
+                            {trabajo.cantidad}
+                          </div>
+                          <div>
+                            <strong>Peso Total Tela:</strong>{" "}
+                            {trabajo.pesoTotal} kg
+                          </div>
                           {trabajo.trabajoFinalizado && (
-                            <div><strong>Cantidad Producida:</strong> {trabajo.trabajoFinalizado.cantidadProducida}</div>
+                            <div>
+                              <strong>Cantidad Producida:</strong>{" "}
+                              {trabajo.trabajoFinalizado.cantidadProducida}
+                            </div>
                           )}
                         </div>
                       </div>
 
-                      <div style={{ display: "flex", flexDirection: "column", gap: "8px", minWidth: "120px" }}>
+                      <div
+                        style={{
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: "8px",
+                          minWidth: "120px",
+                        }}
+                      >
                         {trabajo.estado === "PENDIENTE" && (
-                          <button onClick={() => handleIniciar(trabajo.id)} disabled={isStarting} className="btn-accion btn-iniciar">
+                          <button
+                            onClick={() => handleIniciar(trabajo.id)}
+                            disabled={isStarting}
+                            className="btn-accion btn-iniciar"
+                          >
                             {isStarting ? "Iniciando..." : "Iniciar Proceso"}
                           </button>
                         )}
                         {trabajo.estado === "EN_PROCESO" && (
-                          <button onClick={() => setTrabajoParaFinalizar(trabajo)} className="btn-accion btn-finalizar">
+                          <button
+                            onClick={() => {
+                              // 1. Obtener fechas
+                              const fechaActual = new Date();
+                              const fechaEstimada = new Date(
+                                trabajo.fechaFinEstimada
+                              );
+
+                              // 2. Normalizar horas (opcional pero recomendado)
+                              // Esto hace que la comparación sea por DÍA, ignorando la hora exacta.
+                              // Si quieres comparar hora exacta, borra estas dos líneas.
+                              fechaActual.setHours(0, 0, 0, 0);
+                              fechaEstimada.setHours(0, 0, 0, 0);
+
+                              // 3. Validación: Si Hoy es ANTES (<) que la Estimada
+                              if (fechaActual < fechaEstimada) {
+  
+  
+  showAlert(
+    `⚠️ No puedes finalizar este trabajo todavía. La fecha estimada es el ${fechaEstimada.toLocaleDateString()}. Debes esperar a esa fecha para finalizarlo.`,
+    "warning"
+  );
+  return; // ⛔ Detiene la ejecución aquí
+}
+                              // 4. Si la fecha es igual o mayor, permite continuar
+                              setTrabajoParaFinalizar(trabajo);
+                            }}
+                            className="btn-accion btn-finalizar"
+                          >
                             Finalizar
                           </button>
                         )}
-                        <button onClick={() => handleDelete(trabajo.id)} disabled={isDeleting} className="btn-accion btn-eliminar">
+                        <button
+                          onClick={() => handleDelete(trabajo.id)}
+                          disabled={isDeleting}
+                          className="btn-accion btn-eliminar"
+                        >
                           {isDeleting ? "Eliminando..." : "Eliminar"}
                         </button>
                       </div>
                     </div>
-                    
+
                     {/* La barra de progreso ahora está dentro de este contenedor flex */}
                     <ProgressBar estado={trabajo.estado as EstadoTrabajo} />
                   </div>
@@ -225,7 +367,16 @@ const Trabajos = () => {
 
         {/* Mensaje cuando no se encuentran trabajos */}
         {trabajos.length === 0 && (
-          <div style={{ textAlign: "center", padding: "60px 20px", color: "#666", backgroundColor: "#f8f9fa", borderRadius: "8px", marginTop: "20px" }}>
+          <div
+            style={{
+              textAlign: "center",
+              padding: "60px 20px",
+              color: "#666",
+              backgroundColor: "#f8f9fa",
+              borderRadius: "8px",
+              marginTop: "20px",
+            }}
+          >
             <h3>No se encontraron trabajos</h3>
             <p>No hay resultados que coincidan con el filtro seleccionado.</p>
           </div>
@@ -233,7 +384,15 @@ const Trabajos = () => {
 
         {/* Indicador del total de trabajos */}
         {trabajos.length > 0 && (
-          <div style={{ textAlign: "center", marginTop: "20px", padding: "15px", backgroundColor: "#e7f3ff", borderRadius: "8px" }}>
+          <div
+            style={{
+              textAlign: "center",
+              marginTop: "20px",
+              padding: "15px",
+              backgroundColor: "#e7f3ff",
+              borderRadius: "8px",
+            }}
+          >
             Mostrando {trabajos.length} trabajos de un total de {total}
           </div>
         )}

@@ -7,6 +7,7 @@ import Switch1 from "~/componentes/switch1";
 import { useUsuarios } from "~/hooks/useUsuarios";
 import { CreateUsuarioDto, Rol, UpdateUsuarioDto, UsuarioResponseDto } from "~/models/usuario"; // Asegúrate de tener UpdateUsuarioDto
 import "./UsuarioEdita.style.css"
+import { useAlert } from "~/componentes/alerts/AlertContext";
 
 // ----------------------------------------------------
 // DTOs y Tipos Requeridos (ASUMIDOS)
@@ -135,37 +136,54 @@ const EditarUsuarioForm: React.FC<EditarUsuarioFormProps> = ({ visible, onClose,
     // SUBMIT (ACTUALIZAR)
     // ----------------------------------------------------
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!initialData) return; // No hacer nada si no hay datos iniciales
+   // 1. Importar el hook
+  const { showAlert } = useAlert();
+
+  // ...
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!initialData) return; // Validación de seguridad
+
+    // 1. Validación del formulario
+    if (validate()) {
+      try {
+        // 2. Preparar DTO
+        const dataToSend: UpdateUsuarioDto = {
+          email: formData.email.trim(),
+          nombre: formData.nombre.trim(),
+          apellido: formData.apellido.trim() || undefined,
+          rol: formData.rol,
+          telefono: formData.telefono.trim() || undefined,
+          activo: formData.isActive,
+          // Si manejas cambio de contraseña aquí, asegúrate de incluirla solo si no está vacía
+        };
         
-        if (validate()) {
-            try {
-                // 🚨 Crear el DTO de actualización
-                const dataToSend: UpdateUsuarioDto = {
-                    email: formData.email.trim(),
-                    nombre: formData.nombre.trim(),
-                    apellido: formData.apellido.trim() || undefined,
-                    rol: formData.rol,
-                    telefono: formData.telefono.trim() || undefined,
-                    activo: formData.isActive,
-                    // Incluir la contraseña SOLO si se proporcionó
-                    
-                };
-                
-                // 🚨 Llamar a la función de actualización y pasar el ID
-                await updateUsuario({id:initialData.id,data: dataToSend}); 
-                
-                alert(`✅ Usuario ${initialData.email} actualizado con éxito.`);
-                onClose();
+        // 3. Ejecutar actualización
+        await updateUsuario({ 
+            id: initialData.id, 
+            data: dataToSend 
+        });
+        
+        
 
-            } catch (error) {
-                alert("❌ Error al actualizar el usuario.");
-                console.error("Error en submit:", error);
-            }
-        }
-    };
+        // 4. ÉXITO
+        await showAlert(`Usuario ${initialData.email} actualizado con éxito.`, "success");
+        
+        onClose();
 
+      } catch (error: any) {
+        console.error("Error en submit:", error);
+        
+        // 5. ERROR
+        const msg = error?.message || "Error al actualizar el usuario.";
+        showAlert(msg, "error");
+      }
+    } else {
+      // 6. Validación fallida
+      showAlert("El formulario contiene errores. Por favor revísalos.", "warning");
+    }
+  };
     // ----------------------------------------------------
     // RENDERIZADO
     // ----------------------------------------------------

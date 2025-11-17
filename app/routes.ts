@@ -26,10 +26,12 @@ export default [
            route("configWeb","./SubPages/ConfigWeb/ConfigWeb.subpage.tsx"),
              route("tienda","./SubPages/Tienda/Tienda.subpage.tsx"),
               route("carrito","./SubPages/Carrito/CarritoSubPage.subpage.tsx"),
+              route("hitorialCompraTelas","./SubPages/HistorialTelas/HistorialComprasTela.tsx"),
               route("reporteVentas","./reportes/ReporteVentas/reporteVentas.reporte.tsx"),
               route("reporteTienda","./reportes/ReporteTienda/ReporteTienda.tsx"),
                route("reporteInventarioSucursal","./reportes/ReporteInventarioSucursal/ReporteInventarioSucursal.tsx"),
         route("reporteTranajosFinlaizados","./reportes/ReporteTrabajos/ReporteTrabajos.tsx"),
+        route("reporteWeb","./reportes/ReporteWeb/ReporteWeb.tsx"),
               
 
         

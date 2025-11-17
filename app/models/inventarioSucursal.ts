@@ -3,7 +3,7 @@ export class InventarioSucursalResponseDto {
   productoId: number;
   sucursalId: number;
   tiendaId: number;
-  stock: number;
+  stock: string;
   stockMinimo: number;
   createdAt: Date;
   updatedAt: Date;

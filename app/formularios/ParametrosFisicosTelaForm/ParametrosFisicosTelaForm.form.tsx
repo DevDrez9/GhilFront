@@ -4,6 +4,7 @@ import Switch1 from "~/componentes/switch1";
 import InputText1 from "~/componentes/InputText1";
 import Boton1 from "~/componentes/Boton1";
 import { useParametrosFisicosTelas } from "~/hooks/useParametrosFisicosTelas";
+import { useAlert } from "~/componentes/alerts/AlertContext";
 
 interface ParametroFisicosTelaFormProps {
   visible: boolean;
@@ -52,27 +53,36 @@ const ParametroFisicosTelaForm: React.FC<ParametroFisicosTelaFormProps> = ({ vis
     return Object.keys(newErrors).length === 0;
   };
 
+  // 1. Importar el hook
+  const { showAlert } = useAlert();
+
+  // ...
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (validate()) {
-      try {
-         await createParametro(formDataParametrosFisicosTela);
 
-          if(isCreating){
-            alert("No se pudo crear la presentacion")
-         }else{
-            alert("Presentacion creada correctamente")
-            window.location.reload();
-             onClose();
-         }
-       
-      } catch {
-        alert("No se pudo guardar el proveedor");
-      }
+    // 1. Validación inicial
+    if (!validate()) {
+      showAlert("Por favor, revisa los campos del formulario.", "warning");
+      return;
+    }
 
-      //
-    } else {
-      console.log("no valido ");
+    try {
+      // 2. Intentar crear
+      await createParametro(formDataParametrosFisicosTela);
+
+      // 3. SI LLEGA AQUÍ, FUE EXITOSO (No necesitas verificar isCreating)
+      await showAlert("Presentación creada correctamente.", "success");
+      
+      onClose();
+      // Recarga la página (aunque lo ideal sería recargar solo los datos con el hook)
+      window.location.reload(); 
+
+    } catch (error: any) {
+      // 4. SI FALLA, CAE AQUÍ
+      console.error(error);
+      const msg = error?.message || "No se pudo guardar el parámetro/presentación.";
+      showAlert(msg, "error");
     }
   };
 

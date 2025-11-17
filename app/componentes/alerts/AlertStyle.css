@@ -1,0 +1,56 @@
+/* src/context/AlertStyle.css */
+.alert-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* Fondo oscuro transparente */
+  backdrop-filter: blur(2px); /* Efecto borroso de fondo */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999; /* Por encima de todo */
+  animation: fadeIn 0.2s ease-out;
+}
+
+.alert-modal {
+  background: white;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  width: 90%;
+  max-width: 400px;
+  text-align: center;
+  animation: slideUp 0.3s ease-out;
+  border: 1px solid #e0e0e0;
+}
+
+.alert-icon {
+  font-size: 3rem;
+  margin-bottom: 15px;
+  display: block;
+}
+
+.alert-message {
+  font-size: 1.1rem;
+  color: #333;
+  margin-bottom: 25px;
+  line-height: 1.5;
+}
+
+/* Animaciones */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* Variaciones de tipo (opcional si quieres bordes de color) */
+.alert-modal.error { border-top: 5px solid #dc3545; }
+.alert-modal.success { border-top: 5px solid #28a745; }
+.alert-modal.info { border-top: 5px solid #007bff; }

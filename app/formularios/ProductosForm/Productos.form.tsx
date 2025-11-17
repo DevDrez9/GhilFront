@@ -15,6 +15,7 @@ import { useProveedores } from "~/hooks/useProveedores"; // Asume que este hook 
 // Modelos/DTOs
 import { CreateImagenProductoDto } from "~/models/productoCreate"; 
 import "./Productos.style.css"
+import { useAlert } from "~/componentes/alerts/AlertContext";
 
 
 // Interfaces y Tipos
@@ -72,6 +73,7 @@ const ProductoForm: React.FC<ProductoFormProps> = ({ visible, onClose }) => {
         stock: undefined as number | undefined,
         stockMinimo: undefined as number | undefined,
         sku: "",
+        tallas:"",
         imagenUrl: "",
         categoriaId: 0, 
         subcategoriaId: undefined as number | undefined,
@@ -164,31 +166,55 @@ const subcategoriasDisponibles = useMemo(() => {
         return Object.keys(newErrors).length === 0;
     };
     
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (validate()) {
-          try {
-            const dataToSend = {
-              ...formData,
-              precio: Number(formData.precio),
-              precioOferta: formData.precioOferta ? Number(formData.precioOferta) : undefined,
-              stock: formData.stock ? Number(formData.stock) : undefined,
-              stockMinimo: formData.stockMinimo ? Number(formData.stockMinimo) : undefined,
-              categoriaId: Number(formData.categoriaId),
-              subcategoriaId: formData.subcategoriaId ? Number(formData.subcategoriaId) : undefined,
-              tiendaId: 1, 
-              proveedorId: formData.proveedorId ? Number(formData.proveedorId) : undefined,
-              imagenes: imagenesBase64Nuevos.length > 0 ? imagenesBase64Nuevos : undefined,
-            };
-            
-            await createProducto(dataToSend as any); 
-            onClose();
-          } catch (error) {
-            alert("No se pudo guardar el producto. Verifique los datos.");
-            console.error("Error al guardar:", error);
-          }
-        }
-    };
+    // 1. Asegúrate de tener el hook al inicio del componente
+  const { showAlert } = useAlert();
+
+  // ...
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (validate()) {
+      try {
+        // 2. Preparar el objeto de datos
+        const dataToSend = {
+          ...formData,
+          // Conversiones numéricas
+          precio: Number(formData.precio),
+          precioOferta: formData.precioOferta ? Number(formData.precioOferta) : undefined,
+          stock: formData.stock ? Number(formData.stock) : undefined,
+          stockMinimo: formData.stockMinimo ? Number(formData.stockMinimo) : undefined,
+          
+          // IDs relacionados
+          categoriaId: Number(formData.categoriaId),
+          subcategoriaId: formData.subcategoriaId ? Number(formData.subcategoriaId) : undefined,
+          tiendaId: 1, // Ojo: Si esto es dinámico, asegúrate de obtenerlo del contexto
+          proveedorId: formData.proveedorId ? Number(formData.proveedorId) : undefined,
+          
+          // Imágenes (Solo enviamos si hay nuevas)
+          imagenes: imagenesBase64Nuevos.length > 0 ? imagenesBase64Nuevos : undefined,
+        };
+
+        // 3. Ejecutar la creación
+        await createProducto(dataToSend as any);
+
+        // 
+        // 4. ÉXITO: Notificar y cerrar
+        await showAlert("Producto guardado exitosamente.", "success");
+        onClose();
+
+      } catch (error: any) {
+        console.error("Error al guardar:", error);
+        
+        // 5. ERROR: Mostrar mensaje específico
+        const errorMsg = error?.message || "No se pudo guardar el producto. Verifique los datos.";
+        showAlert(errorMsg, "error");
+      }
+    } else {
+      // 6. Validación fallida
+      showAlert("El formulario tiene errores. Revise los campos obligatorios.", "warning");
+    }
+  };
     
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (!e.target.files) return;
@@ -278,9 +304,19 @@ const subcategoriasDisponibles = useMemo(() => {
                                     width={450}
                                 />
                                 <InputText1
-                                    label="Tallas"
+                                    label="Sku"
                                     value={formData.sku}
                                     onChange={(val) => handleChange("sku", val)}
+                                    type="text"
+                                    width={450}
+                                    placeholder="Añadir sku para identificar"
+                                    
+                                    
+                                />
+                                <InputText1
+                                    label="Tallas"
+                                    value={formData.tallas}
+                                    onChange={(val) => handleChange("tallas", val)}
                                     type="text"
                                     width={450}
                                     placeholder="Añadir tallas separadas por coma (S,L,M)"

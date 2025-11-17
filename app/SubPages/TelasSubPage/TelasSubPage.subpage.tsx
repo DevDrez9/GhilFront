@@ -6,6 +6,7 @@ import InputText1 from "~/componentes/InputText1";
 import TelasForm from "~/formularios/TelasForm/TelasForm.form";
 import type { TelaResponseDto } from "~/models/telas.model";
 import TelasFormUpDate from "~/formularios/TelasForm/TelasFormUpDate.form";
+import { useAlert } from "~/componentes/alerts/AlertContext";
 
 const TelasSubPage = () => {
     const [filters, setFilters] = useState({
@@ -53,19 +54,31 @@ const TelasSubPage = () => {
     setFilters(prev => ({ ...prev, [field]: value }));
   };
 
+ // 1. Asegúrate de tener el hook
+  const { showAlert } = useAlert();
+
+  // ...
+
   const handleDelete = async (id: number, nombre: string) => {
+    // Mantenemos la confirmación nativa
     if (window.confirm(`¿Estás seguro de eliminar la tela "${nombre}"?`)) {
       try {
+        // 1. Ejecutar eliminación
         await deleteTela(id);
-        if(deleteError){
-          alert(deleteError.message)
-         
-        }else{
- alert('Tela eliminada correctamente');
-        }
-       
-      } catch (error) {
-        alert('Error al eliminar tela');
+
+        
+
+        // 2. ÉXITO
+        await showAlert('Tela eliminada correctamente.', 'success');
+
+      } catch (error: any) {
+        console.error("Error al eliminar:", error);
+        
+        // 3. ERROR
+        // Intentamos leer el mensaje del error capturado o del estado del hook
+        const msg = error?.message || deleteError?.message || 'Error al eliminar tela.';
+        
+        showAlert(msg, 'error');
       }
     }
   };

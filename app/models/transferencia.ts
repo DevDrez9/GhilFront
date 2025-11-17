@@ -33,7 +33,7 @@ export class CreateTransferenciaInventarioDto {
   origenId!: number; 
   destinoTipo!: TipoDestinoTransferencia;
   destinoId!: number; // ID de la sucursal (tienda)
-  cantidad!: number;
+  cantidad!: Record<string, number>;
   productoId!: number;
   usuarioId!: number;
 }

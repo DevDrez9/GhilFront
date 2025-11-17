@@ -8,6 +8,7 @@ import InputText1 from "~/componentes/InputText1";
 import Boton1 from "~/componentes/Boton1";
 import { useCostureros } from "~/hooks/useCostureros";
 import { EstadoCosturero, type CreateCostureroDto } from "~/models/costureros";
+import { useAlert } from "~/componentes/alerts/AlertContext";
 
 interface CostureroFormProps {
   visible: boolean;
@@ -88,57 +89,52 @@ const CostureroForm: React.FC<CostureroFormProps> = ({ visible, onClose }) => {
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
+  const { showAlert } = useAlert();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+ const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-     // Asumimos que tienes el DTO final listo para ser enviado (ej. con campos numéricos convertidos)
+    // 1. Validación inicial
+    if (!validate()) {
+      showAlert("Por favor, revisa los campos marcados en rojo.", "warning");
+      return;
+    }
+
+    // 2. Preparar datos (Solo si validó correctamente)
     const dataToSend = {
-      // 🚨 IMPORTANTE: Asegúrate de hacer las conversiones de tipo aquí 
-      // si tu backend espera números (ej. tiendaId) o fechas (ej. fechaInicio)
       ...formDataCosturero,
-      tiendaId: Number(formDataCosturero.tiendaId), // Ejemplo de conversión
-      fechaInicio: new Date(formDataCosturero.fechaInicio), // Ejemplo de conversión
-      // El resto de campos (nombre, apellido, etc.) pasan directo.
-    }
+      tiendaId: Number(formDataCosturero.tiendaId),
+      fechaInicio: new Date(formDataCosturero.fechaInicio),
+    };
 
-    if (validate()) {
-     try {
-        // 1. Ejecutar la mutación. Si es exitosa, continuamos.
-        await createCostureroAsync(dataToSend);
+    try {
+      // 3. Ejecutar la mutación
+      await createCostureroAsync(dataToSend);
 
-        // 2. ÉXITO: Si la línea anterior no lanzó un error, fue exitoso.
-        
-        // Limpiar el formulario
-        setFormData({
-            nombre: "",
-            apellido: "",
-            telefono: "",
-            email: "",
-            direccion: "",
-            estado: EstadoCosturero.ACTIVO,
-            fechaInicio: new Date().toISOString(),
-            nota: "",
-            tiendaId: 1,
-        });
-        
-        // Cerrar el modal o notificar éxito
-        alert("Costurero creado correctamente.");
-        onClose();
+      // 4. Limpiar el formulario
+      setFormData({
+        nombre: "",
+        apellido: "",
+        telefono: "",
+        email: "",
+        direccion: "",
+        estado: EstadoCosturero.ACTIVO, // Asegúrate que este enum esté importado
+        fechaInicio: new Date().toISOString().split('T')[0], // Formato YYYY-MM-DD para inputs date
+        nota: "",
+        tiendaId: 1,
+      });
 
-    } catch (error) {
-        // 3. ERROR: Si la promesa se rechaza (por error de la API o de red), 
-        // el control salta a este bloque.
-        
-        // Acceder al mensaje de error
-        const errorMessage = (error as Error)?.message || "Ocurrió un error desconocido al crear el costurero.";
-        
-        // Mostrar el error
-        alert(`❌ Error al crear: ${errorMessage}`);
-        console.error("Fallo en la creación del costurero:", error);
-    }
-    } else {
-      console.log("Formulario no válido");
+      // 
+      // 5. Notificar éxito y cerrar
+      await showAlert("Costurero creado correctamente.", "success");
+      onClose();
+
+    } catch (error: any) {
+      // 6. Manejo de errores
+      const errorMessage = error?.message || "Ocurrió un error desconocido al crear el costurero.";
+      
+      console.error("Fallo en la creación:", error);
+      showAlert(`Error al crear: ${errorMessage}`, "error");
     }
   };
 
@@ -200,7 +196,7 @@ const CostureroForm: React.FC<CostureroFormProps> = ({ visible, onClose }) => {
                   label="Teléfono"
                   value={formDataCosturero.telefono}
                   onChange={(val) => handleChange("telefono", val)}
-                  type="tel"
+                  type="number"
                   width={220}
                 />
                 <InputText1

@@ -6,6 +6,7 @@ import { useState } from "react";
 import type { ParametrosTelaResponseDto } from "~/models/ParametrosTela";
 import ParametrosTelaForm from "~/formularios/ParametrosTela/ParametrosTela.form";
 import EditarParametrosTelaForm from "~/formularios/ParametrosTela/EditarParametroTela.form";
+import { useAlert } from "~/componentes/alerts/AlertContext";
 // Asegúrate de crear los formularios correspondientes si los necesitas
 // import ParametroTelaForm from "~/formularios/ParametroTelaForm/ParametroTela.form";
 // import ParametroTelaUpdateForm from "~/formularios/ParametroTelaForm/ParametroTelaUpdate.form";
@@ -41,13 +42,29 @@ const ParametrosTela = () => {
     setDebouncedSearch("");
   };
 
+ // 1. Asegúrate de tener el hook
+  const { showAlert } = useAlert();
+
+  // ...
+
   const handleDelete = async (id: number) => {
+    // Mantenemos la confirmación nativa
     if (window.confirm("¿Estás seguro de eliminar este parámetro de tela?")) {
       try {
+        // 1. Ejecutar eliminación
         await deleteParametroTela(id);
-        alert("Parámetro de tela eliminado correctamente");
-      } catch (error) {
-        alert("Error al eliminar el parámetro de tela");
+
+        
+
+        // 2. ÉXITO
+        await showAlert("Parámetro de tela eliminado correctamente.", "success");
+
+      } catch (error: any) {
+        console.error("Error al eliminar:", error);
+        
+        // 3. ERROR
+        const msg = error?.message || "Error al eliminar el parámetro de tela.";
+        showAlert(msg, "error");
       }
     }
   };
@@ -147,9 +164,50 @@ const ParametrosTela = () => {
                     <div>
                       <strong>Tela recomendada:</strong> {parametro.tela?.tela?.nombreComercial +" "+parametro.tela?.color}
                     </div>
-                    <div>
-                      <strong>Consumo por talla:</strong> {convertirJSON(parametro.consumoTelaPorTalla)}
-                    </div>
+                   <div>
+  <strong>Consumo por talla:</strong>
+  
+  <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '5px' }}>
+    {(() => {
+      let data = parametro.consumoTelaPorTalla;
+      let obj: Record<string, any> = {};
+
+      // 1. Verificar y parsear si es un string
+      if (typeof data === 'string') {
+        try {
+          obj = JSON.parse(data);
+        } catch (e) {
+          // Si es un string pero no un JSON válido, mostrar el string tal cual
+          return <span style={{ color: '#888' }}>{data}</span>;
+        }
+      } 
+      // 2. Si ya es un objeto, usarlo directamente
+      else if (typeof data === 'object' && data !== null) {
+        obj = data;
+      }
+
+      // 3. Renderizar el objeto
+      const entries = Object.entries(obj);
+      if (entries.length === 0) {
+        return <span style={{ color: '#888' }}>No definido</span>;
+      }
+
+      return entries.map(([talla, consumo]) => (
+        <span 
+          key={talla} 
+          style={{ 
+            background: '#e9ecef', 
+            padding: '4px 10px', 
+            borderRadius: '12px', 
+            fontSize: '0.9em' 
+          }}
+        >
+          <strong style={{ color: '#0056b3' }}>{talla}</strong>: {String(consumo)}
+        </span>
+      ));
+    })()}
+  </div>
+</div>
                     {/*<div>
                       <strong>Tallas disponibles:</strong> {parametro.tallasDisponibles}
                     </div>*/}

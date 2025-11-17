@@ -5,6 +5,7 @@ import InputText1 from "~/componentes/InputText1";
 import Boton1 from "~/componentes/Boton1";
 import { useProveedores } from "~/hooks/useProveedores";
 import { useTelas } from "~/hooks/useTelas";
+import { useAlert } from "~/componentes/alerts/AlertContext";
 
 interface TelasFormProps {
   visible: boolean;
@@ -61,32 +62,40 @@ const TelasForm: React.FC<TelasFormProps> = ({ visible, onClose, }) => {
     return Object.keys(newErrors).length === 0;
   };
 
+ // 1. Importar el hook
+  const { showAlert } = useAlert();
+
+  // ...
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (validate()) {
-     
-      try{
-        
-        let respuesta =await createTela(formDataTelas);
-        if(isCreating){
-          alert("Tela no creada correctamente")
-         ;
-        }else{
-          alert("Tela creada correctamente")
-           onClose();
-        }
-      
-      }catch{
-        alert("No se pudo guardar el proveedor")
-      }
-       
 
-      //
+    // 1. Validación
+    if (validate()) {
+      try {
+        // 2. Ejecutar la creación
+        await createTela(formDataTelas);
+
+        // 3. ÉXITO
+        // Si llegamos aquí, la tela se guardó correctamente en el backend
+        
+        await showAlert("Tela creada correctamente.", "success");
+        
+        onClose();
+
+      } catch (error: any) {
+        console.error("Error al crear tela:", error);
+        
+        // 4. ERROR
+        const msg = error?.message || "No se pudo guardar la tela.";
+        showAlert(msg, "error");
+      }
+
     } else {
-      console.log("no valido ");
+      // 5. Validación fallida
+      showAlert("El formulario no es válido. Revisa los campos requeridos.", "warning");
     }
   };
-
   return (
     <>
       <div className={containerClasses}>

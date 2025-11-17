@@ -5,6 +5,7 @@ import InputText1 from "~/componentes/InputText1";
 import Boton1 from "~/componentes/Boton1";
 import { useParametrosFisicosTelas } from "~/hooks/useParametrosFisicosTelas";
 import type { ParametrosFisicosTelaResponseDto } from "~/models/parametrosFisicosTela";
+import { useAlert } from "~/componentes/alerts/AlertContext";
 
 interface ParametroFisicosTelaUpDateFormProps {
   visible: boolean;
@@ -69,29 +70,42 @@ const ParametroFisicosTelaUpDateForm: React.FC<ParametroFisicosTelaUpDateFormPro
     return Object.keys(newErrors).length === 0;
   };
 
+ // 1. Importar el hook
+  const { showAlert } = useAlert();
+
+  // ...
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // 1. Validación
     if (validate()) {
       try {
-         await updateParametro({id: parametro.id,data:formDataParametrosFisicosTelaUpDate});
-         if(isUpdating){
-            alert("No se pudo actualizar la presentacion")
-         }else{
-            alert("Presentacion actualizada correctamente")
-            onCloseUpDate();
-         }
+        // 2. Ejecutar actualización
+        await updateParametro({ 
+            id: parametro.id, 
+            data: formDataParametrosFisicosTelaUpDate 
+        });
 
+        // 
+        // 3. ÉXITO: Si la línea anterior no falló, llegamos aquí directamente
+        await showAlert("Presentación actualizada correctamente.", "success");
         
-      } catch {
-        alert("No se pudo guardar el proveedor");
+        onCloseUpDate();
+
+      } catch (error: any) {
+        // 4. ERROR: Si falla, el flujo salta aquí
+        console.error(error);
+        // Intentamos obtener el mensaje real del error, o ponemos uno genérico
+        const msg = error?.message || "No se pudo actualizar la presentación.";
+        showAlert(msg, "error");
       }
 
-      //
     } else {
-      console.log("no valido ");
+      // 5. Validación fallida
+      showAlert("El formulario no es válido. Revisa los campos.", "warning");
     }
   };
-
   return (
     <>
       <div className={containerClasses}>

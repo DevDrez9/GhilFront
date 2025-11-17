@@ -1,15 +1,40 @@
-.cuerpoLogin{
+.cuerpoLogin {
     width: 100%;
     height: 100vh;
-    background-color: brown;
+    position: relative; /* Necesario para controlar el elemento hijo absoluto */
     display: flex;
     align-items: center;
     justify-content: center;
+    overflow: hidden; /* Evita que los bordes borrosos generen scroll */
+}
+
+/* Creamos una "capa falsa" para el fondo */
+.cuerpoLogin::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    
+    /* Tu imagen */
+    background-image: url('/fondoAdmin.jpg');
+    background-size: cover;
+    background-position: center;
+    
+    /* EL EFECTO BLUR */
+    filter: blur(8px); /* Ajusta este número (ej: 4px, 10px) */
+    
+    /* IMPORTANTE: Enviar al fondo */
+    z-index: -1;
+    
+    /* Truco: Escalar un poco la imagen para que no se vean bordes blancos al difuminar */
+    transform: scale(1.1); 
 }
 .formularioLogin{
     width: 400px;
     min-height: 400px;
-    background-color: aliceblue;
+    background-color: white;
     border-radius: 20px;
     padding: 10px 20px;
     display: flex;

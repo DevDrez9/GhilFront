@@ -6,6 +6,7 @@ import { useState } from "react";
 import type { InventarioTiendaResponseDto } from "~/models/inventarioTienda";
 import CreateInventarioTiendaForm from "~/formularios/InventarioTiendaForm/InventarioTiendaForm.form";
 import CrearTransferenciaDesdeInventarioForm from "~/formularios/TransferenciasForm/TransferenciasForm.form";
+import { useAlert } from "~/componentes/alerts/AlertContext";
 
 const InventarioTienda = () => {
   const [debouncedSearch, setDebouncedSearch] = useState("");
@@ -37,13 +38,29 @@ const InventarioTienda = () => {
     setDebouncedSearch("");
   };
 
+  // 1. Asegúrate de tener el hook
+  const { showAlert } = useAlert();
+
+  // ...
+
   const handleDelete = async (id: number) => {
+    // Mantenemos la confirmación nativa para la decisión inicial
     if (window.confirm("¿Estás seguro de eliminar este item de inventario?")) {
       try {
+        // 1. Ejecutar eliminación
         await deleteInventarioTienda(id);
-        alert("Item de inventario eliminado correctamente");
-      } catch (error) {
-        alert("Error al eliminar el item de inventario");
+
+        
+
+        // 2. ÉXITO
+        await showAlert("Item de inventario eliminado correctamente.", "success");
+
+      } catch (error: any) {
+        console.error("Error al eliminar:", error);
+        
+        // 3. ERROR
+        const msg = error?.message || "Error al eliminar el item de inventario.";
+        showAlert(msg, "error");
       }
     }
   };
@@ -78,9 +95,9 @@ const InventarioTienda = () => {
         <CrearTransferenciaDesdeInventarioForm inventario={inventatioEdit} onClose={handleCloseEdit} visible={mostrarEditForm}/>
         <div className="titulo">
           <p>Almacen Central</p>
-          <Boton1 variant="info" onClick={() => {handleNuevo()}}>
+         {/* <Boton1 variant="info" onClick={() => {handleNuevo()}}>
             + Registrar
-          </Boton1>
+          </Boton1>*/}
         </div>
         {/*
         <div className="buscador">
@@ -171,7 +188,26 @@ const InventarioTienda = () => {
                   <strong>Tienda:</strong> {item.tienda?.nombre || 'N/A'}
                 </div>
                 <div>
-                  <strong>Stock Actual:</strong> {item.stock}
+                  <strong>Stock Actual:</strong>
+    <div style={{ display: 'flex', gap: '5px', flexWrap: 'wrap', marginTop: '5px' }}>
+        {item.stock && Object.keys(item.stock).length > 0 ? (
+            Object.entries(item.stock).map(([talla, cantidad]) => (
+                <span 
+                    key={talla} 
+                    style={{ 
+                        background: '#e0e0e0', 
+                        padding: '2px 8px', 
+                        borderRadius: '12px', 
+                        fontSize: '0.85em' 
+                    }}
+                >
+                    {talla}: <strong>{cantidad as number}</strong>
+                </span>
+            ))
+        ) : (
+            <span style={{ color: 'gray' }}>Sin stock</span>
+        )}
+    </div>
                 </div>
                 <div>
                   <strong>Stock Mínimo:</strong> {item.stockMinimo}

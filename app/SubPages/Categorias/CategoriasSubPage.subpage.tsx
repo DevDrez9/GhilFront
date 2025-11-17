@@ -7,6 +7,7 @@ import type { CategoriaResponseDto, CreateSubcategoriaDto } from "~/models/categ
 import "./CategoriasSubPage.style.css"
 import CreateCategoriaForm from "~/formularios/CategoriasForm/CreateCategoriaForm.form";
 import ReporteCategoria from "~/reportes/ReporteCategoria/reporteCategoria.reporte";
+import { useAlert } from "~/componentes/alerts/AlertContext";
 // 👈 NUEVO: Importa el formulario de creación de categorías
 
 // --- (Tu componente AddSubcategoriaForm debe estar aquí tal como lo enviaste,
@@ -117,39 +118,50 @@ const Categorias: React.FC = () => { // 👈 TIPADO: Usa React.FC
             setDebouncedSearch(value);
         }, 500);
     };
+// 1. Asegúrate de tener el hook
+  const { showAlert } = useAlert();
 
-    const handleDelete = async (id: number) => {
-        if (window.confirm("¿Estás seguro de eliminar esta categoría y todas sus subcategorías?")) {
-            try {
-                await deleteCategoria(id);
-                if(isError){
-                    alert(error.message)
-                }else{
-                    if(isDeleting){
- alert("Categoría eliminada correctamente");
-                    }else{
-                         alert("Categoría no se pudo eliminar");
-                    }
- 
-                }
-              
-            } catch (error) {
-                alert("Error al eliminar la categoría");
-            }
-        }
-    };
+  // ...
 
-    const handleRemoveSub = async (categoriaId: number, subcategoriaId: number) => {
-        if (window.confirm("¿Estás seguro de eliminar esta subcategoría?")) {
-            try {
-                await removeSubcategoria({ categoriaId, subcategoriaId,});
-                alert("Subcategoría eliminada correctamente");
-            } catch (error) {
-                alert("Error al eliminar la subcategoría");
-            }
-        }
-    };
+  const handleDelete = async (id: number) => {
+    // Nota: window.confirm es nativo. Para personalizarlo, necesitarías un modal de confirmación propio.
+    if (window.confirm("¿Estás seguro de eliminar esta categoría y todas sus subcategorías?")) {
+      try {
+        // 1. Ejecutar eliminación
+        await deleteCategoria(id);
 
+        // 
+        // 2. ÉXITO: Si llegamos aquí, se eliminó correctamente
+        await showAlert("Categoría eliminada correctamente.", "success");
+      
+      } catch (error: any) {
+        console.error("Error al eliminar:", error);
+        
+        // 3. ERROR
+        const msg = error?.message || "Error al eliminar la categoría.";
+        showAlert(msg, "error");
+      }
+    }
+  };
+
+  const handleRemoveSub = async (categoriaId: number, subcategoriaId: number) => {
+    if (window.confirm("¿Estás seguro de eliminar esta subcategoría?")) {
+      try {
+        // 1. Ejecutar eliminación de subcategoría
+        await removeSubcategoria({ categoriaId, subcategoriaId });
+        
+        // 2. ÉXITO
+        await showAlert("Subcategoría eliminada correctamente.", "success");
+        
+      } catch (error: any) {
+        console.error("Error al eliminar subcategoría:", error);
+        
+        // 3. ERROR
+        const msg = error?.message || "Error al eliminar la subcategoría.";
+        showAlert(msg, "error");
+      }
+    }
+  };
     
   
 const handleReporte = (idProducto: number) => {

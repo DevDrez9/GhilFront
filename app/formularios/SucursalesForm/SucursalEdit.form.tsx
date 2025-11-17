@@ -5,6 +5,7 @@ import Switch1 from "~/componentes/switch1";
 import { useSucursales } from "~/hooks/useSucursales"; // Importa el hook (asumimos que tiene updateSucursal)
 import "./SucursalesForm.style.css" // Reutiliza los estilos
 import type { CreateSucursalDto, SucursalResponseDto } from "~/models/sucursal";
+import { useAlert } from "~/componentes/alerts/AlertContext";
 
 // 🚨 Define los tipos necesarios para la edición
 // Asume que tienes un tipo de DTO para la actualización (ej: UpdateSucursalDto)
@@ -88,28 +89,49 @@ const SucursalEditForm: React.FC<SucursalEditFormProps> = ({ visible, onClose, i
     };
 
     // 4. Modificación del handleSubmit: Usar updateSucursal y enviar el ID
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (validate()) {
-            try {
-                const dataToSend: CreateSucursalDto = {
-                    ...formData,
-                    tiendaId: Number(formData.tiendaId),
-                };
-                
-                // 🚨 Llamar a la mutación de actualización con el ID de la sucursal
-                await updateSucursal({ id: initialData.id, data: dataToSend });
-                
-                alert("✅ Sucursal actualizada con éxito.");
-                onClose();
-            } catch (error) {
-                alert("❌ No se pudo actualizar la sucursal.");
-                console.error("Error al actualizar:", error);
-            }
-        } else {
-            console.log("Formulario no válido");
-        }
-    };
+ // 1. Importar el hook
+  const { showAlert } = useAlert();
+
+  // ...
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    // 1. Validación
+    if (validate()) {
+      try {
+        // 2. Preparar DTO
+        const dataToSend: CreateSucursalDto = {
+          ...formData,
+          tiendaId: Number(formData.tiendaId),
+        };
+        
+        // 3. Ejecutar actualización
+        await updateSucursal({ 
+            id: initialData.id, 
+            data: dataToSend 
+        });
+        
+        
+
+        // 4. ÉXITO
+        await showAlert("Sucursal actualizada con éxito.", "success");
+        
+        onClose();
+
+      } catch (error: any) {
+        console.error("Error al actualizar:", error);
+        
+        // 5. ERROR
+        const msg = error?.message || "No se pudo actualizar la sucursal.";
+        showAlert(msg, "error");
+      }
+
+    } else {
+      // 6. Validación fallida
+      showAlert("El formulario no es válido. Por favor revisa los campos.", "warning");
+    }
+  };
 
     return (
         <>

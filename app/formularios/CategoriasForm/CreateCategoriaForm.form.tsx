@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useAlert } from '~/componentes/alerts/AlertContext';
 import Boton1 from '~/componentes/Boton1';
 import InputText1 from '~/componentes/InputText1';
 import { useCategorias } from '~/hooks/useCategorias';
@@ -16,11 +17,13 @@ const CreateCategoriaForm: React.FC<CreateCategoriaFormProps> = ({ tiendaId, onC
     const [nombre, setNombre] = useState('');
     const [descripcion, setDescripcion] = useState('');
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const { showAlert } = useAlert();
+
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         
         if (!nombre) {
-            alert("El nombre de la categoría es obligatorio.");
+            await showAlert("El nombre de la categoría es obligatorio.", "error");
             return;
         }
 
@@ -32,14 +35,14 @@ const CreateCategoriaForm: React.FC<CreateCategoriaFormProps> = ({ tiendaId, onC
         };
 
         createCategoria(data, {
-            onSuccess: () => {
-                alert(`Categoría "${nombre}" creada exitosamente.`);
-                
+            onSuccess: async () => {
+               
+                await showAlert(`Categoría "${nombre}" creada exitosamente.`, 'success');
                 onClose(); // Cierra el formulario
             },
-            onError: (error) => {
+            onError: async (error) => {
                 // El error real viene de error.message si el hook lo maneja bien
-                alert(`Error al crear la categoría: ${(error as Error).message || "Hubo un error desconocido"}`); 
+                await showAlert(`Error al crear la categoría: ${(error as Error).message || "Hubo un error desconocido"}`, 'error'); 
             }
         });
     };

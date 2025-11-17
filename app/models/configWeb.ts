@@ -17,6 +17,7 @@ export class CreateConfigWebDto {
     logoUrl?: string; // URL del logo (o Base64 en el formulario)
     colorPrimario!: string;
     colorSecundario!: string;
+    imagenQr?:string
     
   
     banners?: CreateBannerDto[];

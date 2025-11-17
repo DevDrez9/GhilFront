@@ -96,7 +96,7 @@ export type CreateTrabajoDto = Omit<TrabajoResponseDto, 'id' | 'createdAt' | 'up
 
 
 export class CompletarTrabajoDto {
-  cantidadProducida: number;
+  cantidadProducida: string;
 
 
   fechaFinalizacion: string;

@@ -5,6 +5,7 @@ import InputText1 from "~/componentes/InputText1";
 import Boton1 from "~/componentes/Boton1";
 import { useProveedores } from "~/hooks/useProveedores";
 import type { ProveedorResponseDto } from "~/models/proveedor.model";
+import { useAlert } from "~/componentes/alerts/AlertContext";
 
 interface ProveedorFormProps {
   visible: boolean;
@@ -97,32 +98,42 @@ const ProveedorUpDatepForm: React.FC<ProveedorFormProps> = ({ visible, onCloseUp
     return Object.keys(newErrors).length === 0;
   };
 
+ // 1. Importar el hook
+  const { showAlert } = useAlert();
+
+  // ...
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // 1. Validación
     if (validate()) {
-     
-      try{
-        await updateProveedor( {id:proveedor.id,data: formDataProveedorUpDate});
-        if(isUpdating){
-          alert("Proveedor no actualizado correctamente")
-        }else{
-          alert("Proveedor actualizado correctamente")
-           onCloseUpDate();
-        }
+      try {
+        // 2. Ejecutar la actualización
+        await updateProveedor({ 
+            id: proveedor.id, 
+            data: formDataProveedorUpDate 
+        });
+
         
-       
+        // 3. ÉXITO: Si llegamos aquí, todo salió bien
+        await showAlert("Proveedor actualizado correctamente.", "success");
+        
+        onCloseUpDate();
 
-      }catch{
-        alert("No se pudo guardar el proveedor")
+      } catch (error: any) {
+        console.error("Error al actualizar:", error);
+        
+        // 4. ERROR: Capturar mensaje
+        const msg = error?.message || "No se pudo actualizar el proveedor.";
+        showAlert(msg, "error");
       }
-       
 
-      //
     } else {
-      console.log("no valido ");
+      // 5. Validación fallida
+      showAlert("El formulario contiene datos inválidos. Por favor revísalos.", "warning");
     }
   };
-
   return (
     <>
       <div className={containerClasses}>

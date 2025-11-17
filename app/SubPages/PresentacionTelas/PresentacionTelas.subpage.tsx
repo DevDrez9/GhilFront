@@ -6,6 +6,7 @@ import { useParametrosFisicosTelas } from "~/hooks/useParametrosFisicosTelas";
 import type { ParametrosFisicosTelaResponseDto } from "~/models/parametrosFisicosTela";
 import ParametroFisicosTelaForm from "~/formularios/ParametrosFisicosTelaForm/ParametrosFisicosTelaForm.form";
 import ParametroFisicosTelaUpDateForm from "~/formularios/ParametrosFisicosTelaForm/ParametrosFisicosTelaUpDate.form";
+import { useAlert } from "~/componentes/alerts/AlertContext";
 
 const PresentacionTelas = () => {
 
@@ -65,18 +66,29 @@ const PresentacionTelas = () => {
     setFilters(prev => ({ ...prev, tubular }));
   };
 
+  // 1. Asegúrate de tener el hook
+  const { showAlert } = useAlert();
+
+  // ...
+
   const handleDelete = async (id: number, nombre: string) => {
+    // Mantenemos la confirmación nativa
     if (window.confirm(`¿Estás seguro de eliminar el parámetro "${nombre}"?`)) {
       try {
+        // 1. Ejecutar eliminación
         await deleteParametro(id);
-        if(isDeleting){
-          alert("Error al eliminar presentacion");
-        }else{
- alert('Presentacion eliminada correctamente');
-        }
-       
-      } catch (error) {
-        alert('Error al eliminar parámetro');
+
+        
+
+        // 2. ÉXITO
+        await showAlert('Presentación eliminada correctamente.', 'success');
+
+      } catch (error: any) {
+        console.error("Error al eliminar:", error);
+        
+        // 3. ERROR
+        const msg = error?.message || 'Error al eliminar el parámetro.';
+        showAlert(msg, 'error');
       }
     }
   };

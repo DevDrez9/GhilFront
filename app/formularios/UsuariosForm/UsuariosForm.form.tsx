@@ -8,6 +8,7 @@ import { useUsuarios } from "~/hooks/useUsuarios";
 import { CreateUsuarioDto, Rol } from "~/models/usuario";
 import Switch1 from "~/componentes/switch1";
 import "./UsuariosForm.style.css"
+import { useAlert } from "~/componentes/alerts/AlertContext";
 
 // Tipo de estado local para el formulario
 interface UsuarioFormState {
@@ -90,32 +91,52 @@ const CrearUsuarioForm: React.FC<CrearUsuarioFormProps> = ({ visible, onClose })
     // SUBMIT
     // ----------------------------------------------------
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (validate()) {
-            try {
-                // 🎯 Mapeo de 'isActive' a 'activo' para el DTO
-                const dataToSend: CreateUsuarioDto = {
-                    email: formData.email.trim(),
-                    password: formData.password,
-                    nombre: formData.nombre.trim(),
-                    apellido: formData.apellido.trim() || undefined,
-                    rol: formData.rol,
-                    telefono:formData.telefono,
-                    activo: formData.isActive, // 🎯 Uso de isActive del estado para el campo activo del DTO
-                };
-                
-                await createUsuario(dataToSend);
-                
-                alert(`✅ Usuario ${dataToSend.email} creado con éxito.`);
-                
-                onClose();
-            } catch (error) {
-                alert("❌ Error al crear el usuario.");
-                console.error("Error en submit:", error);
-            }
-        }
-    };
+   // 1. Importar el hook
+  const { showAlert } = useAlert();
+
+  // ...
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    // 1. Validación
+    if (validate()) {
+      try {
+        // 2. Preparar DTO
+        const dataToSend: CreateUsuarioDto = {
+          email: formData.email.trim(),
+          password: formData.password,
+          nombre: formData.nombre.trim(),
+          apellido: formData.apellido.trim() || undefined,
+          rol: formData.rol,
+          // Mejora: Enviar undefined si el string está vacío para no guardar ""
+          telefono: formData.telefono?.trim() || undefined,
+          activo: formData.isActive,
+        };
+        
+        // 3. Ejecutar creación
+        await createUsuario(dataToSend);
+        
+        
+
+        // 4. ÉXITO
+        await showAlert(`Usuario ${dataToSend.email} creado con éxito.`, "success");
+        
+        onClose();
+
+      } catch (error: any) {
+        console.error("Error en submit:", error);
+        
+        // 5. ERROR
+        const msg = error?.message || "Error al crear el usuario.";
+        showAlert(msg, "error");
+      }
+
+    } else {
+      // 6. Validación fallida
+      showAlert("El formulario contiene errores. Por favor revisa los campos.", "warning");
+    }
+  };
 
     // ----------------------------------------------------
     // RENDERIZADO

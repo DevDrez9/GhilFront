@@ -11,6 +11,7 @@ import ComboBox1 from "~/componentes/ComboBox1";
 import { useParametrosTela } from "~/hooks/useParametrosTela";
 import { ParametrosFisicosResponseDto } from "~/models/telas.model";
 import type { ParametrosTelaResponseDto } from "~/models/ParametrosTela";
+import { useAlert } from "~/componentes/alerts/AlertContext";
 
 // 1. Tipos de datos para el estado local
 interface TallaConsumoItem {
@@ -191,38 +192,62 @@ const TrabajoForm: React.FC<TrabajoFormProps> = ({ visible, onClose }) => {
     return Object.keys(newErrors).length === 0;
   };
 
+  // 1. Asegúrate de tener el hook al inicio del componente
+  const { showAlert } = useAlert();
+
+  // ...
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // 1. Validación
     if (validate()) {
-      
+      try {
+        // 2. Preparar datos para el DTO
         const dataToSend = {
           ...formData,
-          // Convertir los strings a números
+          // Conversiones a números
           parametrosTelaId: Number(formData.parametrosTelaId),
-          costureroId:
-            formData.costureroId && formData.costureroId !== ""
-              ? Number(formData.costureroId)
-              : undefined,
           cantidad: Number(formData.cantidad),
-          tiendaId: 1,
-          // Convertir la cadena de fecha a objetos Date
-          fechaInicio: new Date(formData.fechaInicio),
-          fechaFinEstimada: formData.fechaFinEstimada
-            ? new Date(formData.fechaFinEstimada)
+          tiendaId: 1, // Si es dinámico, cambiar por la variable del contexto
+          
+          // Manejo de opcionales
+          costureroId: formData.costureroId && formData.costureroId !== "" 
+            ? Number(formData.costureroId) 
             : undefined,
-            pesoTotal:Number(formData.pesoTotal.toFixed(2))
+            
+          // Conversión de fechas
+          fechaInicio: new Date(formData.fechaInicio),
+          fechaFinEstimada: formData.fechaFinEstimada 
+            ? new Date(formData.fechaFinEstimada) 
+            : undefined,
+            
+          // Manejo robusto de decimales para pesoTotal
+          // Convertimos a Number primero para asegurar que .toFixed funcione, y luego volvemos a Number
+          pesoTotal: Number(Number(formData.pesoTotal).toFixed(2))
         };
 
-        createTrabajo(dataToSend, {
-        onSuccess: () => {
-            alert("Trabajo creado correctamente");
-            onClose();
-        },
-        onError: (error) => {
-            alert(error.message);
-        }
-    });
-      
+        // 3. Ejecutar la creación
+        // Nota: Si createTrabajo viene de un hook personalizado, asegúrate que retorne la Promesa (o usa mutateAsync si es React Query)
+        await createTrabajo(dataToSend);
+
+        // 4. ÉXITO
+        
+        await showAlert("Trabajo creado correctamente.", "success");
+        
+        onClose();
+
+      } catch (error: any) {
+        console.error("Error al crear trabajo:", error);
+        
+        // 5. ERROR
+        const msg = error?.message || "No se pudo crear el trabajo. Intente nuevamente.";
+        showAlert(msg, "error");
+      }
+
+    } else {
+      // 6. Validación fallida
+      showAlert("El formulario contiene errores. Por favor revisa los campos obligatorios.", "warning");
     }
   };
 

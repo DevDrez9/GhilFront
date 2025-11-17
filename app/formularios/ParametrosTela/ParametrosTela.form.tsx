@@ -10,6 +10,7 @@ import { EstadoPrenda } from "~/models/ParametrosTela";
 import { useProductos } from "~/hooks/useProductos";
 import ComboBox1 from "~/componentes/ComboBox1";
 import { useInventarioTelas } from "~/hooks/useInventarioTelas";
+import { useAlert } from "~/componentes/alerts/AlertContext";
 
 interface ParametrosTelaFormProps {
   visible: boolean;
@@ -207,53 +208,53 @@ const ParametrosTelaForm: React.FC<ParametrosTelaFormProps> = ({
     return Object.keys(newErrors).length === 0;
   };
 
+ // 1. Asegúrate de tener el hook al inicio del componente
+  const { showAlert } = useAlert();
+
+  // ...
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
     if (validate()) {
       try {
+        // 1. Optimización: Buscar el nombre del modelo de forma más limpia
+        const productoSeleccionado = productos.find(item => item.id === formData.productoId);
+        const nombreModelo = productoSeleccionado ? productoSeleccionado.nombre : "";
 
-        let nombreModelo=""
-        productos.forEach((item) => {
-            if(item.id==formData.productoId){
-                nombreModelo=item.nombre
-            }
-        })
-        
-
+        // 2. Preparar el objeto de datos
         const dataToSend = {
-          ...formData, // ... [Conversiones a number] ...
-          // 🎯 consumoTelaPorTalla YA ES UN JSON STRING VÁLIDO GRACIAS AL useEffect
-          consumoTelaPorTalla: formData.consumoTelaPorTalla, // ... [Conversiones a number] ...
+          ...formData,
+          // El JSON string ya viene listo del estado
+          consumoTelaPorTalla: formData.consumoTelaPorTalla, 
           cantidadEstandarPorLote: Number(formData.cantidadEstandarPorLote),
           consumoTelaPorLote: Number(formData.consumoTelaPorLote),
-          tiempoFabricacionPorUnidad: Number(
-            formData.tiempoFabricacionPorUnidad
-          ),
-          nombreModelo:nombreModelo,
+          tiempoFabricacionPorUnidad: Number(formData.tiempoFabricacionPorUnidad),
+          nombreModelo: nombreModelo,
           tiempoTotalPorLote: Number(formData.tiempoTotalPorLote),
-          productoId: formData.productoId
-            ? Number(formData.productoId)
-            : undefined,
+          productoId: formData.productoId ? Number(formData.productoId) : undefined,
           telaId: formData.telaId ? Number(formData.telaId) : undefined,
         };
 
-        await createParametroTela(dataToSend as any); // Usamos 'as any' si el DTO no está tipado
+        // 3. Ejecutar la creación
+        await createParametroTela(dataToSend as any);
 
-        if(!isCreating){
-             alert("Parámetros de la tela guardado correctamente ")
-             onClose();
-            
-        }else{
-           alert(error.message)
-        }
+        // 
+        // 4. ÉXITO: Si llegamos aquí, la promesa se cumplió correctamente
+        await showAlert("Parámetros de la tela guardados correctamente.", "success");
+        
+        onClose();
 
-       
-      } catch (error) {
-        alert(createError.message);
+      } catch (error: any) {
         console.error("Error al guardar:", error);
+        
+        // 5. ERROR: Obtener el mensaje más preciso posible
+        const msg = error?.message || createError?.message || "Ocurrió un error al guardar.";
+        
+        showAlert(msg, "error");
       }
     } else {
-      console.log("Formulario no válido");
+      showAlert("El formulario contiene errores. Por favor revísalos.", "warning");
     }
   };
 

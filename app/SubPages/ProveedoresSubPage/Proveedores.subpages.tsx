@@ -9,6 +9,7 @@ import { useProveedores } from "~/hooks/useProveedores";
 import { useState } from "react";
 import ProveedorForm from "~/formularios/ProveedorForm/Proveedor.form";
 import ProveedorUpDatepForm from "~/formularios/ProveedorForm/ProveedorUpdate.form";
+import { useAlert } from "~/componentes/alerts/AlertContext";
 
 const Proveedores = () => {
   const [debouncedSearch, setDebouncedSearch] = useState("");
@@ -44,18 +45,29 @@ const Proveedores = () => {
   const [mostrarForm, setMostrarForm] = useState(false);
   const [mostrarFormUpDate, setMostrarFormUpDate] = useState(false);
 
+  // 1. Asegúrate de tener el hook
+  const { showAlert } = useAlert();
+
+  // ...
+
   const handleDelete = async (id: number) => {
+    // Mantenemos la confirmación nativa
     if (window.confirm("¿Estás seguro de eliminar este proveedor?")) {
       try {
+        // 1. Ejecutar eliminación
         await deleteProveedor(id);
-        if(deleteError){
-          alert(deleteError.message)
-        }
-        if(isDeleting){
-          alert("Proveedor eliminado correctamente")
-        }
-      } catch (error) {
-        alert("Error al eliminar proveedor");
+
+        
+
+        // 2. ÉXITO
+        await showAlert("Proveedor eliminado correctamente.", "success");
+
+      } catch (error: any) {
+        console.error("Error al eliminar:", error);
+        
+        // 3. ERROR
+        const msg = error?.message || deleteError?.message || "Error al eliminar proveedor.";
+        showAlert(msg, "error");
       }
     }
   };

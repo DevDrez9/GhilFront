@@ -11,6 +11,7 @@ import type { UsuarioResponseDto } from "~/models/usuario";
 import "./Usuarios.style.css"
 import CrearUsuarioForm from "~/formularios/UsuariosForm/UsuariosForm.form";
 import EditarUsuarioForm from "~/formularios/UsuariosForm/EditarUsuario.form";
+import { useAlert } from "~/componentes/alerts/AlertContext";
 // Asegúrate de que esta ruta sea correcta para tu proyecto (puede ser "./Usuarios.style.css" si lo tienes)
 
 
@@ -61,7 +62,7 @@ const Usuarios = () => {
         const base = { padding: '4px 8px', borderRadius: '4px', fontSize: '12px', fontWeight: 'bold' };
         switch (rol) {
             case Rol.ADMIN: return { ...base, backgroundColor: '#dc3545', color: 'white' };
-            case Rol.MANAGER: return { ...base, backgroundColor: '#ffc107', color: '#333' };
+           // case Rol.MANAGER: return { ...base, backgroundColor: '#ffc107', color: '#333' };
             case Rol.USER: return { ...base, backgroundColor: '#17a2b8', color: 'white' };
             default: return { ...base, backgroundColor: '#f0f0f0', color: '#666' };
         }
@@ -79,19 +80,38 @@ const Usuarios = () => {
     };
 
 
-    const handleDelete = async (id: number) => {
-    if (window.confirm("¿Estás seguro de eliminar este producto?")) {
+    // 1. Asegúrate de tener el hook
+  const { showAlert } = useAlert();
+
+  // ...
+
+  const handleDelete = async (id: number) => {
+    // Mantenemos la confirmación nativa
+    // 📝 CORRECCIÓN: Cambié el texto de "producto" a "usuario" para coincidir con la función
+    if (window.confirm("¿Estás seguro de eliminar este usuario?")) {
       try {
+        // 1. Ejecutar eliminación
         await deleteUsuario(id);
-         
-        alert("Producto eliminado correctamente");
+
+        
+
+        // 2. ÉXITO
+        // Usamos await para que el usuario lea el mensaje ANTES de que la página se recargue
+        await showAlert("Usuario eliminado correctamente.", "success");
+        
+        // 3. Actualizar la vista
+        // (Nota: En React idealmente deberías actualizar el estado en lugar de usar reload, pero si lo necesitas, va aquí)
         window.location.reload();
-      } catch (error) {
-        alert("Error al eliminar el producto");
+
+      } catch (error: any) {
+        console.error("Error al eliminar:", error);
+        
+        // 3. ERROR
+        const msg = error?.message || "Error al eliminar el usuario.";
+        showAlert(msg, "error");
       }
     }
   };
-
 
     if (isLoading) {
         return <p style={{ padding: '20px' }}>Cargando usuarios...</p>;

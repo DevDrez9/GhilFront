@@ -8,6 +8,7 @@ import Boton1 from "~/componentes/Boton1";
 // 🚨 Ajustar el hook para incluir la función de actualización
 import { useCostureros } from "~/hooks/useCostureros"; 
 import { EstadoCosturero, type CreateCostureroDto } from "~/models/costureros";
+import { useAlert } from "~/componentes/alerts/AlertContext";
 
 // ====================================================================
 // TIPOS Y CONSTANTES
@@ -132,45 +133,56 @@ updateError,
     return Object.keys(newErrors).length === 0;
   };
 
+const { showAlert } = useAlert();
 
-  // 🚨 LÓGICA DE ENVÍO: MANEJA CREACIÓN O EDICIÓN
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+    e.preventDefault();
 
-    if (!validate()) {
-      console.log("Formulario no válido");
-      return;
-    }
+    // 1. Validación con alerta visual
+    if (!validate()) {
+      showAlert("Por favor, completa los campos obligatorios correctamente.", "warning");
+      return;
+    }
 
-    // Preparar datos para el DTO
-    const dataToSend = {
-      ...formDataCosturero,
-      tiendaId: Number(formDataCosturero.tiendaId), 
-      // Asegúrate de que la fecha se envíe en un formato correcto para el backend (ej. Date object o string ISO)
-      // Si el campo fechaInicio es un string YYYY-MM-DD, puedes enviarlo directamente si tu API lo acepta.
-      // Si requiere un objeto Date:
-      fechaInicio: new Date(formDataCosturero.fechaInicio), 
-    } as CreateCostureroDto; 
+    // Preparar datos para el DTO
+    const dataToSend = {
+      ...formDataCosturero,
+      tiendaId: Number(formDataCosturero.tiendaId), 
+      // Conversión de fecha a objeto Date
+      fechaInicio: new Date(formDataCosturero.fechaInicio), 
+    } as CreateCostureroDto; 
 
-    try {
-    if (isEditMode && initialData?.id) {
-    // MODO EDICIÓN: Llama a la función de actualización con la estructura { id, data }
-    await updateCosturero({ 
-        // 1. El ID del costurero a actualizar
-        id: initialData.id, 
-        // 2. El objeto 'data' con los campos modificados
-        data: dataToSend 
-    });
-    onClose();
+    try {
+      if (isEditMode && initialData?.id) {
+        // --- MODO EDICIÓN ---
+        await updateCosturero({ 
+            id: initialData.id, 
+            data: dataToSend 
+        });
+        
+        // ✅ Alerta de éxito para edición
+        await showAlert("Costurero actualizado correctamente.", "success");
 
-    
-} 
-      // La limpieza del formulario ahora se realiza en el useEffect con `visible: true` y en `onClose`
-    } catch (error) {
-      alert(`No se pudo ${isEditMode ? 'actualizar' : 'guardar'} el costurero`);
-      console.error(`Error al ${isEditMode ? 'actualizar' : 'guardar'}:`, error);
-    }
-  };
+      } else {
+        // --- MODO CREACIÓN (Bloque agregado) ---
+        // Asumo que 'createCosturero' viene de tu hook useCostureros
+        await createCosturero(dataToSend);
+        
+        // ✅ Alerta de éxito para creación
+        await showAlert("Costurero creado correctamente.", "success");
+      }
+      
+      // Cerramos solo si todo salió bien
+      onClose();
+
+    } catch (error: any) {
+      console.error(`Error al ${isEditMode ? 'actualizar' : 'guardar'}:`, error);
+      
+      // ✅ Alerta de error con el mensaje del backend si existe
+      const mensajeError = error?.message || `No se pudo ${isEditMode ? 'actualizar' : 'guardar'} el costurero.`;
+      showAlert(mensajeError, "error");
+    }
+  };
   
   // Determinar el estado de carga y error para la UI
   const isLoading = isCreating || isUpdating;
@@ -226,7 +238,7 @@ updateError,
                   label="Teléfono"
                   value={formDataCosturero.telefono}
                   onChange={(val) => handleChange("telefono", val)}
-                  type="tel"
+                  type="number"
                   width={220}
                 />
                 <InputText1
