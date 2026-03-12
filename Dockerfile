@@ -1,29 +1,30 @@
-# Etapa 1: Construir la app React
-FROM node:20-alpine AS builder
+# Etapa base para construcción - CAMBIO IMPORTANTE
+FROM node:20-slim AS builder  # 🟢 CAMBIADO DE alpine A slim
 
 WORKDIR /app
 
+# Copiar dependencias del proyecto
 COPY package.json package-lock.json* ./
-RUN npm ci  # Mejor que npm install para builds reproducibles
 
+# Instalar dependencias
+RUN npm ci
+
+# Copiar el resto del código fuente
 COPY . .
 
-# Pasar variable de entorno en build time
+# Argumento para entorno de vite
 ARG VITE_API_URL
 ENV VITE_API_URL=$VITE_API_URL
 
-# Construir la aplicación
+# Ejecutar la construcción
 RUN npm run build
 
 
-# Etapa 2: Servir con Nginx (MUCHO MÁS LIGERO Y RÁPIDO)
+# Etapa de producción con Nginx
 FROM nginx:alpine
 
 # Copiar los archivos construidos
 COPY --from=builder /app/build /usr/share/nginx/html
-
-# Configuración personalizada para React Router v7
-COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 EXPOSE 80
 
