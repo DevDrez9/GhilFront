@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react"; // Agregamos useEffect
 import { useNavigate } from "react-router";
 // 1. CAMBIO EN EL IMPORT: Le ponemos un guion bajo o nombre temporal
-import ReCAPTCHA_ from "react-google-recaptcha"; 
+import ReCAPTCHA_ from "react-google-recaptcha";
 import InputText1 from "~/componentes/InputText1";
 import Boton1 from "~/componentes/Boton1";
 import { useAuth } from "~/hooks/useAuth";
@@ -17,7 +17,7 @@ const LoginPage = () => {
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
   // 2. Estado para saber si estamos en el navegador (Cliente)
   const [isMounted, setIsMounted] = useState(false);
-  
+
   // 3. Referencia al componente con la corrección de importación
   // Esto arregla el error: "got: object"
   const ReCAPTCHA = (ReCAPTCHA_ as any).default ?? ReCAPTCHA_;
@@ -49,9 +49,9 @@ const LoginPage = () => {
     } else if (!emailRegex.test(formData.email)) {
       newErrors.usertype = "El formato del Email no es válido";
     }
-    
-    if (!formData.password) { 
-        newErrors.passwordtype = "El password es obligatorio";
+
+    if (!formData.password) {
+      newErrors.passwordtype = "El password es obligatorio";
     }
 
     if (!captchaToken) {
@@ -69,7 +69,7 @@ const LoginPage = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (validate()) {
       const success = await login(formData);
 
@@ -79,15 +79,15 @@ const LoginPage = () => {
         navigate('/home');
       } else {
         // Login fallido
-        
+
 
 
         showAlert("Usuario o contraseña incorrecta.", "error");
-        
+
         // Resetear Captcha
         setCaptchaToken(null);
         if (captchaRef.current) {
-            captchaRef.current.reset();
+          captchaRef.current.reset();
         }
       }
     } else {
@@ -132,15 +132,15 @@ const LoginPage = () => {
             <div style={{ marginTop: "15px", marginBottom: "15px", display: "flex", flexDirection: "column", alignItems: "center", minHeight: "78px" }}>
               {/* 5. Renderizado Condicional: Solo mostrar si está montado en el cliente */}
               {isMounted ? (
-                  <ReCAPTCHA
-                    ref={captchaRef}
-                    sitekey="6Lf5-Q4sAAAAAMVYtW5kUydyDJbqSSZqhE22FIep" 
-                    onChange={onChangeCaptcha}
-                  />
+                <ReCAPTCHA
+                  ref={captchaRef}
+                  sitekey="6LeP9g4sAAAAAN6ktTMEdbZ6qgqm9utzoPQc_7oG"
+                  onChange={onChangeCaptcha}
+                />
               ) : (
-                  <p>Cargando captcha...</p>
+                <p>Cargando captcha...</p>
               )}
-              
+
               {errors.captcha && (
                 <span style={{ color: "red", fontSize: "12px", marginTop: "5px" }}>
                   {errors.captcha}
