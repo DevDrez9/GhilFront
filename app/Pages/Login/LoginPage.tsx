@@ -134,7 +134,7 @@ const LoginPage = () => {
               {isMounted ? (
                 <ReCAPTCHA
                   ref={captchaRef}
-                  sitekey="6LeiJogsAAAAAJ4gD4wAXg5j3tZox2fqaBKdnkK0"
+                  sitekey="6Lf8SogsAAAAAKYRlk68BgTxrrJyZc8rc-8SFJbA"
                   onChange={onChangeCaptcha}
                 />
               ) : (
