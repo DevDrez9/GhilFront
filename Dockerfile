@@ -4,7 +4,7 @@ FROM node:20-slim AS builder
 WORKDIR /app
 
 # Copiar dependencias
-COPY package.json package-lock.json* ./
+COPY package.json ./
 
 # Instalar dependencias (usamos install por compatibilidad)
 RUN npm install
