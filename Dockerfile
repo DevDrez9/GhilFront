@@ -1,41 +1,30 @@
-# Etapa base para construcción
+# Etapa 1: Construir la app React
 FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# Copiar dependencias del proyecto
 COPY package.json package-lock.json* ./
+RUN npm ci  # Mejor que npm install para builds reproducibles
 
-# Instalar todas las dependencias (necesarias para la construcción)
-RUN npm install
-
-# Copiar el resto del código fuente
 COPY . .
 
-# Argumento para entorno de vite, ya que necesita saber la URL de la API en tiempo de compilación
+# Pasar variable de entorno en build time
 ARG VITE_API_URL
 ENV VITE_API_URL=$VITE_API_URL
 
-# Ejecutar la construcción del proyecto (React Router build)
+# Construir la aplicación
 RUN npm run build
 
 
-# Etapa de producción
-FROM node:20-alpine AS runner
+# Etapa 2: Servir con Nginx (MUCHO MÁS LIGERO Y RÁPIDO)
+FROM nginx:alpine
 
-WORKDIR /app
+# Copiar los archivos construidos
+COPY --from=builder /app/build /usr/share/nginx/html
 
-# Configurar el entorno de producción
-ENV NODE_ENV=production
-ENV PORT=2001
+# Configuración personalizada para React Router v7
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# Copiar los archivos necesarios desde la etapa builder
-COPY --from=builder /app/package.json ./
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/build ./build
+EXPOSE 80
 
-# Exponer el puerto por el que correrá la aplicación
-EXPOSE 2001
-
-# Comando para iniciar el servidor de React Router
-CMD ["npm", "start"]
+CMD ["nginx", "-g", "daemon off;"]

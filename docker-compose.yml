@@ -1,18 +1,19 @@
-version: '3.8'
-
 services:
   frontend:
     build:
       context: .
       dockerfile: Dockerfile
       args:
-        # Pasa la variable de entorno para que Vite la integre en la compilación
-        - VITE_API_URL=${VITE_API_URL:-http://localhost:3000}
+        - VITE_API_URL=${VITE_API_URL:-https://apitiendaprueba.ratelapps.com}  # URL de tu API en producción
     container_name: react_frontend
     ports:
-      - "2001:2001"
-    environment:
-      - NODE_ENV=production
-      - PORT=2001
+      - "2001:80"  # 🟢 IMPORTANTE: El puerto interno ahora es 80 (Nginx)
     restart: unless-stopped
-    # Si quisieras poner configuraciones de red, las podrías agregar aquí
+    # Opcional: redes si necesitas conectar con otros servicios
+    # networks:
+    #   - app-network
+
+# Opcional: red compartida con otros servicios
+# networks:
+#   app-network:
+#     driver: bridge
