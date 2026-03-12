@@ -4,7 +4,7 @@ import type { EstadisticasQueryOptions, EstadisticasVentaResponse } from '~/mode
 import { CreateVentaDto, VentaResponseDto, type PaginatedVentasDto, type VentaApiResponse } from '~/models/ventas';
 
 // Define la URL base de tu API (¡ACTUALIZA ESTO!)
-const API_BASE_URL = 'http://localhost:3000'; 
+const API_BASE_URL = import.meta.env.VITE_API_URL; 
 
 // Opciones de búsqueda y paginación para la tabla
 interface VentaQueryOptions {

@@ -206,7 +206,7 @@ const handleReporte = (idProducto: number, productoRepor:ProductoResponseDto) =>
               <div style={{ flexShrink: 0 }}>
                 {producto.imagenes.length > 0 ? (
                   <img
-                    src={"http://localhost:3000/uploads/productos/"+producto.imagenes[0].url}
+                    src={(import.meta.env.VITE_API_URL + '/uploads/productos/')+producto.imagenes[0].url}
                     alt={producto.nombre}
                     style={{
                       width: "100px",

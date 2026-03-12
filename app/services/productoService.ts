@@ -1,6 +1,6 @@
 import type { ProductoResponseDto, CreateProductoDto, UpdateProductoDto } from "~/models/producto.model";
 
-const API_BASE_URL = 'http://localhost:3000';
+const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 type ProductosApiResponse = {
   productos: ProductoResponseDto[];

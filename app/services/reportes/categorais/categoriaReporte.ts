@@ -5,7 +5,7 @@ import type { CategoriaEstadisticasResponseDto } from "~/models/categoriaReporte
 
 
 
-const API_BASE_URL = 'http://localhost:3000/categorias'; // Ajusta la URL base
+const API_BASE_URL = (import.meta.env.VITE_API_URL + '/categorias'); // Ajusta la URL base
 
 export const categoriaReporteService = {
     getEstadisticas: async (categoriaId: number): Promise<CategoriaEstadisticasResponseDto> => {

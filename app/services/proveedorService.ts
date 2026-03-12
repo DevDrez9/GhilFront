@@ -3,7 +3,7 @@
 import type { CreateProveedorDto, ProveedorResponseDto } from "~/models/proveedor.model";
 
 
-const API_BASE_URL = 'http://localhost:3000';
+const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 export const proveedorService = {
   // Obtener todos los proveedores

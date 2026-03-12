@@ -109,7 +109,7 @@ const ProductoPerformanceCard : React.FC<ReporteProducto>  = ({ productoId, tien
 
           <div className="reporteContent" style={{ backgroundColor: '#ffffff', borderRadius: '8px', border: '1px solid #eee', padding: '15px' }}>
                 <div style={{display:"flex", alignItems:"center"}}>
-<img style={{height: '150px'}} src={ "http://localhost:3000/"+tienda.configWeb.logoUrl}/>
+<img style={{height: '150px'}} src={ (import.meta.env.VITE_API_URL + '/')+tienda.configWeb.logoUrl}/>
 <h3 style={{fontSize:"30px",  fontWeight:"bold",  marginLeft:"15px"} }> {tienda.nombre}</h3>
                     </div></div>
             <h2 style={{fontSize:"30px", fontWeight:"bold"}}>📈 Rendimiento de Producto: {data.nombreProducto}</h2>
@@ -117,7 +117,7 @@ const ProductoPerformanceCard : React.FC<ReporteProducto>  = ({ productoId, tien
             <div style={{ flexShrink: 0 }}>
                 {producto.imagenes.length > 0 ? (
                   <img
-                    src={"http://localhost:3000/uploads/productos/"+producto.imagenes[0].url}
+                    src={(import.meta.env.VITE_API_URL + '/uploads/productos/')+producto.imagenes[0].url}
                     alt={producto.nombre}
                     style={{
                       width: "200px",

@@ -58,7 +58,7 @@ const ReporteWeb: React.FC = () => {
         const fetchStats = async () => {
             setIsLoading(true); setError(null);
             try {
-                const url = `http://localhost:3000/ventas/estadisticas/canales?year=${selectedYear}&tiendaId=${tienda.id}`;
+                const url = `${import.meta.env.VITE_API_URL}/ventas/estadisticas/canales?year=${selectedYear}&tiendaId=${tienda.id}`;
                 const response = await fetch(url);
                 if (!response.ok) throw new Error(`Error ${response.status}`);
                 const data: VentasStatsResponse = await response.json();
@@ -101,7 +101,7 @@ const ReporteWeb: React.FC = () => {
                 {statsData && resumen && (
                     <div> 
                         <div style={{display:"flex", alignItems:"center"}}>
-                            <img style={{height: '150px'}} src={"http://localhost:3000/"+tienda.configWeb.logoUrl} alt={tienda.nombre}/>
+                            <img style={{height: '150px'}} src={(import.meta.env.VITE_API_URL + '/')+tienda.configWeb.logoUrl} alt={tienda.nombre}/>
                             <h3 style={{fontSize:"30px", fontWeight:"bold", marginLeft:"15px"} }> {tienda.nombre}</h3>
                         </div>
                         <h2 style={{fontSize:"18px", fontWeight:"bold", textAlign:'center', margin:'20px 0'}}> ANÁLISIS DE CANALES DE VENTA: {statsData.anio} </h2>

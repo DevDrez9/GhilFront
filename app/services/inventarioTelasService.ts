@@ -3,7 +3,7 @@
 import type { CreateInventarioTelaDto, InventarioTelaFilters, InventarioTelaResponseDto } from "~/models/inventarioTelas";
 
 
-const API_BASE_URL = 'http://localhost:3000';
+const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 export const inventarioTelasService = {
   // GET - Obtener todo el inventario

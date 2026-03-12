@@ -111,7 +111,7 @@ const PresentacionTelas = () => {
          <div className="titulo">
           <p>Presentacion de Rollos</p>
 
-          <Boton1 variant="info" onClick={()=>{handleNuevo()}}>+ Agregar</Boton1>
+          <Boton1 variant="info" onClick={()=>{handleNuevo()}} >+ Agregar</Boton1>
         </div>
 {/*
         <div className="buscador">

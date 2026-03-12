@@ -3,7 +3,7 @@
 import { CreateConfigWebDto,type ConfigWebResponseDto,type UpdateConfigWebBase64Dto } from '~/models/configWeb';
 
 // Define la URL base de tu API (¡ACTUALIZA ESTO!)
-const API_BASE_URL = 'http://localhost:3000'; 
+const API_BASE_URL = import.meta.env.VITE_API_URL; 
 
 export const configWebService = {
 

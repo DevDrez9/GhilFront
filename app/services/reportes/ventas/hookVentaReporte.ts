@@ -7,7 +7,7 @@ import type {
 } from '~/models/ventaReporte'; 
 
 // 🚨 IMPORTANTE: Define la URL base de tu API
-const API_BASE_URL = 'http://localhost:3000'; // Reemplaza con tu URL real
+const API_BASE_URL = import.meta.env.VITE_API_URL; // Reemplaza con tu URL real
 
 // ----------------------------------------------------------------------
 // FUNCIONES DE FETCH REALES (Usando las respuestas JSON que proporcionaste)

@@ -88,7 +88,7 @@ export default function HistorialComprasTela() {
         <div style={{display:"flex", alignItems:"center", marginBottom: '20px', borderBottom: '1px solid #eee', paddingBottom: '15px'}}>
             <img 
                 style={{height: '80px', objectFit: 'contain', marginRight: '20px'}} 
-                src={"http://localhost:3000/" + tienda.configWeb.logoUrl}
+                src={(import.meta.env.VITE_API_URL + '/') + tienda.configWeb.logoUrl}
                 alt={tienda.nombre}
             />
             <h3 style={{fontSize:"24px", fontWeight:"bold", margin: 0}}> {tienda.nombre}</h3>

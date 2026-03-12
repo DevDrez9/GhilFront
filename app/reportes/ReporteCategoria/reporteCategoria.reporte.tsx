@@ -111,7 +111,7 @@ const ReporteCategoria : React.FC<ReporteCategoriaProps> = ({ categoriaId, onClo
                 >   
                     
                     <div style={{display:"flex", alignItems:"center"}}>
-<img style={{height: '150px'}} src={ "http://localhost:3000/"+tienda.configWeb.logoUrl}/>
+<img style={{height: '150px'}} src={ (import.meta.env.VITE_API_URL + '/')+tienda.configWeb.logoUrl}/>
 <h3 style={{fontSize:"30px",  fontWeight:"bold",  marginLeft:"15px"} }> {tienda.nombre}</h3>
                     </div>
                     

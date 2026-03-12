@@ -201,7 +201,7 @@ const Trabajos = () => {
           {trabajos.map((trabajo) => {
             // --- NUEVO: Obtenemos la URL de la imagen de forma segura ---
             const imageUrl =
-              "http://localhost:3000/uploads/productos/" +
+              (import.meta.env.VITE_API_URL + '/uploads/productos/') +
               trabajo.parametrosTela?.producto?.imagenes?.[0]?.url;
 
             return (

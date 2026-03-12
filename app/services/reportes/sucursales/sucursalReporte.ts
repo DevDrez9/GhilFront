@@ -2,7 +2,7 @@
 
 import type { SucursalEstadisticasResponseDto } from '~/models/sucursalReporte';
 
-const API_BASE_URL = 'http://localhost:3000/sucursales'; // Ajusta la URL base
+const API_BASE_URL = (import.meta.env.VITE_API_URL + '/sucursales'); // Ajusta la URL base
 
 export const sucursalReporteService = {
     getEstadisticas: async (sucursalId: number): Promise<SucursalEstadisticasResponseDto> => {

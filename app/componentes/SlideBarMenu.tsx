@@ -147,7 +147,7 @@ const SidebarMenu: React.FC<SidebarMenuProps> = ({ menuItems,icono,nombre, usuar
         top: 0,
         zIndex: 10
       }}>
-        <img style={{height:"150px"}}  src={"http://localhost:3000/"+icono} />
+        <img style={{height:"150px"}}  src={(import.meta.env.VITE_API_URL + '/')+icono} />
         <h2 style={{ 
           margin: 0, 
           fontSize: '18px', 

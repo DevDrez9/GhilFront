@@ -71,10 +71,16 @@ const CrearUsuarioForm: React.FC<CrearUsuarioFormProps> = ({ visible, onClose })
             newErrors.email = "El email no es válido.";
         }
         if (formData.password.length < 6) {
-            newErrors.password = "La contraseña debe tener al menos 6 caracteres.";
+
+            newErrors.password = "La contraseña debe tener al menos 6 caracteres";
+            
         }
         if (formData.password !== formData.confirmPassword) {
             newErrors.confirmPassword = "Las contraseñas no coinciden.";
+        }
+        if (seguridadPass.nivel != "Alta"){
+            newErrors.password = "La contraseña debe ser de seguridad Alta";
+            
         }
         if (!formData.nombre.trim()) {
             newErrors.nombre = "El nombre es obligatorio.";
@@ -137,12 +143,56 @@ const CrearUsuarioForm: React.FC<CrearUsuarioFormProps> = ({ visible, onClose })
       showAlert("El formulario contiene errores. Por favor revisa los campos.", "warning");
     }
   };
+  const [seguridadPass, setSeguridadPass] = useState<Record<string, string>>({});
+
+  
+
+  const handleVerificarPass = (password) => {
+    const tieneNumero = /\d/.test(password);
+    const tieneMayuscula = /[A-Z]/.test(password);
+    const tieneSimbolo = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password);
+    const longitudOk = password.length >= 8;
+  
+    // Caso: ALTA (Todo lo anterior)
+    if (tieneMayuscula && tieneNumero && tieneSimbolo && longitudOk) {
+        
+      return setSeguridadPass({ nivel: "Alta", color: "#2ecc71"});
+      
+    }
+  
+    // Caso: MEDIA (Mayúscula y Número)
+    if (tieneMayuscula && tieneNumero) {
+      return  setSeguridadPass({ nivel: "Media", color: "#f1c40f" });
+    }
+  
+    // Caso: BAJA (Cualquier otro caso)
+    return setSeguridadPass({ nivel: "Baja", color: "#e74c3c" });
+  };
+  
+
 
     // ----------------------------------------------------
     // RENDERIZADO
     // ----------------------------------------------------
 
     const isDisabled = isCreating;
+
+    const barraContraseña=()=>{
+        if(seguridadPass.nivel=="Alta"){
+            return (<>
+                <div className="seguridadApp" style={{display:"flex", alignItems:"center"}}>Alta <div style={{width:"150px", height:"5px", backgroundColor:"green", marginLeft:"30px"}}></div></div>
+                </>)
+        }else if(seguridadPass.nivel=="Media"){
+            return (<>
+            <div className="seguridadApp" style={{display:"flex", alignItems:"center"}}>Media <div style={{width:"100px", height:"5px", backgroundColor:"yellow", marginLeft:"30px"}}></div></div>
+            </>)
+        }
+        else if(seguridadPass.nivel=="Baja"){
+            return (<>
+            <div className="seguridadApp" style={{display:"flex", alignItems:"center"}}>Baja <div style={{width:"50px", height:"5px", backgroundColor:"red", marginLeft:"30px"}}></div></div>
+            </>)
+        }
+    }
 
     return (
         <div className={containerClasses}>
@@ -213,12 +263,17 @@ const CrearUsuarioForm: React.FC<CrearUsuarioFormProps> = ({ visible, onClose })
                             <InputText1
                                 label="Contraseña *"
                                 value={formData.password}
-                                onChange={(val) => handleChange("password", val)}
+                                onChange={(val) => {
+                                    handleChange("password", val);
+                                    handleVerificarPass(val)
+                                }}
                                 errorMessage={errors.password}
                                 required
                                 type="password"
                                  width="100%"
                             />
+                            
+                                {barraContraseña()}
                             
                             {/* CONFIRMAR PASSWORD */}
                             <InputText1
@@ -265,3 +320,5 @@ const CrearUsuarioForm: React.FC<CrearUsuarioFormProps> = ({ visible, onClose })
 };
 
 export default CrearUsuarioForm;
+
+

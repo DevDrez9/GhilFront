@@ -3,7 +3,7 @@
 import type { CreateTelaDto, TelaFilters, TelaResponseDto } from "~/models/telas.model";
 
 
-const API_BASE_URL = 'http://localhost:3000';
+const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 export const telasService = {
   // GET - Obtener todas las telas

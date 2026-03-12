@@ -60,7 +60,7 @@ const ImageBase64Uploader: React.FC<ImageUploaderProps> = ({
     label, currentUrl, base64Data, onBase64Ready, onUrlReset, disabled, width = '100%' 
 }) => {
     // La previsualización usa Base64 si está presente, si no, usa la URL existente.
-    const previewSource = base64Data || (currentUrl ? "http://localhost:3000" + currentUrl : null);
+    const previewSource = base64Data || (currentUrl ? import.meta.env.VITE_API_URL + currentUrl : null);
 
     const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files ? e.target.files[0] : null;

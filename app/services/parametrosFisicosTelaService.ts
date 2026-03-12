@@ -3,7 +3,7 @@
 import type { CreateParametrosFisicosTelaDto, ParametrosFisicosTelaFilters, ParametrosFisicosTelaResponseDto } from "~/models/parametrosFisicosTela";
 
 
-const API_BASE_URL = 'http://localhost:3000';
+const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 export const parametrosFisicosTelaService = {
   // GET - Obtener todos los parámetros

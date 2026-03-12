@@ -180,7 +180,7 @@ const InventarioSucursal = () => {
     // --- NUEVO: Obtenemos la URL de la imagen de forma segura ---
     const imagePath = item.producto?.imagenes?.[0]?.url;
     const imageUrl = imagePath 
-      ? `http://localhost:3000/uploads/productos/${imagePath}` 
+      ? `${import.meta.env.VITE_API_URL}/uploads/productos/${imagePath}` 
       : null; // Si no hay ruta, imageUrl será null
 
     return (

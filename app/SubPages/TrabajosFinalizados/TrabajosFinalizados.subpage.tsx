@@ -25,7 +25,7 @@ const CumplimientoModal = ({ onClose, tiendaId }: { onClose: () => void; tiendaI
     const fetchStats = async () => {
       try {
         // Construir URL (agregando tiendaId si existe)
-        let url = "http://localhost:3000/trabajos/estadisticas/cumplimiento";
+        let url = (import.meta.env.VITE_API_URL + '/trabajos/estadisticas/cumplimiento');
         if (tiendaId) url += `?tiendaId=${tiendaId}`;
 
         const response = await fetch(url);
@@ -197,7 +197,7 @@ const TrabajosFinalizados = () => {
             // Construcción de URL de imagen
             const imagenPath = trabajo.trabajoEnProceso?.parametrosTela?.producto?.imagenes?.[0]?.url;
             const imageUrl = imagenPath 
-              ? `http://localhost:3000/uploads/productos/${imagenPath}` 
+              ? `${import.meta.env.VITE_API_URL}/uploads/productos/${imagenPath}` 
               : null;
 
             return (

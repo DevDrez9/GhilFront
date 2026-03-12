@@ -1,22 +1,41 @@
-FROM node:20-alpine AS development-dependencies-env
-COPY . /app
-WORKDIR /app
-RUN npm ci
+# Etapa base para construcción
+FROM node:20-alpine AS builder
 
-FROM node:20-alpine AS production-dependencies-env
-COPY ./package.json package-lock.json /app/
 WORKDIR /app
-RUN npm ci --omit=dev
 
-FROM node:20-alpine AS build-env
-COPY . /app/
-COPY --from=development-dependencies-env /app/node_modules /app/node_modules
-WORKDIR /app
+# Copiar dependencias del proyecto
+COPY package.json package-lock.json* ./
+
+# Instalar todas las dependencias (necesarias para la construcción)
+RUN npm install
+
+# Copiar el resto del código fuente
+COPY . .
+
+# Argumento para entorno de vite, ya que necesita saber la URL de la API en tiempo de compilación
+ARG VITE_API_URL
+ENV VITE_API_URL=$VITE_API_URL
+
+# Ejecutar la construcción del proyecto (React Router build)
 RUN npm run build
 
-FROM node:20-alpine
-COPY ./package.json package-lock.json /app/
-COPY --from=production-dependencies-env /app/node_modules /app/node_modules
-COPY --from=build-env /app/build /app/build
+
+# Etapa de producción
+FROM node:20-alpine AS runner
+
 WORKDIR /app
-CMD ["npm", "run", "start"]
+
+# Configurar el entorno de producción
+ENV NODE_ENV=production
+ENV PORT=2001
+
+# Copiar los archivos necesarios desde la etapa builder
+COPY --from=builder /app/package.json ./
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/build ./build
+
+# Exponer el puerto por el que correrá la aplicación
+EXPOSE 2001
+
+# Comando para iniciar el servidor de React Router
+CMD ["npm", "start"]

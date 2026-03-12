@@ -184,7 +184,7 @@ const ReporteInventarioSucursal: React.FC = () => {
                 {!isLoading && inventario.length > 0 && (
                     <div> 
                         <div style={{display:"flex", alignItems:"center"}}>
-                            <img style={{height: '150px'}} src={ "http://localhost:3000/"+tienda.configWeb.logoUrl} alt={tienda.nombre}/>
+                            <img style={{height: '150px'}} src={ (import.meta.env.VITE_API_URL + '/')+tienda.configWeb.logoUrl} alt={tienda.nombre}/>
                             <h3 style={{fontSize:"30px", fontWeight:"bold", marginLeft:"15px"} }> {tienda.nombre}</h3>
                         </div> 
                         <h2 style={{fontSize:"18px", fontWeight:"bold"}}> Reporte Inventario Sucursal: {titleScope} </h2>

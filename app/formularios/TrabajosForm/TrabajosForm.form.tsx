@@ -258,17 +258,22 @@ const TrabajoForm: React.FC<TrabajoFormProps> = ({ visible, onClose }) => {
 
   // Función para procesar y mapear el JSON de consumo
   const mapJsonToState = useCallback(
-    (jsonString: string): TallaConsumoItem[] => {
+    (data: any): TallaConsumoItem[] => {
       try {
-        const consumoMap: Record<string, number> = JSON.parse(jsonString);
-
-        // 🚨 CAMBIO CLAVE: Retorna la talla, pero establece 'consumo' a ""
+        // Si recibes un string, lo parseas. Si ya es un objeto, lo usas directamente.
+        const consumoMap: Record<string, number> = 
+          typeof data === "string" ? JSON.parse(data) : data;
+  
+        if (!consumoMap || typeof consumoMap !== "object") {
+          return [];
+        }
+  
         return Object.keys(consumoMap).map((talla) => ({
           talla,
-          consumo: "", // 👈 AQUÍ SE ESTABLECE LA CADENA VACÍA
+          consumo: "", 
         }));
       } catch (e) {
-        console.error("Error al parsear consumoTelaPorTalla:", e);
+        console.error("Error al procesar consumoTelaPorTalla:", e);
         return [];
       }
     },

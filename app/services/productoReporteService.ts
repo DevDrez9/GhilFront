@@ -2,7 +2,7 @@
 
 import type { TrabajoAgregadoResponseDto, VentaAgregadaResponseDto, ProductoReporteOptions } from '~/models/productoReporte';
 
-const API_BASE_URL = 'http://localhost:3000'; // Reemplaza con tu URL base de API
+const API_BASE_URL = import.meta.env.VITE_API_URL; // Reemplaza con tu URL base de API
 
 export const productoReporteService = {
     // 1. Obtiene la data de Producción (Trabajos Finalizados)

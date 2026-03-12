@@ -423,7 +423,7 @@ const ProductoEditForm: React.FC<ProductoEditFormProps> = ({ visible, onClose, i
                                     {localImages.map((img, index) => (
                                         <div key={img.localId} className="image-preview-item">
                                             <img 
-                                                src={img.url.startsWith('data:image') ? img.url :  "http://localhost:3000/uploads/productos/"+img.url} 
+                                                src={img.url.startsWith('data:image') ? img.url :  (import.meta.env.VITE_API_URL + '/uploads/productos/')+img.url} 
                                                 alt={`Vista previa ${index + 1}`} 
                                             />
                                             <div className="image-order-label">{index + 1}</div>

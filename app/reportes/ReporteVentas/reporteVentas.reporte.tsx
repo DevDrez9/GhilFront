@@ -239,7 +239,7 @@ const ReporteVentas : React.FC<ReporteVentasProps> = ({ onClose, visible }) => {
 
                     <div ref={reporteRef} className="reporteContent" style={{ backgroundColor: '#ffffff', borderRadius: '8px', border: '1px solid #eee', padding: '15px' }}>
                 <div style={{display:"flex", alignItems:"center"}}>
-<img style={{height: '150px'}} src={ "http://localhost:3000/"+tienda.configWeb.logoUrl}/>
+<img style={{height: '150px'}} src={ (import.meta.env.VITE_API_URL + '/')+tienda.configWeb.logoUrl}/>
 <h3 style={{fontSize:"30px",  fontWeight:"bold",  marginLeft:"15px"} }> {tienda.nombre}</h3>
                     </div></div>
                     <div style={{margin:"0 200px "}}>

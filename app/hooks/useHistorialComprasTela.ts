@@ -20,7 +20,7 @@ export interface HistorialItemDto {
     importeTotal: number;
 }
 
-const API_URL = 'http://localhost:3000/compra-tela-items';
+const API_URL = (import.meta.env.VITE_API_URL + '/compra-tela-items');
 
 export const useHistorialComprasTela = () => {
   const [historial, setHistorial] = useState<HistorialItemDto[]>([]);
