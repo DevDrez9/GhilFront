@@ -1,30 +1,33 @@
-# Etapa base para construcción - CAMBIO IMPORTANTE
-FROM node:20-slim AS builder 
+# Etapa 1: Construcción
+FROM node:20-slim AS builder
 
 WORKDIR /app
 
-# Copiar dependencias del proyecto
+# Copiar dependencias
 COPY package.json package-lock.json* ./
 
-# Instalar dependencias
-RUN npm ci
+# Instalar dependencias (usamos install por compatibilidad)
+RUN npm install
 
-# Copiar el resto del código fuente
+# Copiar código fuente
 COPY . .
 
-# Argumento para entorno de vite
+# Variable de entorno para la API (pasada en build time)
 ARG VITE_API_URL
 ENV VITE_API_URL=$VITE_API_URL
 
-# Ejecutar la construcción
+# Construir la app
 RUN npm run build
 
 
-# Etapa de producción con Nginx
+# Etapa 2: Servir con Nginx
 FROM nginx:alpine
 
 # Copiar los archivos construidos
 COPY --from=builder /app/build /usr/share/nginx/html
+
+# Copiar configuración personalizada (opcional)
+# COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 EXPOSE 80
 

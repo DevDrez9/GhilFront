@@ -4,16 +4,8 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        - VITE_API_URL=${VITE_API_URL:-https://apitiendaprueba.ratelapps.com}  # URL de tu API en producción
-    container_name: react_frontend
+        - VITE_API_URL=${VITE_API_URL:-https://apitiendaprueba.ratelapps.com}  # URL de tu API
+    container_name: mi-frontend
     ports:
-      - "2001:80"  # 🟢 IMPORTANTE: El puerto interno ahora es 80 (Nginx)
+      - "2002:80"  # Puerto diferente al backend (ej: 2001 era el back)
     restart: unless-stopped
-    # Opcional: redes si necesitas conectar con otros servicios
-    # networks:
-    #   - app-network
-
-# Opcional: red compartida con otros servicios
-# networks:
-#   app-network:
-#     driver: bridge
