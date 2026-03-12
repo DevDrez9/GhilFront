@@ -1,5 +1,5 @@
 # Etapa base para construcción - CAMBIO IMPORTANTE
-FROM node:20-slim AS builder  # 🟢 CAMBIADO DE alpine A slim
+FROM node:20-slim AS builder 
 
 WORKDIR /app
 
